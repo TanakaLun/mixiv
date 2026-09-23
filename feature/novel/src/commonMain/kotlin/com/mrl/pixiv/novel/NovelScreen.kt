@@ -80,6 +80,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import co.touchlab.kermit.Logger
 import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
 import com.mrl.pixiv.common.compose.rememberThrottleClick
@@ -280,11 +282,17 @@ fun NovelScreen(
 
     val latestState = rememberUpdatedState(state)
     val latestParagraphLayouts = rememberUpdatedState(paragraphLayouts)
-    val saveReadingProgress = remember(listState, viewModel) {
+    var handledRestoreVersion by remember(state.novel?.id) { mutableStateOf(-1L) }
+    val saveReadingProgress = remember(listState, viewModel, state.novel?.id) {
+        val chapterId = state.novel?.id
         {
             val currentState = latestState.value
             val novel = currentState.novel ?: return@remember
-            if (currentState.isTranslating || currentState.paragraphs.isEmpty()) {
+            if (novel.id != chapterId || currentState.isTranslating ||
+                currentState.paragraphs.isEmpty() || resizeReadingAnchor != null ||
+                (currentState.restoreProgress != null &&
+                    handledRestoreVersion != currentState.restoreVersion)
+            ) {
                 return@remember
             }
             val paragraphStartIndex =
@@ -320,10 +328,13 @@ fun NovelScreen(
             }
     }
 
-    var handledRestoreVersion by remember(state.novel?.id) { mutableStateOf(-1L) }
-    LaunchedEffect(state.restoreVersion, state.novel?.id, state.isTranslating) {
+    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) { saveReadingProgress() }
+    DisposableEffect(saveReadingProgress) {
+        onDispose { saveReadingProgress() }
+    }
+
+    LaunchedEffect(state.restoreVersion, state.novel?.id, state.isTranslating, state.paragraphs) {
         if (handledRestoreVersion == state.restoreVersion) return@LaunchedEffect
-        handledRestoreVersion = state.restoreVersion
         if (state.isTranslating) return@LaunchedEffect
         val novel = state.novel ?: return@LaunchedEffect
         val resolvedProgress = state.restoreProgress ?: return@LaunchedEffect
@@ -331,49 +342,55 @@ fun NovelScreen(
         val paragraphStartIndex =
             paragraphStartItemIndex(novel.series.title != null, novel.caption.isNotEmpty())
 
-        val targetItemIndex = paragraphStartIndex + resolvedProgress.paragraphIndex
-        Logger.d(tag = "NovelScreen") { "Restore: paragraphStartIndex=$paragraphStartIndex, targetItemIndex=$targetItemIndex" }
+        try {
+            val targetItemIndex = paragraphStartIndex + resolvedProgress.paragraphIndex
+            Logger.d(tag = "NovelScreen") { "Restore: paragraphStartIndex=$paragraphStartIndex, targetItemIndex=$targetItemIndex" }
 
-        // 先滚动到目标段落；布局缓存已按正文和排版参数隔离，只会包含当前布局结果。
-        listState.scrollToItem(targetItemIndex, 0)
+            // 先滚动到目标段落；布局缓存已按正文和排版参数隔离，只会包含当前布局结果。
+            listState.scrollToItem(targetItemIndex, 0)
 
-        // 等待目标段落的布局完成。包含图片标记的段落可能没有文本布局，这里做超时兜底。
-        val layout = withTimeoutOrNull(500L.milliseconds) {
-            while (latestParagraphLayouts.value[resolvedProgress.paragraphIndex] == null) {
-                delay(16.milliseconds)
+            // 等待目标段落的布局完成。包含图片标记的段落可能没有文本布局，这里做超时兜底。
+            val layout = withTimeoutOrNull(500L.milliseconds) {
+                while (latestParagraphLayouts.value[resolvedProgress.paragraphIndex] == null) {
+                    delay(16.milliseconds)
+                }
+                latestParagraphLayouts.value[resolvedProgress.paragraphIndex]
+            } ?: run {
+                Logger.d(tag = "NovelScreen") {
+                    "Restore: paragraphIndex=${resolvedProgress.paragraphIndex} has no text layout, keep item-top restore."
+                }
+                return@LaunchedEffect
             }
-            latestParagraphLayouts.value[resolvedProgress.paragraphIndex]
-        } ?: run {
+
+            val targetParagraph = state.paragraphs[resolvedProgress.paragraphIndex]
+            val targetCharIndex = resolvedProgress.charIndex.coerceIn(0, targetParagraph.length)
+
+            // 根据字符位置计算所在行数
+            val lineIndex = layout.getLineForOffset(targetCharIndex)
+
+            // 获取该行顶部的Y坐标
+            val lineTop = layout.getLineTop(lineIndex)
+
+            // 补偿LazyColumn的内边距（如果有的话）
+            val beforeContentPaddingCompensation =
+                (-listState.layoutInfo.viewportStartOffset).coerceAtLeast(0)
+
+            // 计算最终偏移量：将该行的顶部与视口顶部对齐
+            val offset = (lineTop + beforeContentPaddingCompensation).toInt().coerceAtLeast(0)
+
             Logger.d(tag = "NovelScreen") {
-                "Restore: paragraphIndex=${resolvedProgress.paragraphIndex} has no text layout, keep item-top restore."
+                "Restore: paragraphIndex=${resolvedProgress.paragraphIndex}, " +
+                        "charIndex=$targetCharIndex, lineIndex=$lineIndex, " +
+                        "lineTop=$lineTop, offset=$offset"
             }
-            return@LaunchedEffect
+
+            // 执行滚动，将目标行的顶部与视口顶部对齐
+            listState.scrollToItem(targetItemIndex, offset)
+        } finally {
+            // 等待滚动后的最后一帧，避免将恢复过程中的临时位置保存为阅读进度。
+            withFrameNanos { }
+            handledRestoreVersion = state.restoreVersion
         }
-
-        val targetParagraph = state.paragraphs[resolvedProgress.paragraphIndex]
-        val targetCharIndex = resolvedProgress.charIndex.coerceIn(0, targetParagraph.length)
-
-        // 根据字符位置计算所在行数
-        val lineIndex = layout.getLineForOffset(targetCharIndex)
-
-        // 获取该行顶部的Y坐标
-        val lineTop = layout.getLineTop(lineIndex)
-
-        // 补偿LazyColumn的内边距（如果有的话）
-        val beforeContentPaddingCompensation =
-            (-listState.layoutInfo.viewportStartOffset).coerceAtLeast(0)
-
-        // 计算最终偏移量：将该行的顶部与视口顶部对齐
-        val offset = (lineTop + beforeContentPaddingCompensation).toInt().coerceAtLeast(0)
-
-        Logger.d(tag = "NovelScreen") {
-            "Restore: paragraphIndex=${resolvedProgress.paragraphIndex}, " +
-                    "charIndex=$targetCharIndex, lineIndex=$lineIndex, " +
-                    "lineTop=$lineTop, offset=$offset"
-        }
-
-        // 执行滚动，将目标行的顶部与视口顶部对齐
-        listState.scrollToItem(targetItemIndex, offset)
     }
 
     // A drag keeps the character that was visible before reflow; it never reapplies the saved bookmark.
@@ -631,6 +648,7 @@ fun NovelScreen(
                                 }
                             },
                             onCommentClick = {
+                                saveReadingProgress()
                                 navigationManager.navigateToCommentScreen(
                                     state.novel.id,
                                     CommentType.NOVEL
@@ -818,6 +836,7 @@ fun NovelScreen(
                 }
             },
             onCommentClick = {
+                saveReadingProgress()
                 showMetadataBottomSheet = false
                 navigationManager.navigateToCommentScreen(
                     state.novel.id,

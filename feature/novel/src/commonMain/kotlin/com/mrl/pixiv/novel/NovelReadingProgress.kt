@@ -21,6 +21,12 @@ import co.touchlab.kermit.Logger
 import com.mrl.pixiv.common.repository.NovelReadingProgress
 import kotlin.math.roundToInt
 
+// 更新下次恢复的位置，不触发当前阅读页面跳转。
+internal fun NovelState.withLatestReadingProgress(
+    novelId: Long,
+    progress: NovelReadingProgress?,
+): NovelState = if (novel?.id == novelId) copy(restoreProgress = progress) else this
+
 @Composable
 internal fun ReadingProgressIndicator(
     progress: Float,

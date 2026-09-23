@@ -152,6 +152,7 @@ class NovelViewModel(
 ), KoinComponent {
     private var lastHistoryNovelId: Long? = null
     private val progressSession = NovelProgressSession()
+    private var progressWriteJob: Job? = null
     private var sourceNovelText: String = ""
     private var translatedNovelText: String = ""
     private val initialNovelId = novelId
@@ -846,7 +847,10 @@ class NovelViewModel(
 
     fun saveProgress(novelId: Long, progress: NovelReadingProgress) {
         progressSession.update(novelId, progress)
-        launchIO {
+        updateState { withLatestReadingProgress(novelId, progress) }
+        val previousWrite = progressWriteJob
+        progressWriteJob = launchIO {
+            previousWrite?.join()
             readingProgressRepository.saveProgress(novelId, progress)
             Logger.d(tag = "NovelScreen") { "Saved progress for novel $progress" }
         }
@@ -854,8 +858,10 @@ class NovelViewModel(
 
     fun clearProgress(novelId: Long) {
         progressSession.clear(novelId)
-        updateState { copy(restoreProgress = null) }
-        launchIO {
+        updateState { withLatestReadingProgress(novelId, null) }
+        val previousWrite = progressWriteJob
+        progressWriteJob = launchIO {
+            previousWrite?.join()
             readingProgressRepository.clearProgress(novelId)
             Logger.d(tag = "NovelScreen") { "Cleared progress for novelId=$novelId" }
         }
@@ -869,7 +875,9 @@ class NovelViewModel(
             if (paragraphs.isEmpty()) return@launchIO
             val saved =
                 progressSession.get(novelId)
-                    ?: readingProgressRepository.getProgress(novelId)
+                    ?: readingProgressRepository.getProgress(novelId).let {
+                        progressSession.get(novelId) ?: it
+                    }
                     ?: return@launchIO
             val resolved = resolveProgress(saved, paragraphs)
             progressSession.update(novelId, resolved)
