@@ -404,4 +404,5 @@
     <string name="profile_chair">Sandalye</string>
     <string name="profile_workspace_comment">Notlar</string>
     <string name="back_to_top">Başa dön</string>
+    <string name="download_storage_permission_required">Görselleri indirmek için depolama izni gereklidir. Depolama erişimine izin verip tekrar deneyin.</string>
 </resources>

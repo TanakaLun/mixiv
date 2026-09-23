@@ -10,6 +10,10 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.mrl.pixiv.common.repository.worker.DownloadWorker
 import com.mrl.pixiv.common.util.DOWNLOAD_DIR
+import com.mrl.pixiv.common.util.LegacyStoragePermission
+import com.mrl.pixiv.common.util.RStrings
+import com.mrl.pixiv.common.util.ToastUtil
+import com.mrl.pixiv.strings.download_storage_permission_required
 import com.mrl.pixiv.common.util.PictureType
 import com.mrl.pixiv.common.util.getDownloadPath
 import com.mrl.pixiv.common.util.isImageExists
@@ -22,6 +26,10 @@ class AndroidDownloadStrategy(
     private val context: Context
 ) : DownloadStrategy {
     override val downloadFolder = DOWNLOAD_DIR
+
+    override suspend fun prepareDownload(): Boolean = LegacyStoragePermission.request().also {
+        if (!it) ToastUtil.safeShortToast(RStrings.download_storage_permission_required)
+    }
 
     override suspend fun enqueue(
         illustId: Long,

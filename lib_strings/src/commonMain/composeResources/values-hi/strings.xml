@@ -404,4 +404,5 @@
     <string name="profile_chair">कुर्सी</string>
     <string name="profile_workspace_comment">टिप्पणियाँ</string>
     <string name="back_to_top">शीर्ष पर जाएँ</string>
+    <string name="download_storage_permission_required">चित्र डाउनलोड करने के लिए स्टोरेज की अनुमति चाहिए। स्टोरेज की अनुमति देकर फिर से प्रयास करें।</string>
 </resources>

@@ -273,7 +273,7 @@ class PictureViewModel(
                 null
             }
 
-            downloadManager.enqueueDownload(
+            val enqueued = downloadManager.enqueueDownload(
                 illustId = illustId,
                 index = index,
                 title = title,
@@ -285,7 +285,7 @@ class PictureViewModel(
             )
 
             closeBottomSheet()
-            ToastUtil.safeShortToast(RStrings.download_add_to_queue)
+            if (enqueued) ToastUtil.safeShortToast(RStrings.download_add_to_queue)
         }
     }
 
@@ -485,7 +485,7 @@ class PictureViewModel(
                 }
             val zipUrl = metadata.zipUrls.medium
 
-            downloadManager.enqueueDownload(
+            val enqueued = downloadManager.enqueueDownload(
                 illustId = illustId,
                 index = 0,
                 title = title,
@@ -498,7 +498,7 @@ class PictureViewModel(
 
             closeBottomSheet()
             showLoading(false)
-            ToastUtil.safeShortToast(RStrings.download_add_to_queue)
+            if (enqueued) ToastUtil.safeShortToast(RStrings.download_add_to_queue)
         }
     }
 

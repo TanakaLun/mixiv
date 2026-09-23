@@ -40,7 +40,11 @@ class DownloadManager(
         originalUrl: String,
         subFolder: String? = null,
         downloadManagerListener: DownloadManagerListener? = null
-    ) {
+    ): Boolean {
+        if (!downloadStrategy.prepareDownload()) {
+            downloadManagerListener?.onDownloadCompleted(null)
+            return false
+        }
         val existing = downloadDao.getDownload(illustId, index)
         if (existing != null && existing.status == DownloadStatus.SUCCESS.value) {
             val fileName = generateFileName(illustId, title, userId, userName, index)
@@ -59,7 +63,7 @@ class DownloadManager(
                     }
                     downloadDao.update(updated)
                     downloadManagerListener?.onDownloadCompleted(updated)
-                    return
+                    return true
                 }
             }
         }
@@ -107,6 +111,7 @@ class DownloadManager(
                 }
             }
         }
+        return true
     }
 
     suspend fun deleteDownload(entity: DownloadEntity) {

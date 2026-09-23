@@ -34,7 +34,6 @@ import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PersonOff
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -286,7 +285,6 @@ internal fun PictureScreen(
     val isIllustBlocked = BlockingRepositoryV2.collectIllustBlockAsState(illustId = illust.id)
     val isUserBlocked = BlockingRepositoryV2.collectUserBlockAsState(userId = illust.user.id)
     val isAnyBlocked = isIllustBlocked || isUserBlocked
-    val placeholder = rememberVectorPainter(Icons.Rounded.Refresh)
     val errorImage = rememberVectorPainter(Icons.Rounded.ErrorOutline)
 
     val prefix = LocalSharedKeyPrefix.current
@@ -431,6 +429,10 @@ internal fun PictureScreen(
                     illust.pageCount,
                     key = { "${illust.id}_$it" },
                 ) { index ->
+                    val placeholder = com.mrl.pixiv.picture.components.rememberArtworkPagePlaceholder(
+                        page = index + 1,
+                        pageCount = illust.pageCount,
+                    )
                     val imageKey = "image-${illust.id}-$index"
                     val sharedImageKey = "${prefix}-$imageKey"
                     if (illust.pageCount > 1) {

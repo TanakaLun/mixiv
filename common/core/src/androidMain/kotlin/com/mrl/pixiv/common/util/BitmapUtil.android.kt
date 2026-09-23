@@ -3,11 +3,13 @@ package com.mrl.pixiv.common.util
 import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.IOException
 
 
 val OLD_DOWNLOAD_DIR = "${Environment.DIRECTORY_DCIM}/PiPixiv/"
@@ -19,24 +21,7 @@ actual fun isImageExists(
     subFolder: String?,
     fileUri: String
 ): Boolean {
-    val context = AppUtil.appContext
-    val projection = arrayOf(MediaStore.Images.Media._ID)
-    val selection =
-        "${MediaStore.Images.Media.DISPLAY_NAME} = ? AND ${MediaStore.Images.Media.RELATIVE_PATH} = ?"
-    val downloadDir = if (subFolder != null) "$DOWNLOAD_DIR$subFolder/" else DOWNLOAD_DIR
-    val selectionArgs = arrayOf(fileName + type.extension, downloadDir)
-
-    return try {
-        context.contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            projection,
-            selection,
-            selectionArgs,
-            null
-        )?.use { it.count > 0 } == true
-    } catch (_: Exception) {
-        false
-    }
+    return getDownloadPath(fileName, type, subFolder).first.isNotEmpty()
 }
 
 /**
@@ -56,14 +41,19 @@ fun getDownloadPath(
 ): Pair<String, String> {
     val context = AppUtil.appContext
     val projection = arrayOf(MediaStore.Images.Media._ID)
-    val selection =
-        "${MediaStore.Images.Media.DISPLAY_NAME} = ? AND ${MediaStore.Images.Media.RELATIVE_PATH} = ?"
     val downloadDir = if (subFolder != null) "$DOWNLOAD_DIR$subFolder/" else DOWNLOAD_DIR
-    val selectionArgs = arrayOf(fileName + type.extension, downloadDir)
     val filePath = File(
         Environment.getExternalStoragePublicDirectory(""),
         "$downloadDir$fileName${type.extension}"
     ).absolutePath
+    val scopedStorage = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+    val selection = if (scopedStorage) {
+        "${MediaStore.Images.Media.DISPLAY_NAME} = ? AND ${MediaStore.Images.Media.RELATIVE_PATH} = ? AND ${MediaStore.MediaColumns.IS_PENDING} = 0"
+    } else {
+        "${MediaStore.Images.Media.DATA} = ?"
+    }
+    val selectionArgs = if (scopedStorage) arrayOf(fileName + type.extension, downloadDir)
+        else arrayOf(filePath)
 
     return try {
         context.contentResolver.query(
@@ -114,20 +104,26 @@ suspend fun saveToAlbum(
         "$downloadDir$fileName${type.extension}"
     ).absolutePath
 
+    val resolver = context.contentResolver
+    var insertedUri: android.net.Uri? = null
     try {
-        val uri = context.contentResolver.insert(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            contentValues
-        )
-        uri?.let {
-            context.contentResolver.openOutputStream(it)?.use { out ->
-                file.inputStream().use { input ->
-                    input.copyTo(out)
-                }
-            }
-            it.toString() to filePath
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            val directory = File(filePath).parentFile ?: return@withContext null
+            if (!directory.isDirectory && !directory.mkdirs()) return@withContext null
         }
+        val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+            ?: return@withContext null
+        insertedUri = uri
+        val output = resolver.openOutputStream(uri) ?: throw IOException("Cannot open album output")
+        output.use { out -> file.inputStream().use { it.copyTo(out) } }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            resolver.update(uri, ContentValues().apply {
+                put(MediaStore.MediaColumns.IS_PENDING, 0)
+            }, null, null)
+        }
+        uri.toString() to filePath
     } catch (e: Exception) {
+        insertedUri?.let { runCatching { resolver.delete(it, null, null) } }
         e.printStackTrace()
         null
     }
@@ -151,6 +147,14 @@ private fun createContentValues(
     return ContentValues().apply {
         put(MediaStore.MediaColumns.DISPLAY_NAME, fileName + type.extension)
         put(MediaStore.MediaColumns.MIME_TYPE, type.mimeType)
-        put(MediaStore.MediaColumns.RELATIVE_PATH, downloadDir)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            put(MediaStore.MediaColumns.RELATIVE_PATH, downloadDir)
+            put(MediaStore.MediaColumns.IS_PENDING, 1)
+        } else {
+            put(MediaStore.MediaColumns.DATA, File(
+                Environment.getExternalStoragePublicDirectory(""),
+                "$downloadDir$fileName${type.extension}",
+            ).absolutePath)
+        }
     }
 }

@@ -405,4 +405,5 @@
     <string name="profile_desk">Desk</string>
     <string name="profile_chair">Chair</string>
     <string name="profile_workspace_comment">Notes</string>
+    <string name="download_storage_permission_required">Storage permission is required to download images. Allow storage access and try again.</string>
 </resources>

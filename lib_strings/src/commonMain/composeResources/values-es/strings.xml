@@ -404,4 +404,5 @@
     <string name="profile_chair">Silla</string>
     <string name="profile_workspace_comment">Notas</string>
     <string name="back_to_top">Volver arriba</string>
+    <string name="download_storage_permission_required">Se necesita permiso de almacenamiento para descargar imágenes. Permite el acceso al almacenamiento e inténtalo de nuevo.</string>
 </resources>

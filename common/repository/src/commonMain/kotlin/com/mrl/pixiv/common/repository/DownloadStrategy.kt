@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.Flow
 interface DownloadStrategy {
     val downloadFolder: String
 
+    suspend fun prepareDownload(): Boolean = true
+
     suspend fun enqueue(
         illustId: Long,
         index: Int,
