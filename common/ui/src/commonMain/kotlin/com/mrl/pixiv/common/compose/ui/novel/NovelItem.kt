@@ -52,6 +52,7 @@ import com.mrl.pixiv.common.repository.viewmodel.bookmark.BookmarkState
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.isBookmark
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.isPrivateBookmark
 import com.mrl.pixiv.common.util.allowRgb565
+import com.mrl.pixiv.common.util.convertUtcStringToLocalDateTime
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -188,6 +189,15 @@ fun NovelItem(
                         AIBadge()
                     }
                 }
+
+                Text(
+                    text = remember(novel.createDate) {
+                        convertUtcStringToLocalDateTime(novel.createDate)
+                    },
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
 
                 // 标签
                 if (novel.tags.isNotEmpty()) {
