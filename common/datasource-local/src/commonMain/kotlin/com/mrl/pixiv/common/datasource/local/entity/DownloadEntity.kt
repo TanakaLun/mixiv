@@ -1,7 +1,7 @@
 package com.mrl.pixiv.common.datasource.local.entity
 
 import androidx.compose.runtime.Stable
-import androidx.room.Entity
+import androidx.room3.Entity
 import kotlinx.serialization.Serializable
 
 /**

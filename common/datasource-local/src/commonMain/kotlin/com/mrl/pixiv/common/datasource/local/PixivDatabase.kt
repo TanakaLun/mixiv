@@ -1,10 +1,10 @@
 package com.mrl.pixiv.common.datasource.local
 
-import androidx.room.ConstructedBy
-import androidx.room.Database
-import androidx.room.RoomDatabase
-import androidx.room.RoomDatabaseConstructor
-import androidx.room.migration.Migration
+import androidx.room3.ConstructedBy
+import androidx.room3.Database
+import androidx.room3.RoomDatabase
+import androidx.room3.RoomDatabaseConstructor
+import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 import com.mrl.pixiv.common.datasource.local.dao.BlockContentDao
@@ -53,18 +53,18 @@ abstract class PixivDatabase : RoomDatabase() {
 
     companion object {
         val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL("ALTER TABLE download ADD COLUMN userId INTEGER NOT NULL DEFAULT 0")
                 connection.execSQL("ALTER TABLE download RENAME COLUMN artist TO userName")
             }
         }
         val MIGRATION_2_3 = object : Migration(2, 3) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL("ALTER TABLE download ADD COLUMN fileUri TEXT NOT NULL DEFAULT ''")
             }
         }
         val MIGRATION_3_4 = object : Migration(3, 4) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     """
                     CREATE TABLE IF NOT EXISTS novel_reading_progress (
@@ -81,7 +81,7 @@ abstract class PixivDatabase : RoomDatabase() {
             }
         }
         val MIGRATION_4_5 = object : Migration(4, 5) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     """
                     CREATE TABLE IF NOT EXISTS novel_translation (
@@ -100,7 +100,7 @@ abstract class PixivDatabase : RoomDatabase() {
             }
         }
         val MIGRATION_5_6 = object : Migration(5, 6) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     """
                     CREATE TABLE IF NOT EXISTS block_illust (
@@ -149,7 +149,7 @@ abstract class PixivDatabase : RoomDatabase() {
             }
         }
         val MIGRATION_6_7 = object : Migration(6, 7) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     """
                     CREATE TABLE IF NOT EXISTS browsing_history_illust (
@@ -187,7 +187,7 @@ abstract class PixivDatabase : RoomDatabase() {
             }
         }
         val MIGRATION_7_8 = object : Migration(7, 8) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     """
                     CREATE TABLE novel_translation_new (
@@ -271,7 +271,7 @@ abstract class PixivDatabase : RoomDatabase() {
             }
         }
         val MIGRATION_8_9 = object : Migration(8, 9) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     "ALTER TABLE novel_translation ADD COLUMN translatedTitle TEXT NOT NULL DEFAULT ''"
                 )
