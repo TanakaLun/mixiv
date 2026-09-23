@@ -72,7 +72,6 @@ import com.mrl.pixiv.common.router.DestinationsDeepLink
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.PixivLinkTarget
 import com.mrl.pixiv.common.router.currentNavigationManager
-import com.mrl.pixiv.common.util.DebounceUtil
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.readTextFromClipboard
 import com.mrl.pixiv.common.util.throttleClick
@@ -192,10 +191,9 @@ fun SearchScreen(
                 onValueChange = {
                     textState = it
                     dispatch(SearchAction.UpdateSearchWords(it.text))
-                    if (it.text.isNotBlank()) {
-                        DebounceUtil.debounce {
-                            dispatch(SearchAction.SearchAutoComplete(it.text))
-                        }
+                    val token = it.completionToken()
+                    if (token.text.isNotBlank()) {
+                        dispatch(SearchAction.SearchAutoComplete(token.text))
                     } else {
                         dispatch(SearchAction.ClearAutoCompleteSearchWords)
                     }
@@ -348,13 +346,19 @@ fun SearchScreen(
                 ) { word ->
                     ListItem(
                         onClick = rememberThrottleClick {
-                            dispatch(SearchAction.AddSearchHistory(word.name))
+                            val query = textState.completionToken().replaceIn(textState.text, word.name)
+                            dispatch(SearchAction.AddSearchHistory(query))
                             focusRequester.freeFocus()
                             navigationManager.navigateToSearchResultScreen(
-                                searchWord = word.name,
+                                searchWord = query,
                                 isIdSearch = state.isIdSearch,
                                 searchMode = appViewMode
                             )
+                        },
+                        onLongClick = {
+                            coroutineScope.launch {
+                                com.mrl.pixiv.common.util.copyToClipboard(word.name)
+                            }
                         },
                         shapes = ListItemDefaults.shapes(shape = RectangleShape),
                         content = {

@@ -14,6 +14,8 @@ import com.mrl.pixiv.common.viewmodel.ViewIntent
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import org.koin.android.annotation.KoinViewModel
 
 @Stable
@@ -58,6 +60,7 @@ sealed class SearchAction : ViewIntent {
 class SearchViewModel : BaseMviViewModel<SearchState, SearchAction>(
     initialState = SearchState()
 ) {
+    private var autoCompleteJob: Job? = null
     var searchWords: String = ""
         private set
 
@@ -67,6 +70,10 @@ class SearchViewModel : BaseMviViewModel<SearchState, SearchAction>(
     override suspend fun handleIntent(intent: SearchAction) {
         when (intent) {
             is SearchAction.SearchAutoComplete -> searchAutoComplete(intent)
+            SearchAction.ClearAutoCompleteSearchWords -> {
+                autoCompleteJob?.cancel()
+                updateState { copy(autoCompleteSearchWords = persistentListOf()) }
+            }
             is SearchAction.AddSearchHistory -> addSearchHistory(intent)
             is SearchAction.DeleteSearchHistory -> deleteSearchHistory(intent)
             is SearchAction.UpdateSearchWords -> searchWords = intent.searchWords
@@ -91,7 +98,9 @@ class SearchViewModel : BaseMviViewModel<SearchState, SearchAction>(
     }
 
     private fun searchAutoComplete(action: SearchAction.SearchAutoComplete) {
-        launchIO {
+        autoCompleteJob?.cancel()
+        autoCompleteJob = launchIO {
+            delay(300)
             val resp = PixivRepository.searchAutoComplete(word = action.searchWords)
             updateState {
                 copy(autoCompleteSearchWords = resp.tags.toImmutableList())

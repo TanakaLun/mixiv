@@ -48,6 +48,8 @@ import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.strings.back
 import com.mrl.pixiv.strings.load_failed
 import com.mrl.pixiv.strings.novel_series_chapter_count
+import com.mrl.pixiv.strings.novel_series_continue_reading
+import com.mrl.pixiv.strings.novel_series_last_read
 import com.mrl.pixiv.strings.novel_watchlist_add
 import com.mrl.pixiv.strings.novel_watchlist_added
 import com.mrl.pixiv.strings.retry
@@ -113,6 +115,20 @@ fun NovelSeriesScreen(
                     state = listState,
                     contentPadding = PaddingValues(bottom = 24.dp),
                 ) {
+                    state.lastRead?.let { progress ->
+                        item(key = "continue_reading") {
+                            Button(
+                                onClick = { navigationManager.navigateToNovelDetailScreen(progress.novelId) },
+                                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                            ) {
+                                Text(stringResource(
+                                    RStrings.novel_series_continue_reading,
+                                    progress.title,
+                                    (progress.fraction * 100).toInt(),
+                                ))
+                            }
+                        }
+                    }
                     state.detail?.let { detail ->
                         item(key = "series_header") {
                             Card(
@@ -228,6 +244,14 @@ fun NovelSeriesScreen(
                         key = novels.itemKey { it.id },
                     ) { index ->
                         val novel = novels[index] ?: return@items
+                        if (state.lastRead?.novelId == novel.id) {
+                            Text(
+                                stringResource(RStrings.novel_series_last_read),
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.labelLarge,
+                            )
+                        }
                         NovelItem(
                             novel = novel,
                             onNovelClick = navigationManager::navigateToNovelDetailScreen,

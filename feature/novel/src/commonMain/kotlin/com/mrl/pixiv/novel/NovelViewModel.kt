@@ -21,6 +21,8 @@ import com.mrl.pixiv.common.repository.NovelMetadataTranslation
 import com.mrl.pixiv.common.repository.NovelReadLaterRepository
 import com.mrl.pixiv.common.repository.NovelReadingProgress
 import com.mrl.pixiv.common.repository.NovelReadingProgressRepository
+import com.mrl.pixiv.common.repository.NovelSeriesProgressRepository
+import com.mrl.pixiv.common.repository.readingProgressFraction
 import com.mrl.pixiv.common.repository.NovelTranslationStreamProgress
 import com.mrl.pixiv.common.repository.NovelTranslationRepository
 import com.mrl.pixiv.common.repository.PixivRepository
@@ -143,6 +145,7 @@ class NovelViewModel(
     novelId: Long,
     markerPage: Int,
     private val readingProgressRepository: NovelReadingProgressRepository,
+    private val seriesProgressRepository: NovelSeriesProgressRepository,
     private val translationRepository: NovelTranslationRepository,
     private val aiTranslationService: NovelAiTranslationService,
     private val readLaterRepository: NovelReadLaterRepository,
@@ -846,12 +849,16 @@ class NovelViewModel(
     }
 
     fun saveProgress(novelId: Long, progress: NovelReadingProgress) {
+        val state = uiState.value
+        val novel = state.novel?.takeIf { it.id == novelId }
+        val fraction = readingProgressFraction(progress, state.paragraphs)
         progressSession.update(novelId, progress)
         updateState { withLatestReadingProgress(novelId, progress) }
         val previousWrite = progressWriteJob
         progressWriteJob = launchIO {
             previousWrite?.join()
             readingProgressRepository.saveProgress(novelId, progress)
+            if (novel != null) seriesProgressRepository.record(novel, fraction)
             Logger.d(tag = "NovelScreen") { "Saved progress for novel $progress" }
         }
     }
