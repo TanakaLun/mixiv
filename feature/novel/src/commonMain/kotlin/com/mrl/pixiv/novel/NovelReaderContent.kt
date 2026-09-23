@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.TextFields
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
@@ -61,6 +62,7 @@ import com.mrl.pixiv.strings.bookmarked
 import com.mrl.pixiv.strings.cover
 import com.mrl.pixiv.strings.view_comments
 import com.mrl.pixiv.strings.view_comments_count
+import com.mrl.pixiv.strings.word_count
 import org.jetbrains.compose.resources.stringResource
 
 private const val KEY_COVER = "cover"
@@ -249,6 +251,18 @@ internal fun NovelReaderContent(
                         Text(
                             text = novel.totalView.toString(),
                             style = MaterialTheme.typography.bodyMedium
+                        )
+                        16.HSpacer
+                        Icon(
+                            Icons.Rounded.TextFields,
+                            contentDescription = stringResource(RStrings.word_count),
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        4.HSpacer
+                        Text(
+                            text = novel.textLength.toString(),
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
                 }
