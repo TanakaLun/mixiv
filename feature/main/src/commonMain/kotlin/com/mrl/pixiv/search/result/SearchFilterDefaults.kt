@@ -9,6 +9,7 @@ import com.mrl.pixiv.search.SearchState.SearchFilter
 internal fun resolveInitialSearchFilter(
     searchSettings: SearchSettings,
     searchMode: AppViewMode,
+    defaultShowR18: Boolean = false,
 ): SearchFilter {
     val searchTarget = when (searchMode) {
         AppViewMode.ILLUST -> when (searchSettings.defaultSearchTarget) {
@@ -36,6 +37,9 @@ internal fun resolveInitialSearchFilter(
         sort = searchSort,
         searchTarget = searchTarget,
         searchAiType = searchSettings.defaultSearchAiType,
+        contentFilter = searchSettings.defaultContentFilter.let {
+            it.copy(showR18 = it.showR18 ?: defaultShowR18)
+        },
     )
 }
 

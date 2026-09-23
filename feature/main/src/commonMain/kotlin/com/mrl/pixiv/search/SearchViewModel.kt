@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.Tag
 import com.mrl.pixiv.common.data.search.SearchAiType
+import com.mrl.pixiv.common.data.search.SearchContentFilter
 import com.mrl.pixiv.common.data.search.SearchSort
 import com.mrl.pixiv.common.data.search.SearchTarget
 import com.mrl.pixiv.common.repository.PixivRepository
@@ -27,6 +28,7 @@ data class SearchState(
         val sort: SearchSort = SearchSort.POPULAR_DESC,
         val searchTarget: SearchTarget = SearchTarget.PARTIAL_MATCH_FOR_TAGS,
         val searchAiType: SearchAiType = SearchAiType.HIDE_AI,
+        val contentFilter: SearchContentFilter = SearchContentFilter(),
     )
 }
 

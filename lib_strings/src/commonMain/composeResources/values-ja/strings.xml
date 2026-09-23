@@ -407,4 +407,12 @@
     <string name="download_storage_permission_required">画像のダウンロードにはストレージへのアクセス許可が必要です。許可してからもう一度お試しください。</string>
     <string name="novel_series_continue_reading">続きを読む：%1$s（%2$d%%）</string>
     <string name="novel_series_last_read">前回読んだ章</string>
+    <string name="search_content_type">作品の種類</string>
+    <string name="search_type_all">すべての種類</string>
+    <string name="search_gif_only">GIF のみ</string>
+    <string name="search_exclude_gif">GIF を除外</string>
+    <string name="search_manga_only">漫画のみ</string>
+    <string name="search_series_only">シリーズ小説のみ</string>
+    <string name="search_show_r18">R-18 作品を表示</string>
+    <string name="search_r18_only">R-18 のみ</string>
 </resources>

@@ -16,6 +16,7 @@ data class SearchIllustQuery(
     val endDate: String? = null,
     val searchAiType: SearchAiType = SearchAiType.HIDE_AI,
     val offset: Int = 0,
+    val contentFilter: SearchContentFilter = SearchContentFilter(),
 ) {
     fun toMap(): Map<String, String> {
         val map = mutableMapOf<String, String>()
@@ -74,6 +75,7 @@ data class SearchNovelQuery(
     val endDate: String? = null,
     val searchAiType: SearchAiType = SearchAiType.HIDE_AI,
     val offset: Int = 0,
+    val contentFilter: SearchContentFilter = SearchContentFilter(),
 ) {
     fun toMap(): Map<String, String> {
         val map = mutableMapOf<String, String>()

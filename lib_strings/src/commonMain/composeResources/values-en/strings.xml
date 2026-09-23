@@ -408,4 +408,12 @@
     <string name="download_storage_permission_required">Storage permission is required to download images. Allow storage access and try again.</string>
     <string name="novel_series_continue_reading">Continue reading: %1$s (%2$d%%)</string>
     <string name="novel_series_last_read">Last read chapter</string>
+    <string name="search_content_type">Artwork type</string>
+    <string name="search_type_all">All types</string>
+    <string name="search_gif_only">GIF only</string>
+    <string name="search_exclude_gif">Exclude GIF</string>
+    <string name="search_manga_only">Manga only</string>
+    <string name="search_series_only">Novel series only</string>
+    <string name="search_show_r18">Show R-18 content</string>
+    <string name="search_r18_only">R-18 only</string>
 </resources>

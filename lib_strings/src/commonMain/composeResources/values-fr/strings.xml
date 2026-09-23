@@ -407,4 +407,12 @@
     <string name="download_storage_permission_required">Une autorisation de stockage est nécessaire pour télécharger des images. Autorisez l'accès au stockage, puis réessayez.</string>
     <string name="novel_series_continue_reading">Reprendre la lecture : %1$s (%2$d%%)</string>
     <string name="novel_series_last_read">Dernier chapitre lu</string>
+    <string name="search_content_type">Type d'image</string>
+    <string name="search_type_all">Tous les types</string>
+    <string name="search_gif_only">GIF uniquement</string>
+    <string name="search_exclude_gif">Exclure les GIF</string>
+    <string name="search_manga_only">Mangas uniquement</string>
+    <string name="search_series_only">Séries de romans uniquement</string>
+    <string name="search_show_r18">Afficher le contenu R-18</string>
+    <string name="search_r18_only">R-18 uniquement</string>
 </resources>

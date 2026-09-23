@@ -407,4 +407,12 @@
     <string name="download_storage_permission_required">Görselleri indirmek için depolama izni gereklidir. Depolama erişimine izin verip tekrar deneyin.</string>
     <string name="novel_series_continue_reading">Okumaya devam et: %1$s (%2$d%%)</string>
     <string name="novel_series_last_read">Son okunan bölüm</string>
+    <string name="search_content_type">Görsel türü</string>
+    <string name="search_type_all">Tüm türler</string>
+    <string name="search_gif_only">Yalnızca GIF</string>
+    <string name="search_exclude_gif">GIF hariç</string>
+    <string name="search_manga_only">Yalnızca manga</string>
+    <string name="search_series_only">Yalnızca roman serileri</string>
+    <string name="search_show_r18">R-18 içeriğini göster</string>
+    <string name="search_r18_only">Yalnızca R-18</string>
 </resources>

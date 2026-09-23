@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.compose.rememberThrottleClick
+import com.mrl.pixiv.common.compose.ui.SearchContentFilterControls
 import com.mrl.pixiv.common.data.search.SearchAiType
 import com.mrl.pixiv.common.data.search.SearchSort
 import com.mrl.pixiv.common.data.search.SearchTarget
@@ -148,6 +149,14 @@ fun SearchSettingScreen(
                         searchSettings.copy(searchResultDisplayMode = mode)
                     )
                 }
+            )
+            SearchContentFilterControls(
+                filter = searchSettings.defaultContentFilter,
+                defaultShowR18 = userPreference.isR18Enabled,
+                onChange = {
+                    SettingRepository.setSearchSettings(searchSettings.copy(defaultContentFilter = it))
+                },
+                modifier = Modifier.padding(16.dp),
             )
         }
     }

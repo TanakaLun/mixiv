@@ -419,4 +419,12 @@
     <string name="download_storage_permission_required">下载图片需要存储权限，请允许访问存储空间后重试。</string>
     <string name="novel_series_continue_reading">继续阅读：%1$s（%2$d%%）</string>
     <string name="novel_series_last_read">上次阅读的章节</string>
+    <string name="search_content_type">图片类型</string>
+    <string name="search_type_all">全部类型</string>
+    <string name="search_gif_only">只看 GIF</string>
+    <string name="search_exclude_gif">不看 GIF</string>
+    <string name="search_manga_only">只看漫画</string>
+    <string name="search_series_only">只看系列小说</string>
+    <string name="search_show_r18">显示 R-18 内容</string>
+    <string name="search_r18_only">只看 R-18</string>
 </resources>

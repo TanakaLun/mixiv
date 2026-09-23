@@ -71,6 +71,7 @@ class SearchResultViewModel(
         searchFilter = resolveInitialSearchFilter(
             searchSettings = SettingRepository.userPreferenceFlow.value.searchSettings,
             searchMode = searchMode,
+            defaultShowR18 = SettingRepository.userPreferenceFlow.value.isR18Enabled,
         ),
     ),
 ), KoinComponent {
@@ -163,6 +164,7 @@ class SearchResultViewModel(
                         startDate = startDate?.format(LocalDate.Formats.ISO),
                         endDate = endDate?.format(LocalDate.Formats.ISO),
                         searchAiType = filter.searchAiType,
+                        contentFilter = filter.contentFilter,
                     ),
                     isPremium = isPremium,
                     isIdSearch = isIdSearch
@@ -197,6 +199,7 @@ class SearchResultViewModel(
                         startDate = startDate?.format(LocalDate.Formats.ISO),
                         endDate = endDate?.format(LocalDate.Formats.ISO),
                         searchAiType = filter.searchAiType,
+                        contentFilter = filter.contentFilter,
                     ),
                     isPremium = isPremium,
                     isIdSearch = isIdSearch
@@ -361,6 +364,7 @@ class SearchResultViewModel(
             startDate = startDate?.format(LocalDate.Formats.ISO),
             endDate = endDate?.format(LocalDate.Formats.ISO),
             searchAiType = filter.searchAiType,
+            contentFilter = filter.contentFilter,
         )
     }
 
@@ -378,6 +382,7 @@ class SearchResultViewModel(
             startDate = startDate?.format(LocalDate.Formats.ISO),
             endDate = endDate?.format(LocalDate.Formats.ISO),
             searchAiType = filter.searchAiType,
+            contentFilter = filter.contentFilter,
         )
     }
 

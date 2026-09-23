@@ -2,6 +2,8 @@ package com.mrl.pixiv.search.result
 
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.search.SearchAiType
+import com.mrl.pixiv.common.data.search.SearchArtworkType
+import com.mrl.pixiv.common.data.search.SearchContentFilter
 import com.mrl.pixiv.common.data.search.SearchNovelQuery
 import com.mrl.pixiv.common.data.search.SearchSort
 import com.mrl.pixiv.common.data.search.SearchTarget
@@ -11,6 +13,21 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 class SearchFilterDefaultsTest {
+    @Test
+    fun contentDefaultsAreInheritedOnceAndTemporaryChangesRemainLocal() {
+        val defaults = SearchSettings(defaultContentFilter = SearchContentFilter(
+            artworkType = SearchArtworkType.GIF_ONLY, seriesOnly = true,
+        ))
+        val initial = resolveInitialSearchFilter(defaults, AppViewMode.ILLUST, defaultShowR18 = true)
+        assertEquals(true, initial.contentFilter.showR18)
+        assertEquals(SearchArtworkType.GIF_ONLY, initial.contentFilter.artworkType)
+        assertEquals(true, initial.contentFilter.seriesOnly)
+        val temporary = initial.copy(contentFilter = initial.contentFilter.withR18Enabled(false))
+        assertNotEquals(initial, temporary)
+        assertEquals(initial, resolveInitialSearchFilter(defaults, AppViewMode.ILLUST, true))
+        assertEquals(null, defaults.defaultContentFilter.showR18)
+    }
+
     @Test
     fun illustrationSearchUsesEveryConfiguredDefault() {
         val settings = SearchSettings(

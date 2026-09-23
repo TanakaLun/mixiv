@@ -407,4 +407,12 @@
     <string name="download_storage_permission_required">下載圖片需要儲存空間權限，請允許存取儲存空間後重試。</string>
     <string name="novel_series_continue_reading">繼續閱讀：%1$s（%2$d%%）</string>
     <string name="novel_series_last_read">上次閱讀的章節</string>
+    <string name="search_content_type">圖片類型</string>
+    <string name="search_type_all">全部類型</string>
+    <string name="search_gif_only">只看 GIF</string>
+    <string name="search_exclude_gif">不看 GIF</string>
+    <string name="search_manga_only">只看漫畫</string>
+    <string name="search_series_only">只看系列小說</string>
+    <string name="search_show_r18">顯示 R-18 內容</string>
+    <string name="search_r18_only">只看 R-18</string>
 </resources>
