@@ -403,4 +403,5 @@
     <string name="profile_desk">मेज़</string>
     <string name="profile_chair">कुर्सी</string>
     <string name="profile_workspace_comment">टिप्पणियाँ</string>
+    <string name="back_to_top">शीर्ष पर जाएँ</string>
 </resources>

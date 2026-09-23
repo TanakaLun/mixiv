@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.rounded.ErrorOutline
+import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.TextFields
@@ -29,9 +30,13 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -51,6 +56,7 @@ import coil3.request.ImageRequest
 import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
 import com.mrl.pixiv.common.compose.layout.isWidthAtLeastMedium
 import com.mrl.pixiv.common.compose.ui.TagItem
+import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.image.UserAvatar
 import com.mrl.pixiv.common.kts.HSpacer
 import com.mrl.pixiv.common.kts.spaceBy
@@ -63,6 +69,8 @@ import com.mrl.pixiv.strings.cover
 import com.mrl.pixiv.strings.view_comments
 import com.mrl.pixiv.strings.view_comments_count
 import com.mrl.pixiv.strings.word_count
+import com.mrl.pixiv.strings.back_to_top
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
 private const val KEY_COVER = "cover"
@@ -98,6 +106,8 @@ internal fun NovelReaderContent(
 ) {
     val novel = state.novel ?: return
     val density = LocalDensity.current
+    val scrollScope = rememberCoroutineScope()
+    val canScrollBack by remember(listState) { derivedStateOf { listState.canScrollBackward } }
     // Measurement bookkeeping is deliberately not snapshot state: it must not request remeasure.
     val lastMeasuredContentWidth = remember { intArrayOf(-1) }
     val displayedTitle = resolveNovelMetadataText(
@@ -430,6 +440,21 @@ internal fun NovelReaderContent(
         }
 
         if (!state.isTranslating) {
+            VerticalScrollbar(
+                state = listState,
+                modifier = Modifier.align(Alignment.CenterEnd)
+                    .padding(WindowInsets.systemBars.only(WindowInsetsSides.Vertical).asPaddingValues()),
+            )
+            if (canScrollBack) {
+                SmallFloatingActionButton(
+                    onClick = { scrollScope.launch { listState.animateScrollToItem(0) } },
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                        .padding(WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues())
+                        .padding(end = 16.dp, bottom = 24.dp),
+                ) {
+                    Icon(Icons.Rounded.ArrowUpward, contentDescription = stringResource(RStrings.back_to_top))
+                }
+            }
             ReadingProgressIndicator(
                 progress = readingProgressFraction,
                 modifier = Modifier.align(Alignment.BottomCenter)

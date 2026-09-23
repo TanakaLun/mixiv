@@ -403,4 +403,5 @@
     <string name="profile_desk">المكتب</string>
     <string name="profile_chair">الكرسي</string>
     <string name="profile_workspace_comment">ملاحظات</string>
+    <string name="back_to_top">العودة إلى الأعلى</string>
 </resources>

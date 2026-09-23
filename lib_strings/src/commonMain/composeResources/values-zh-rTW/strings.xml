@@ -403,4 +403,5 @@
     <string name="profile_desk">書桌</string>
     <string name="profile_chair">椅子</string>
     <string name="profile_workspace_comment">備註</string>
+    <string name="back_to_top">返回頂部</string>
 </resources>

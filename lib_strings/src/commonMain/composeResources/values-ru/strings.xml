@@ -403,4 +403,5 @@
     <string name="profile_desk">Стол</string>
     <string name="profile_chair">Кресло</string>
     <string name="profile_workspace_comment">Примечания</string>
+    <string name="back_to_top">Наверх</string>
 </resources>

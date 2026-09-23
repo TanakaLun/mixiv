@@ -403,4 +403,5 @@
     <string name="profile_desk">Mesa</string>
     <string name="profile_chair">Cadeira</string>
     <string name="profile_workspace_comment">Notas</string>
+    <string name="back_to_top">Voltar ao topo</string>
 </resources>

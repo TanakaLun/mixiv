@@ -403,4 +403,5 @@
     <string name="profile_desk">Masa</string>
     <string name="profile_chair">Sandalye</string>
     <string name="profile_workspace_comment">Notlar</string>
+    <string name="back_to_top">Başa dön</string>
 </resources>

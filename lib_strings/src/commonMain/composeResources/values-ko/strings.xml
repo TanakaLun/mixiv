@@ -403,4 +403,5 @@
     <string name="profile_desk">책상</string>
     <string name="profile_chair">의자</string>
     <string name="profile_workspace_comment">메모</string>
+    <string name="back_to_top">맨 위로</string>
 </resources>
