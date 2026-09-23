@@ -308,6 +308,7 @@ fun ProfileDetailScreen(
                 }
                 item(key = KEY_USER_DETAILS) {
                     ProfileDetails(userInfo = userInfo)
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
                 if (state.userIllusts.isNotEmpty()) {
                     item(key = KEY_USER_ILLUSTS) {
