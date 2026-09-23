@@ -1,8 +1,8 @@
 import com.mrl.pixiv.buildsrc.configureDesktopSentryMapping
 import dev.nucleusframework.desktop.application.dsl.TargetFormat
+import dev.nucleusframework.desktop.application.tasks.AbstractGenerateAotCacheTask
 import dev.nucleusframework.desktop.application.tasks.AbstractJPackageTask
 import dev.nucleusframework.desktop.application.tasks.AbstractProguardTask
-import dev.nucleusframework.desktop.application.tasks.AbstractGenerateAotCacheTask
 
 plugins {
     id("pixiv.desktop.compose")

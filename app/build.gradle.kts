@@ -7,14 +7,7 @@ import org.gradle.internal.extensions.stdlib.capitalized
 plugins {
     id("pixiv.android.application")
 //    alias(libs.plugins.baselineprofile)
-}
-
-val enableHotSwanCompiler = providers.gradleProperty("hotswan.enabled")
-    .map(String::toBoolean)
-    .getOrElse(false)
-
-if (enableHotSwanCompiler) {
-    pluginManager.apply(libs.plugins.hotswan.compiler.get().pluginId)
+    alias(libs.plugins.hotswan.compiler)
 }
 
 if (project.findProperty("applyFirebasePlugins") == "true") {

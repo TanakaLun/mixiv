@@ -22,8 +22,8 @@ import com.mrl.pixiv.strings.app_name
 import dev.nucleusframework.application.DecoratedWindow
 import dev.nucleusframework.application.NucleusBackend
 import dev.nucleusframework.application.nucleusApplication
-import dev.nucleusframework.window.TitleBar
 import dev.nucleusframework.window.NucleusDecoratedWindowTheme
+import dev.nucleusframework.window.TitleBar
 import dev.nucleusframework.window.styling.LocalTitleBarStyle
 import io.github.vinceglb.filekit.FileKit
 import io.ktor.client.HttpClient
