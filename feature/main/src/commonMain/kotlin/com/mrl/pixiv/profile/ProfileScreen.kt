@@ -1,5 +1,8 @@
 package com.mrl.pixiv.profile
 
+import com.mrl.pixiv.common.data.AppViewMode
+import com.mrl.pixiv.common.repository.requireUserPreferenceValue
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -231,7 +234,10 @@ fun ProfileScreen(
             item(key = KEY_COLLECTION) {
                 ListItem(
                     onClick = rememberThrottleClick {
-                        navigationManager.navigateToCollectionScreen(userInfo.user.id)
+                        navigationManager.navigateToCollectionScreen(
+                            userInfo.user.id,
+                            isNovel = requireUserPreferenceValue.collectionViewMode == AppViewMode.NOVEL,
+                        )
                     },
                     shapes = ListItemDefaults.shapes(shape = RectangleShape),
                     content = {

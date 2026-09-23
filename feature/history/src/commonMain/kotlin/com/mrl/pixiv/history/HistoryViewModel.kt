@@ -12,6 +12,8 @@ import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.Illust
 import com.mrl.pixiv.common.data.Novel
 import com.mrl.pixiv.common.repository.BrowsingHistoryRepository
+import com.mrl.pixiv.common.repository.SettingRepository
+import com.mrl.pixiv.common.repository.requireUserPreferenceValue
 import com.mrl.pixiv.common.repository.paging.HistoryIllustPagingSource
 import com.mrl.pixiv.common.repository.paging.HistoryNovelPagingSource
 import com.mrl.pixiv.common.repository.paging.LocalHistoryIllustPagingSource
@@ -46,7 +48,7 @@ sealed class HistoryAction : ViewIntent {
 class HistoryViewModel(
     private val browsingHistoryRepository: BrowsingHistoryRepository,
 ) : BaseMviViewModel<HistoryState, HistoryAction>(
-    initialState = HistoryState(),
+    initialState = HistoryState(mode = requireUserPreferenceValue.historyViewMode),
 ), KoinComponent {
     val userPreferenceFlow = browsingHistoryRepository.userPreferenceFlow
     private val searchFlow = uiState
@@ -108,8 +110,10 @@ class HistoryViewModel(
             is HistoryAction.UpdateSearch ->
                 updateState { copy(currentSearch = intent.search) }
 
-            is HistoryAction.UpdateMode ->
+            is HistoryAction.UpdateMode -> {
+                SettingRepository.updateSettings { copy(historyViewMode = intent.mode) }
                 updateState { copy(mode = intent.mode) }
+            }
         }
     }
 }

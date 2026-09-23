@@ -29,6 +29,8 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +58,8 @@ import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.VSpacer
 import com.mrl.pixiv.common.kts.itemIndexKey
 import com.mrl.pixiv.common.repository.isSelf
+import com.mrl.pixiv.common.repository.SettingRepository
+import kotlinx.coroutines.flow.drop
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.BookmarkState
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
@@ -86,6 +90,15 @@ fun CollectionScreen(
     val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val pagerState = rememberCollectionPagerState(if (isNovel) 1 else 0, navigationManager)
+    LaunchedEffect(pagerState, uid) {
+        if (uid.isSelf) {
+            snapshotFlow { pagerState.settledPage }.drop(1).collect { page ->
+                SettingRepository.updateSettings {
+                    copy(collectionViewMode = if (page == 1) AppViewMode.NOVEL else AppViewMode.ILLUST)
+                }
+            }
+        }
+    }
     val isIllustPage = pagerState.currentPage == 0
     val useViewModeFab = currentPaneLayoutInfo().sizeClass.isWidthAtLeastMedium
 
