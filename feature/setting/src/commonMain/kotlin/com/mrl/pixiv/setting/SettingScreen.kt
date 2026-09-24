@@ -1,6 +1,8 @@
 package com.mrl.pixiv.setting
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -36,6 +38,7 @@ import com.mrl.pixiv.strings.privacy_setting
 import com.mrl.pixiv.strings.search_setting
 import com.mrl.pixiv.strings.setting
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Scaffold
@@ -89,68 +92,56 @@ fun SettingScreen(
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
-                .padding(innerPadding)
-                .padding(horizontal = 8.dp),
+                .padding(innerPadding),
         ) {
             item(key = KEY_LANGUAGE) {
-                OverlayDropdownPreference(
-                    items = languages.map { it.displayName },
-                    selectedIndex = currentLanguage,
-                    title = stringResource(RStrings.app_language),
-                    startAction = { Icon(Icons.Rounded.Translate, contentDescription = null) },
-                    onSelectedIndexChange = { currentLanguage = it },
-                )
-            }
-            item(key = KEY_NETWORK_SETTING) {
-                SettingDestinationItem(
-                    title = stringResource(RStrings.network_setting),
-                    icon = Icons.Rounded.NetworkWifi,
-                    onClick = navigationManager::navigateToNetworkSettingScreen,
-                )
-            }
-            item(key = KEY_BROWSING_SETTING) {
-                SettingDestinationItem(
-                    title = stringResource(RStrings.browsing_setting),
-                    icon = Icons.Rounded.Image,
-                    onClick = navigationManager::navigateToBrowsingSettingScreen,
-                )
-            }
-            item(key = KEY_SEARCH_SETTING) {
-                SettingDestinationItem(
-                    title = stringResource(RStrings.search_setting),
-                    icon = Icons.Rounded.Search,
-                    onClick = navigationManager::navigateToSearchSettingScreen,
-                )
-            }
-            item(key = KEY_HISTORY_SETTING) {
-                SettingDestinationItem(
-                    title = stringResource(RStrings.history_setting),
-                    icon = Icons.Rounded.History,
-                    onClick = navigationManager::navigateToHistorySettingScreen,
-                )
-            }
-            item(key = KEY_PRIVACY_SETTING) {
-                SettingDestinationItem(
-                    title = stringResource(RStrings.privacy_setting),
-                    icon = Icons.Rounded.Lock,
-                    onClick = navigationManager::navigateToPrivacySettingScreen,
-                )
-            }
-            item(key = KEY_FILE_NAME_FORMAT) {
-                SettingDestinationItem(
-                    title = stringResource(RStrings.file_name_format_title),
-                    icon = Icons.Rounded.Save,
-                    onClick = navigationManager::navigateToFileNameFormatScreen,
-                )
-            }
-            item(key = KEY_AI_TRANSLATION_SETTING) {
-                SettingDestinationItem(
-                    title = stringResource(RStrings.ai_translation_setting),
-                    icon = Icons.Rounded.Translate,
-                    onClick = navigationManager::navigateToAiTranslationSettingScreen,
-                )
+                Card(modifier = Modifier.padding(horizontal = 12.dp)) {
+                    OverlayDropdownPreference(
+                        items = languages.map { it.displayName },
+                        selectedIndex = currentLanguage,
+                        title = stringResource(RStrings.app_language),
+                        startAction = { Icon(Icons.Rounded.Translate, contentDescription = null) },
+                        onSelectedIndexChange = { currentLanguage = it },
+                    )
+                    SettingDestinationItem(
+                        title = stringResource(RStrings.network_setting),
+                        icon = Icons.Rounded.NetworkWifi,
+                        onClick = navigationManager::navigateToNetworkSettingScreen,
+                    )
+                    SettingDestinationItem(
+                        title = stringResource(RStrings.browsing_setting),
+                        icon = Icons.Rounded.Image,
+                        onClick = navigationManager::navigateToBrowsingSettingScreen,
+                    )
+                    SettingDestinationItem(
+                        title = stringResource(RStrings.search_setting),
+                        icon = Icons.Rounded.Search,
+                        onClick = navigationManager::navigateToSearchSettingScreen,
+                    )
+                    SettingDestinationItem(
+                        title = stringResource(RStrings.history_setting),
+                        icon = Icons.Rounded.History,
+                        onClick = navigationManager::navigateToHistorySettingScreen,
+                    )
+                    SettingDestinationItem(
+                        title = stringResource(RStrings.privacy_setting),
+                        icon = Icons.Rounded.Lock,
+                        onClick = navigationManager::navigateToPrivacySettingScreen,
+                    )
+                    SettingDestinationItem(
+                        title = stringResource(RStrings.file_name_format_title),
+                        icon = Icons.Rounded.Save,
+                        onClick = navigationManager::navigateToFileNameFormatScreen,
+                    )
+                    SettingDestinationItem(
+                        title = stringResource(RStrings.ai_translation_setting),
+                        icon = Icons.Rounded.Translate,
+                        onClick = navigationManager::navigateToAiTranslationSettingScreen,
+                    )
+                }
             }
             appLinkItem()
+            item { Spacer(modifier = Modifier.height(12.dp)) }
         }
     }
 }

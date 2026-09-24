@@ -40,6 +40,7 @@ import com.mrl.pixiv.strings.legend_user_id
 import com.mrl.pixiv.strings.legend_user_name
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
@@ -95,69 +96,72 @@ fun FileNameFormatScreen(
         Column(
             modifier = modifier
                 .padding(innerPadding)
+                .padding(vertical = 8.dp)
                 .verticalScroll(rememberScrollState()),
         ) {
-            SwitchPreference(
-                checked = userPreference.downloadSubFolderByUser,
-                onCheckedChange = SettingRepository::setDownloadSubFolderByUser,
-                title = stringResource(RStrings.download_single_folder_by_user_title),
-                summary = stringResource(RStrings.download_single_folder_by_user_desc),
-                startAction = { Icon(imageVector = Icons.Rounded.Folder, contentDescription = null) },
-            )
-            TextField(
-                state = format,
-                label = stringResource(RStrings.file_name_format_title),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-            )
+            Card(modifier = Modifier.padding(horizontal = 12.dp)) {
+                SwitchPreference(
+                    checked = userPreference.downloadSubFolderByUser,
+                    onCheckedChange = SettingRepository::setDownloadSubFolderByUser,
+                    title = stringResource(RStrings.download_single_folder_by_user_title),
+                    summary = stringResource(RStrings.download_single_folder_by_user_desc),
+                    startAction = { Icon(imageVector = Icons.Rounded.Folder, contentDescription = null) },
+                )
+                TextField(
+                    state = format,
+                    label = stringResource(RStrings.file_name_format_title),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                )
 
-            val chips = listOf(
-                "title", "_", "index", "illust_id", "user_id", "user_name",
-            )
+                val chips = listOf(
+                    "title", "_", "index", "illust_id", "user_id", "user_name",
+                )
 
-            FlowRow(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                chips.forEach { key ->
-                    FilterChip(
-                        selected = false,
-                        onClick = {
-                            format.edit {
-                                val cursor = selection.start
-                                val tag = if (key == "_") "_" else "{$key}"
-                                replace(cursor, selection.end, tag)
-                            }
-                        },
-                        label = { Text(text = key) },
+                FlowRow(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    chips.forEach { key ->
+                        FilterChip(
+                            selected = false,
+                            onClick = {
+                                format.edit {
+                                    val cursor = selection.start
+                                    val tag = if (key == "_") "_" else "{$key}"
+                                    replace(cursor, selection.end, tag)
+                                }
+                            },
+                            label = { Text(text = key) },
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = stringResource(RStrings.legend_template),
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text(text = stringResource(RStrings.legend_meaning), modifier = Modifier.weight(1f))
+                }
+                val legends = listOf(
+                    "{illust_id}" to RStrings.legend_illust_id,
+                    "{title}" to RStrings.legend_title,
+                    "{user_id}" to RStrings.legend_user_id,
+                    "{user_name}" to RStrings.legend_user_name,
+                    "{index}" to RStrings.legend_index,
+                )
+
+                legends.forEach { (key, res) ->
+                    HorizontalDivider()
+                    BasicComponent(
+                        title = key,
+                        summary = stringResource(res),
                     )
                 }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = stringResource(RStrings.legend_template),
-                    modifier = Modifier.weight(1f),
-                )
-                Text(text = stringResource(RStrings.legend_meaning), modifier = Modifier.weight(1f))
-            }
-            val legends = listOf(
-                "{illust_id}" to RStrings.legend_illust_id,
-                "{title}" to RStrings.legend_title,
-                "{user_id}" to RStrings.legend_user_id,
-                "{user_name}" to RStrings.legend_user_name,
-                "{index}" to RStrings.legend_index,
-            )
-
-            legends.forEach { (key, res) ->
-                HorizontalDivider()
-                BasicComponent(
-                    title = key,
-                    summary = stringResource(res),
-                )
             }
         }
     }

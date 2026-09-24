@@ -1,6 +1,7 @@
 package com.mrl.pixiv.setting
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -44,6 +45,7 @@ import com.mrl.pixiv.strings.tags_exact_match
 import com.mrl.pixiv.strings.tags_partially_match
 import com.mrl.pixiv.strings.title_and_description
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Scaffold
@@ -79,56 +81,58 @@ fun SearchSettingScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
                 .imePadding()
-                .padding(horizontal = 8.dp),
+                .padding(vertical = 8.dp),
         ) {
-            DefaultSearchTargetSetting(
-                selectedTarget = searchSettings.defaultSearchTarget,
-                onTargetChange = { target ->
-                    SettingRepository.setSearchSettings(
-                        searchSettings.copy(defaultSearchTarget = target),
-                    )
-                },
-            )
-            DefaultSearchSortSetting(
-                selectedSort = searchSettings.defaultSearchSort,
-                onSortChange = { sort ->
-                    SettingRepository.setSearchSettings(
-                        searchSettings.copy(defaultSearchSort = sort),
-                    )
-                },
-            )
-            SwitchPreference(
-                checked = searchSettings.defaultSearchAiType == SearchAiType.SHOW_AI,
-                onCheckedChange = { checked ->
-                    SettingRepository.setSearchSettings(
-                        searchSettings.copy(
-                            defaultSearchAiType = if (checked) {
-                                SearchAiType.SHOW_AI
-                            } else {
-                                SearchAiType.HIDE_AI
-                            },
-                        ),
-                    )
-                },
-                title = stringResource(RStrings.ai_generate),
-                startAction = { Icon(Icons.Rounded.AutoAwesome, contentDescription = null) },
-            )
-            SearchResultDisplayModeSetting(
-                selectedMode = searchSettings.searchResultDisplayMode,
-                onModeChange = { mode ->
-                    SettingRepository.setSearchSettings(
-                        searchSettings.copy(searchResultDisplayMode = mode),
-                    )
-                },
-            )
-            SearchContentFilterControls(
-                filter = searchSettings.defaultContentFilter,
-                defaultShowR18 = userPreference.isR18Enabled,
-                onChange = {
-                    SettingRepository.setSearchSettings(searchSettings.copy(defaultContentFilter = it))
-                },
-                modifier = Modifier.padding(16.dp),
-            )
+            Card(modifier = Modifier.padding(horizontal = 12.dp)) {
+                DefaultSearchTargetSetting(
+                    selectedTarget = searchSettings.defaultSearchTarget,
+                    onTargetChange = { target ->
+                        SettingRepository.setSearchSettings(
+                            searchSettings.copy(defaultSearchTarget = target),
+                        )
+                    },
+                )
+                DefaultSearchSortSetting(
+                    selectedSort = searchSettings.defaultSearchSort,
+                    onSortChange = { sort ->
+                        SettingRepository.setSearchSettings(
+                            searchSettings.copy(defaultSearchSort = sort),
+                        )
+                    },
+                )
+                SwitchPreference(
+                    checked = searchSettings.defaultSearchAiType == SearchAiType.SHOW_AI,
+                    onCheckedChange = { checked ->
+                        SettingRepository.setSearchSettings(
+                            searchSettings.copy(
+                                defaultSearchAiType = if (checked) {
+                                    SearchAiType.SHOW_AI
+                                } else {
+                                    SearchAiType.HIDE_AI
+                                },
+                            ),
+                        )
+                    },
+                    title = stringResource(RStrings.ai_generate),
+                    startAction = { Icon(Icons.Rounded.AutoAwesome, contentDescription = null) },
+                )
+                SearchResultDisplayModeSetting(
+                    selectedMode = searchSettings.searchResultDisplayMode,
+                    onModeChange = { mode ->
+                        SettingRepository.setSearchSettings(
+                            searchSettings.copy(searchResultDisplayMode = mode),
+                        )
+                    },
+                )
+                SearchContentFilterControls(
+                    filter = searchSettings.defaultContentFilter,
+                    defaultShowR18 = userPreference.isR18Enabled,
+                    onChange = {
+                        SettingRepository.setSearchSettings(searchSettings.copy(defaultContentFilter = it))
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                )
+            }
         }
     }
 }

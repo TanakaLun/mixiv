@@ -48,6 +48,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Scaffold
@@ -115,9 +116,10 @@ fun AppDataScreen(
         Column(
             modifier = Modifier
                 .padding(paddingValues)
-                .padding(horizontal = 8.dp)
+                .padding(vertical = 8.dp)
                 .verticalScroll(rememberScrollState())
-                .imePadding()
+                .imePadding(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             MigrationCard(
                 state = state,
@@ -125,46 +127,48 @@ fun AppDataScreen(
                 viewModel = viewModel
             )
 
-            BasicComponent(
-                title = stringResource(RStrings.export_data),
-                startAction = {
-                    Icon(
-                        imageVector = Icons.Rounded.Upload,
-                        contentDescription = null
-                    )
-                },
-                onClick = {
-                    val fileName = "pixiv_data_backup_${
-                        Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                            .format(LocalDateTime.Formats.ISO)
-                    }"
-                    exportLauncher.launch(suggestedName = fileName, defaultExtension = "zip")
-                },
-            )
+            Card(modifier = Modifier.padding(horizontal = 12.dp)) {
+                BasicComponent(
+                    title = stringResource(RStrings.export_data),
+                    startAction = {
+                        Icon(
+                            imageVector = Icons.Rounded.Upload,
+                            contentDescription = null
+                        )
+                    },
+                    onClick = {
+                        val fileName = "pixiv_data_backup_${
+                            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                                .format(LocalDateTime.Formats.ISO)
+                        }"
+                        exportLauncher.launch(suggestedName = fileName, defaultExtension = "zip")
+                    },
+                )
 
-            BasicComponent(
-                title = stringResource(RStrings.import_data),
-                startAction = {
-                    Icon(
-                        imageVector = Icons.Rounded.Download,
-                        contentDescription = null
-                    )
-                },
-                onClick = { importLauncher.launch() },
-            )
+                BasicComponent(
+                    title = stringResource(RStrings.import_data),
+                    startAction = {
+                        Icon(
+                            imageVector = Icons.Rounded.Download,
+                            contentDescription = null
+                        )
+                    },
+                    onClick = { importLauncher.launch() },
+                )
 
-            BasicComponent(
-                title = stringResource(RStrings.clear_cache, viewModel.cacheDirSize),
-                startAction = {
-                    Icon(
-                        imageVector = Icons.Rounded.Delete,
-                        contentDescription = null
-                    )
-                },
-                onClick = rememberThrottleClick {
-                    viewModel.clearCache()
-                },
-            )
+                BasicComponent(
+                    title = stringResource(RStrings.clear_cache, viewModel.cacheDirSize),
+                    startAction = {
+                        Icon(
+                            imageVector = Icons.Rounded.Delete,
+                            contentDescription = null
+                        )
+                    },
+                    onClick = rememberThrottleClick {
+                        viewModel.clearCache()
+                    },
+                )
+            }
         }
     }
 

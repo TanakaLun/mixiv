@@ -85,6 +85,7 @@ import kotlinx.serialization.json.JsonObject
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
@@ -226,11 +227,15 @@ fun AiTranslationSettingScreen(
             modifier = modifier
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
-                .padding(horizontal = 12.dp, vertical = 8.dp)
-                .imePadding(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .imePadding()
+                .padding(vertical = 8.dp),
         ) {
-            ProviderItem(
+            Card(modifier = Modifier.padding(horizontal = 12.dp)) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    ProviderItem(
                 provider = selectedProvider,
                 onProviderChange = change@{ nextProvider ->
                     if (nextProvider == selectedProvider) return@change
@@ -478,7 +483,9 @@ fun AiTranslationSettingScreen(
                 }
             }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                }
+            }
         }
     }
 }

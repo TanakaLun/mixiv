@@ -1,5 +1,6 @@
 package com.mrl.pixiv.setting.network
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,7 @@ import com.mrl.pixiv.strings.network_setting
 import com.mrl.pixiv.strings.restart_app_to_take_effect
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Scaffold
@@ -56,24 +58,25 @@ fun NetworkSettingScreen(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .padding(it)
-                .imePadding(),
+                .imePadding()
+                .padding(vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            val itemModifier = Modifier.padding(horizontal = 8.dp)
-
             BypassSettingEditor(
-                modifier = itemModifier,
+                modifier = Modifier.padding(horizontal = 12.dp),
                 bypassSetting = userPreference.bypassSetting,
                 onUpdate = { setting -> viewModel.updateBypassSetting(setting) },
             )
 
-            PictureSourceWidget(
-                modifier = itemModifier,
-                currentSelected = userPreference.imageHost,
-                savePictureSourceHost = { host ->
-                    viewModel.savePictureSourceHost(host)
-                    toaster.show(RStrings.restart_app_to_take_effect)
-                },
-            )
+            Card(modifier = Modifier.padding(horizontal = 12.dp)) {
+                PictureSourceWidget(
+                    currentSelected = userPreference.imageHost,
+                    savePictureSourceHost = { host ->
+                        viewModel.savePictureSourceHost(host)
+                        toaster.show(RStrings.restart_app_to_take_effect)
+                    },
+                )
+            }
         }
     }
 }

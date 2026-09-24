@@ -56,6 +56,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Scaffold
@@ -93,72 +94,74 @@ fun HistorySettingScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
                 .imePadding()
-                .padding(horizontal = 8.dp),
+                .padding(vertical = 8.dp),
         ) {
-            HistorySwitchItem(
-                title = stringResource(RStrings.enable_history),
-                description = stringResource(RStrings.enable_history_desc),
-                checked = historySettings.enabled,
-                icon = { Icon(Icons.Rounded.History, contentDescription = null) },
-                onCheckedChange = { checked ->
-                    SettingRepository.setHistorySettings(historySettings.copy(enabled = checked))
-                },
-            )
-            AnimatedVisibility(
-                visible = historySettings.enabled,
-                enter = slideInVertically { -it / 3 } + expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-                exit = slideOutVertically { -it / 3 } + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
-            ) {
-                Column {
-                    HistorySwitchItem(
-                        title = stringResource(RStrings.enable_cloud_history),
-                        description = stringResource(RStrings.enable_cloud_history_desc),
-                        checked = historySettings.cloudEnabled,
-                        onCheckedChange = { checked ->
-                            SettingRepository.setHistorySettings(historySettings.copy(cloudEnabled = checked))
-                        },
-                    )
-                    HistorySwitchItem(
-                        title = stringResource(RStrings.history_auto_clean),
-                        description = stringResource(RStrings.history_auto_clean_desc),
-                        checked = historySettings.autoClean,
-                        onCheckedChange = { checked ->
-                            SettingRepository.setHistorySettings(historySettings.copy(autoClean = checked))
-                        },
-                    )
-                    HistorySwitchItem(
-                        title = stringResource(RStrings.history_unlimited),
-                        description = stringResource(RStrings.history_unlimited_desc),
-                        checked = historySettings.unlimited,
-                        onCheckedChange = { checked ->
-                            SettingRepository.setHistorySettings(historySettings.copy(unlimited = checked))
-                        },
-                    )
-                    AnimatedVisibility(
-                        visible = !historySettings.unlimited,
-                        enter = slideInVertically { -it / 3 } + expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-                        exit = slideOutVertically { -it / 3 } + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
-                    ) {
-                        HistoryLimitSetting(
-                            selectedLimit = historySettings.maxEntries,
-                            onLimitChange = { limit ->
-                                SettingRepository.setHistorySettings(
-                                    historySettings.copy(maxEntries = limit),
-                                )
+            Card(modifier = Modifier.padding(horizontal = 12.dp)) {
+                HistorySwitchItem(
+                    title = stringResource(RStrings.enable_history),
+                    description = stringResource(RStrings.enable_history_desc),
+                    checked = historySettings.enabled,
+                    icon = { Icon(Icons.Rounded.History, contentDescription = null) },
+                    onCheckedChange = { checked ->
+                        SettingRepository.setHistorySettings(historySettings.copy(enabled = checked))
+                    },
+                )
+                AnimatedVisibility(
+                    visible = historySettings.enabled,
+                    enter = slideInVertically { -it / 3 } + expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                    exit = slideOutVertically { -it / 3 } + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+                ) {
+                    Column {
+                        HistorySwitchItem(
+                            title = stringResource(RStrings.enable_cloud_history),
+                            description = stringResource(RStrings.enable_cloud_history_desc),
+                            checked = historySettings.cloudEnabled,
+                            onCheckedChange = { checked ->
+                                SettingRepository.setHistorySettings(historySettings.copy(cloudEnabled = checked))
+                            },
+                        )
+                        HistorySwitchItem(
+                            title = stringResource(RStrings.history_auto_clean),
+                            description = stringResource(RStrings.history_auto_clean_desc),
+                            checked = historySettings.autoClean,
+                            onCheckedChange = { checked ->
+                                SettingRepository.setHistorySettings(historySettings.copy(autoClean = checked))
+                            },
+                        )
+                        HistorySwitchItem(
+                            title = stringResource(RStrings.history_unlimited),
+                            description = stringResource(RStrings.history_unlimited_desc),
+                            checked = historySettings.unlimited,
+                            onCheckedChange = { checked ->
+                                SettingRepository.setHistorySettings(historySettings.copy(unlimited = checked))
+                            },
+                        )
+                        AnimatedVisibility(
+                            visible = !historySettings.unlimited,
+                            enter = slideInVertically { -it / 3 } + expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                            exit = slideOutVertically { -it / 3 } + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+                        ) {
+                            HistoryLimitSetting(
+                                selectedLimit = historySettings.maxEntries,
+                                onLimitChange = { limit ->
+                                    SettingRepository.setHistorySettings(
+                                        historySettings.copy(maxEntries = limit),
+                                    )
+                                },
+                            )
+                        }
+                        BasicComponent(
+                            title = stringResource(RStrings.clear_local_history),
+                            summary = stringResource(RStrings.clear_local_history_desc),
+                            startAction = { Icon(Icons.Rounded.Delete, contentDescription = null) },
+                            onClick = rememberThrottleClick {
+                                scope.launch {
+                                    browsingHistoryRepository.clearAllLocalHistory()
+                                    ToastUtil.safeShortToast(RStrings.local_history_cleared)
+                                }
                             },
                         )
                     }
-                    BasicComponent(
-                        title = stringResource(RStrings.clear_local_history),
-                        summary = stringResource(RStrings.clear_local_history_desc),
-                        startAction = { Icon(Icons.Rounded.Delete, contentDescription = null) },
-                        onClick = rememberThrottleClick {
-                            scope.launch {
-                                browsingHistoryRepository.clearAllLocalHistory()
-                                ToastUtil.safeShortToast(RStrings.local_history_cleared)
-                            }
-                        },
-                    )
                 }
             }
         }

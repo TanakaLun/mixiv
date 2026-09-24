@@ -39,6 +39,7 @@ import com.mrl.pixiv.strings.read_clipboard_on_search_desc
 import com.mrl.pixiv.strings.tips
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Scaffold
@@ -76,30 +77,32 @@ fun PrivacySettingScreen(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
-                .padding(horizontal = 8.dp),
+                .padding(vertical = 8.dp),
         ) {
-            SwitchPreference(
-                checked = userPreference.isR18Enabled,
-                onCheckedChange = { checked ->
-                    if (checked) showR18Warning = true
-                    else SettingRepository.setIsR18Enabled(false)
-                },
-                title = stringResource(RStrings.r18),
-                startAction = { Icon(Icons.Rounded._18UpRating, contentDescription = null) },
-            )
-            SwitchPreference(
-                checked = userPreference.defaultPrivateBookmark,
-                onCheckedChange = SettingRepository::setDefaultPrivateBookmark,
-                title = stringResource(RStrings.default_private_bookmark),
-                startAction = { Icon(Icons.Rounded.Favorite, contentDescription = null) },
-            )
-            SwitchPreference(
-                checked = userPreference.readClipboardOnSearch,
-                onCheckedChange = SettingRepository::setReadClipboardOnSearch,
-                title = stringResource(RStrings.read_clipboard_on_search),
-                summary = stringResource(RStrings.read_clipboard_on_search_desc),
-                startAction = { Icon(Icons.Rounded.ContentPaste, contentDescription = null) },
-            )
+            Card(modifier = Modifier.padding(horizontal = 12.dp)) {
+                SwitchPreference(
+                    checked = userPreference.isR18Enabled,
+                    onCheckedChange = { checked ->
+                        if (checked) showR18Warning = true
+                        else SettingRepository.setIsR18Enabled(false)
+                    },
+                    title = stringResource(RStrings.r18),
+                    startAction = { Icon(Icons.Rounded._18UpRating, contentDescription = null) },
+                )
+                SwitchPreference(
+                    checked = userPreference.defaultPrivateBookmark,
+                    onCheckedChange = SettingRepository::setDefaultPrivateBookmark,
+                    title = stringResource(RStrings.default_private_bookmark),
+                    startAction = { Icon(Icons.Rounded.Favorite, contentDescription = null) },
+                )
+                SwitchPreference(
+                    checked = userPreference.readClipboardOnSearch,
+                    onCheckedChange = SettingRepository::setReadClipboardOnSearch,
+                    title = stringResource(RStrings.read_clipboard_on_search),
+                    summary = stringResource(RStrings.read_clipboard_on_search_desc),
+                    startAction = { Icon(Icons.Rounded.ContentPaste, contentDescription = null) },
+                )
+            }
         }
     }
 

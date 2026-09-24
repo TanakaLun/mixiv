@@ -103,7 +103,8 @@ actual fun MigrationCard(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 12.dp)
+                .padding(top = 8.dp),
             onClick = { showMigrationConfirmDialog = true },
             colors = CardDefaults.defaultColors(
                 color = MiuixTheme.colorScheme.primaryContainer,

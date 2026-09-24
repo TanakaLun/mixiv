@@ -10,11 +10,15 @@ import androidx.compose.material.icons.rounded.AddLink
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import androidx.core.os.LocaleListCompat
+import androidx.compose.ui.Modifier
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.strings.allow_open_link
 import com.mrl.pixiv.strings.default_open
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 
@@ -34,27 +38,29 @@ actual fun triggerLocaleChange(currentLanguage: String, labelDefault: String) {
 actual fun LazyListScope.appLinkItem() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         item(KEY_DEFAULT_OPEN_LINK) {
-            val context = LocalContext.current
-            ArrowPreference(
-                title = stringResource(RStrings.default_open),
-                summary = stringResource(RStrings.allow_open_link),
-                startAction = {
-                    Icon(imageVector = Icons.Rounded.AddLink, contentDescription = null)
-                },
-                onClick = rememberThrottleClick {
-                    try {
-                        val intent = Intent().apply {
-                            action = Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS
-                            addCategory(Intent.CATEGORY_DEFAULT)
-                            data = "package:${context.packageName}".toUri()
-                            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-                            addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+            Card(modifier = Modifier.padding(horizontal = 12.dp)) {
+                val context = LocalContext.current
+                ArrowPreference(
+                    title = stringResource(RStrings.default_open),
+                    summary = stringResource(RStrings.allow_open_link),
+                    startAction = {
+                        Icon(imageVector = Icons.Rounded.AddLink, contentDescription = null)
+                    },
+                    onClick = rememberThrottleClick {
+                        try {
+                            val intent = Intent().apply {
+                                action = Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS
+                                addCategory(Intent.CATEGORY_DEFAULT)
+                                data = "package:${context.packageName}".toUri()
+                                addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                                addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+                            }
+                            context.startActivity(intent)
+                        } catch (_: Throwable) {
                         }
-                        context.startActivity(intent)
-                    } catch (_: Throwable) {
-                    }
-                },
-            )
+                    },
+                )
+            }
         }
     }
 }

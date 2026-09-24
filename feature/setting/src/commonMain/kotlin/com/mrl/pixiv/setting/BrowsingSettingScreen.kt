@@ -55,6 +55,7 @@ import com.mrl.pixiv.strings.tap_image_to_open_full_resolution_preview
 import com.mrl.pixiv.strings.tap_image_to_open_full_resolution_preview_desc
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Scaffold
@@ -91,88 +92,90 @@ fun BrowsingSettingScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(it)
                 .imePadding()
-                .padding(horizontal = 8.dp),
+                .padding(vertical = 8.dp),
         ) {
-            SpanCountSetting(
-                title = stringResource(RStrings.span_count_portrait),
-                currentSpanCount = userPreference.spanCountPortrait,
-                onSpanCountChange = SettingRepository::setSpanCountPortrait,
-            )
-            SpanCountSetting(
-                title = stringResource(RStrings.span_count_landscape),
-                currentSpanCount = userPreference.spanCountLandscape,
-                onSpanCountChange = SettingRepository::setSpanCountLandscape,
-            )
-            SearchResultIllustLayoutSetting(
-                selectedLayout = browsingSettings.searchResultIllustLayout,
-                onLayoutChange = { layout ->
-                    SettingRepository.setBrowsingSettings(
-                        browsingSettings.copy(searchResultIllustLayout = layout),
-                    )
-                },
-            )
-            PreviewImageQualitySetting(
-                selectedQuality = browsingSettings.previewImageQuality,
-                onQualityChange = { quality ->
-                    SettingRepository.setBrowsingSettings(
-                        browsingSettings.copy(previewImageQuality = quality),
-                    )
-                },
-            )
-            SwitchPreference(
-                checked = browsingSettings.autoHidePreviewControls,
-                onCheckedChange = { checked ->
-                    SettingRepository.setBrowsingSettings(
-                        browsingSettings.copy(autoHidePreviewControls = checked),
-                    )
-                },
-                title = stringResource(RStrings.auto_hide_preview_controls),
-                summary = stringResource(RStrings.auto_hide_preview_controls_desc),
-                startAction = { Icon(Icons.Rounded.VisibilityOff, contentDescription = null) },
-            )
-            SwitchPreference(
-                checked = browsingSettings.tapImageToOpenFullResolutionPreview,
-                onCheckedChange = { checked ->
-                    SettingRepository.setBrowsingSettings(
-                        browsingSettings.copy(tapImageToOpenFullResolutionPreview = checked),
-                    )
-                },
-                title = stringResource(RStrings.tap_image_to_open_full_resolution_preview),
-                summary = stringResource(RStrings.tap_image_to_open_full_resolution_preview_desc),
-                startAction = { Icon(Icons.Rounded.TouchApp, contentDescription = null) },
-            )
-            SwitchPreference(
-                checked = browsingSettings.filterLongNovelTags,
-                onCheckedChange = { checked ->
-                    SettingRepository.setBrowsingSettings(
-                        browsingSettings.copy(filterLongNovelTags = checked),
-                    )
-                },
-                title = stringResource(RStrings.filter_long_novel_tags),
-                summary = stringResource(RStrings.filter_long_novel_tags_desc),
-                startAction = { Icon(Icons.Rounded.FilterAlt, contentDescription = null) },
-            )
-            if (browsingSettings.filterLongNovelTags) {
-                NovelTagLimitSetting(
-                    title = stringResource(RStrings.max_novel_tag_length),
-                    description = stringResource(RStrings.max_novel_tag_length_desc),
-                    value = browsingSettings.maxNovelTagLength,
-                    onValueChange = { value ->
+            Card(modifier = Modifier.padding(horizontal = 12.dp)) {
+                SpanCountSetting(
+                    title = stringResource(RStrings.span_count_portrait),
+                    currentSpanCount = userPreference.spanCountPortrait,
+                    onSpanCountChange = SettingRepository::setSpanCountPortrait,
+                )
+                SpanCountSetting(
+                    title = stringResource(RStrings.span_count_landscape),
+                    currentSpanCount = userPreference.spanCountLandscape,
+                    onSpanCountChange = SettingRepository::setSpanCountLandscape,
+                )
+                SearchResultIllustLayoutSetting(
+                    selectedLayout = browsingSettings.searchResultIllustLayout,
+                    onLayoutChange = { layout ->
                         SettingRepository.setBrowsingSettings(
-                            browsingSettings.copy(maxNovelTagLength = value),
+                            browsingSettings.copy(searchResultIllustLayout = layout),
                         )
                     },
                 )
-                NovelTagLimitSetting(
-                    title = stringResource(RStrings.max_novel_tag_segments),
-                    description = stringResource(RStrings.max_novel_tag_segments_desc),
-                    value = browsingSettings.maxNovelTagSegments,
-                    onValueChange = { value ->
+                PreviewImageQualitySetting(
+                    selectedQuality = browsingSettings.previewImageQuality,
+                    onQualityChange = { quality ->
                         SettingRepository.setBrowsingSettings(
-                            browsingSettings.copy(maxNovelTagSegments = value),
+                            browsingSettings.copy(previewImageQuality = quality),
                         )
                     },
                 )
+                SwitchPreference(
+                    checked = browsingSettings.autoHidePreviewControls,
+                    onCheckedChange = { checked ->
+                        SettingRepository.setBrowsingSettings(
+                            browsingSettings.copy(autoHidePreviewControls = checked),
+                        )
+                    },
+                    title = stringResource(RStrings.auto_hide_preview_controls),
+                    summary = stringResource(RStrings.auto_hide_preview_controls_desc),
+                    startAction = { Icon(Icons.Rounded.VisibilityOff, contentDescription = null) },
+                )
+                SwitchPreference(
+                    checked = browsingSettings.tapImageToOpenFullResolutionPreview,
+                    onCheckedChange = { checked ->
+                        SettingRepository.setBrowsingSettings(
+                            browsingSettings.copy(tapImageToOpenFullResolutionPreview = checked),
+                        )
+                    },
+                    title = stringResource(RStrings.tap_image_to_open_full_resolution_preview),
+                    summary = stringResource(RStrings.tap_image_to_open_full_resolution_preview_desc),
+                    startAction = { Icon(Icons.Rounded.TouchApp, contentDescription = null) },
+                )
+                SwitchPreference(
+                    checked = browsingSettings.filterLongNovelTags,
+                    onCheckedChange = { checked ->
+                        SettingRepository.setBrowsingSettings(
+                            browsingSettings.copy(filterLongNovelTags = checked),
+                        )
+                    },
+                    title = stringResource(RStrings.filter_long_novel_tags),
+                    summary = stringResource(RStrings.filter_long_novel_tags_desc),
+                    startAction = { Icon(Icons.Rounded.FilterAlt, contentDescription = null) },
+                )
+                if (browsingSettings.filterLongNovelTags) {
+                    NovelTagLimitSetting(
+                        title = stringResource(RStrings.max_novel_tag_length),
+                        description = stringResource(RStrings.max_novel_tag_length_desc),
+                        value = browsingSettings.maxNovelTagLength,
+                        onValueChange = { value ->
+                            SettingRepository.setBrowsingSettings(
+                                browsingSettings.copy(maxNovelTagLength = value),
+                            )
+                        },
+                    )
+                    NovelTagLimitSetting(
+                        title = stringResource(RStrings.max_novel_tag_segments),
+                        description = stringResource(RStrings.max_novel_tag_segments_desc),
+                        value = browsingSettings.maxNovelTagSegments,
+                        onValueChange = { value ->
+                            SettingRepository.setBrowsingSettings(
+                                browsingSettings.copy(maxNovelTagSegments = value),
+                            )
+                        },
+                    )
+                }
             }
         }
     }

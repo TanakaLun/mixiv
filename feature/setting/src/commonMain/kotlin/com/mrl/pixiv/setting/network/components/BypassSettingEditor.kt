@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.data.setting.UserPreference
-import com.mrl.pixiv.common.kts.spaceBy
 import com.mrl.pixiv.common.serialize.fromJson
 import com.mrl.pixiv.common.serialize.toJson
 import com.mrl.pixiv.common.util.RStrings
@@ -51,8 +50,9 @@ import com.mrl.pixiv.strings.use_sni_desc
 import io.ktor.http.URLProtocol
 import io.ktor.http.parseUrl
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.material3.FilterChip
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.RadioButton
+import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.overlay.OverlayDialog
@@ -97,12 +97,7 @@ fun BypassSettingEditor(
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
         )
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = 8.spaceBy
-        ) {
+        Card {
             val types = remember {
                 listOfNotNull(
                     UserPreference.BypassSetting.None,
@@ -110,65 +105,70 @@ fun BypassSettingEditor(
                     if (platform.isIOS()) null else UserPreference.BypassSetting.SNI()
                 )
             }
-
-            types.forEach { type ->
-                val selected = when (bypassSetting) {
+            val selectedIndex = types.indexOfFirst { type ->
+                when (bypassSetting) {
                     is UserPreference.BypassSetting.None -> type is UserPreference.BypassSetting.None
                     is UserPreference.BypassSetting.Proxy -> type is UserPreference.BypassSetting.Proxy
                     is UserPreference.BypassSetting.SNI -> type is UserPreference.BypassSetting.SNI
                 }
+            }.coerceAtLeast(0)
 
-                FilterChip(
-                    selected = selected,
-                    onClick = {
-                        if (!selected) {
-                            onUpdate(type)
+            TabRow(
+                tabs = types.map { type ->
+                    stringResource(
+                        when (type) {
+                            is UserPreference.BypassSetting.None -> RStrings.use_none
+                            is UserPreference.BypassSetting.Proxy -> RStrings.use_proxy
+                            is UserPreference.BypassSetting.SNI -> RStrings.use_sni
                         }
-                    },
-                    label = {
-                        Text(
-                            text = stringResource(
-                                when (type) {
-                                    is UserPreference.BypassSetting.None -> RStrings.use_none
-                                    is UserPreference.BypassSetting.Proxy -> RStrings.use_proxy
-                                    is UserPreference.BypassSetting.SNI -> RStrings.use_sni
-                                }
-                            )
-                        )
+                    )
+                },
+                selectedTabIndex = selectedIndex,
+                onTabSelected = { index ->
+                    val type = types.getOrNull(index) ?: return@TabRow
+                    val selected = when (bypassSetting) {
+                        is UserPreference.BypassSetting.None -> type is UserPreference.BypassSetting.None
+                        is UserPreference.BypassSetting.Proxy -> type is UserPreference.BypassSetting.Proxy
+                        is UserPreference.BypassSetting.SNI -> type is UserPreference.BypassSetting.SNI
                     }
-                )
-            }
-        }
-
-        Column(modifier = Modifier.padding(vertical = 8.dp)) {
-            AnimatedContent(
-                targetState = bypassSetting::class,
-                transitionSpec = { slideInVertically() togetherWith slideOutVertically() },
-                label = "bypass_setting_content"
-            ) {
-                when (bypassSetting) {
-                    is UserPreference.BypassSetting.None -> {}
-                    is UserPreference.BypassSetting.Proxy -> {
-                        ProxyEditor(bypassSetting, onUpdate)
+                    if (!selected) {
+                        onUpdate(type)
                     }
+                },
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                listState = null,
+            )
 
-                    is UserPreference.BypassSetting.SNI -> {
-                        SniEditor(bypassSetting, onUpdate)
+            Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                AnimatedContent(
+                    targetState = bypassSetting::class,
+                    transitionSpec = { slideInVertically() togetherWith slideOutVertically() },
+                    label = "bypass_setting_content"
+                ) {
+                    when (bypassSetting) {
+                        is UserPreference.BypassSetting.None -> {}
+                        is UserPreference.BypassSetting.Proxy -> {
+                            ProxyEditor(bypassSetting, onUpdate)
+                        }
+
+                        is UserPreference.BypassSetting.SNI -> {
+                            SniEditor(bypassSetting, onUpdate)
+                        }
                     }
                 }
+                Text(
+                    text = stringResource(
+                        when (bypassSetting) {
+                            is UserPreference.BypassSetting.None -> RStrings.use_none_desc
+                            is UserPreference.BypassSetting.Proxy -> RStrings.use_proxy_desc
+                            is UserPreference.BypassSetting.SNI -> RStrings.use_sni_desc
+                        }
+                    ),
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+                    style = MiuixTheme.textStyles.body1,
+                )
             }
-            Text(
-                text = stringResource(
-                    when (bypassSetting) {
-                        is UserPreference.BypassSetting.None -> RStrings.use_none_desc
-                        is UserPreference.BypassSetting.Proxy -> RStrings.use_proxy_desc
-                        is UserPreference.BypassSetting.SNI -> RStrings.use_sni_desc
-                    }
-                ),
-                modifier = Modifier.padding(start = 16.dp),
-                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
-                style = MiuixTheme.textStyles.body1,
-            )
         }
     }
 }
