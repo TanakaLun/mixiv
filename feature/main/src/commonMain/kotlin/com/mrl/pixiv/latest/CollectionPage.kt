@@ -1,17 +1,17 @@
 package com.mrl.pixiv.latest
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FilterList
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,7 +37,6 @@ import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.Restrict
 import com.mrl.pixiv.common.kts.itemIndexKey
-import com.mrl.pixiv.common.kts.spaceBy
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.BookmarkState
@@ -55,7 +54,7 @@ import org.koin.core.parameter.parametersOf
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.PullToRefresh
-import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.rememberPullToRefreshState
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
@@ -179,31 +178,29 @@ private fun CollectionIllustPage(
                 state = lazyGridState,
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
+            val options = listOf(
+                RStrings.word_public to Restrict.PUBLIC,
+                RStrings.word_private to Restrict.PRIVATE,
+            )
             Row(
-                modifier = Modifier.align(Alignment.TopCenter),
-                horizontalArrangement = 8f.spaceBy
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(horizontal = 32.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                val options = listOf(
-                    RStrings.word_public to Restrict.PUBLIC,
-                    RStrings.word_private to Restrict.PRIVATE,
+                TabRow(
+                    tabs = options.map { stringResource(it.first) },
+                    selectedTabIndex = options.indexOfFirst { it.second == state.restrict }
+                        .coerceAtLeast(0),
+                    onTabSelected = { index ->
+                        val restrict = options.getOrNull(index)?.second ?: return@TabRow
+                        viewModel.updateFilterTag(restrict, state.filterTag)
+                        userBookmarksIllusts.refresh()
+                    },
+                    modifier = Modifier.weight(1f),
+                    listState = null,
                 )
-                options.forEach { (label, restrict) ->
-                    FilterChip(
-                        selected = state.restrict == restrict,
-                        onClick = {
-                            viewModel.updateFilterTag(restrict, state.filterTag)
-                            userBookmarksIllusts.refresh()
-                        },
-                        label = {
-                            Text(
-                                text = stringResource(label)
-                            )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = MiuixTheme.colorScheme.surfaceVariant
-                        )
-                    )
-                }
                 IconButton(
                     onClick = { showFilterDialog = true },
                     backgroundColor = MiuixTheme.colorScheme.surfaceVariant,
@@ -301,32 +298,24 @@ private fun CollectionNovelPage(
                 state = lazyListState,
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
-            Row(
-                modifier = Modifier.align(Alignment.TopCenter),
-                horizontalArrangement = 8f.spaceBy
-            ) {
-                val options = listOf(
-                    RStrings.word_public to Restrict.PUBLIC,
-                    RStrings.word_private to Restrict.PRIVATE,
-                )
-                options.forEach { (label, restrict) ->
-                    FilterChip(
-                        selected = state.novelRestrict == restrict,
-                        onClick = {
-                            viewModel.updateNovelFilterTag(restrict, state.novelFilterTag)
-                            userBookmarksNovels.refresh()
-                        },
-                        label = {
-                            Text(
-                                text = stringResource(label)
-                            )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = MiuixTheme.colorScheme.surfaceVariant
-                        )
-                    )
-                }
-            }
+            val options = listOf(
+                RStrings.word_public to Restrict.PUBLIC,
+                RStrings.word_private to Restrict.PRIVATE,
+            )
+            TabRow(
+                tabs = options.map { stringResource(it.first) },
+                selectedTabIndex = options.indexOfFirst { it.second == state.novelRestrict }
+                    .coerceAtLeast(0),
+                onTabSelected = { index ->
+                    val restrict = options.getOrNull(index)?.second ?: return@TabRow
+                    viewModel.updateNovelFilterTag(restrict, state.novelFilterTag)
+                    userBookmarksNovels.refresh()
+                },
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(horizontal = 48.dp),
+                listState = null,
+            )
         }
     }
 

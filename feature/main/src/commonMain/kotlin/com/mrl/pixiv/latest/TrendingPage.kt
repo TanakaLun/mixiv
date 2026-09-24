@@ -2,14 +2,12 @@ package com.mrl.pixiv.latest
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,7 +28,6 @@ import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.Restrict
 import com.mrl.pixiv.common.kts.itemIndexKey
-import com.mrl.pixiv.common.kts.spaceBy
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.BookmarkState
@@ -45,9 +42,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import top.yukonga.miuix.kmp.basic.PullToRefresh
-import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.rememberPullToRefreshState
-import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 private const val KEY_TOP_SPACE = "top_space"
 
@@ -160,33 +156,25 @@ private fun TrendingIllustPage(
                 state = lazyGridState,
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
-            Row(
-                modifier = Modifier.align(Alignment.TopCenter),
-                horizontalArrangement = 8f.spaceBy
-            ) {
-                val options = listOf(
-                    RStrings.all to Restrict.ALL,
-                    RStrings.word_public to Restrict.PUBLIC,
-                    RStrings.word_private to Restrict.PRIVATE,
-                )
-                options.forEach { (label, restrict) ->
-                    FilterChip(
-                        selected = trendingFilter == restrict,
-                        onClick = {
-                            viewModel.updateRestrict(restrict)
-                            illustsFollowing.refresh()
-                        },
-                        label = {
-                            Text(
-                                text = stringResource(label)
-                            )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = MiuixTheme.colorScheme.surfaceVariant
-                        )
-                    )
-                }
-            }
+            val options = listOf(
+                RStrings.all to Restrict.ALL,
+                RStrings.word_public to Restrict.PUBLIC,
+                RStrings.word_private to Restrict.PRIVATE,
+            )
+            TabRow(
+                tabs = options.map { stringResource(it.first) },
+                selectedTabIndex = options.indexOfFirst { it.second == trendingFilter }
+                    .coerceAtLeast(0),
+                onTabSelected = { index ->
+                    val restrict = options.getOrNull(index)?.second ?: return@TabRow
+                    viewModel.updateRestrict(restrict)
+                    illustsFollowing.refresh()
+                },
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(horizontal = 48.dp),
+                listState = null,
+            )
         }
     }
 }
@@ -255,33 +243,25 @@ private fun TrendingNovelPage(
                 state = lazyListState,
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
-            Row(
-                modifier = Modifier.align(Alignment.TopCenter),
-                horizontalArrangement = 8f.spaceBy
-            ) {
-                val options = listOf(
-                    RStrings.all to Restrict.ALL,
-                    RStrings.word_public to Restrict.PUBLIC,
-                    RStrings.word_private to Restrict.PRIVATE,
-                )
-                options.forEach { (label, restrict) ->
-                    FilterChip(
-                        selected = trendingFilter == restrict,
-                        onClick = {
-                            viewModel.updateRestrict(restrict)
-                            novelsFollowing.refresh()
-                        },
-                        label = {
-                            Text(
-                                text = stringResource(label)
-                            )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            containerColor = MiuixTheme.colorScheme.surfaceVariant
-                        )
-                    )
-                }
-            }
+            val options = listOf(
+                RStrings.all to Restrict.ALL,
+                RStrings.word_public to Restrict.PUBLIC,
+                RStrings.word_private to Restrict.PRIVATE,
+            )
+            TabRow(
+                tabs = options.map { stringResource(it.first) },
+                selectedTabIndex = options.indexOfFirst { it.second == trendingFilter }
+                    .coerceAtLeast(0),
+                onTabSelected = { index ->
+                    val restrict = options.getOrNull(index)?.second ?: return@TabRow
+                    viewModel.updateRestrict(restrict)
+                    novelsFollowing.refresh()
+                },
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(horizontal = 48.dp),
+                listState = null,
+            )
         }
     }
 }
