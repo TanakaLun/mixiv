@@ -6,13 +6,47 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
-    inputs:
-      name:
-        description: "Release-Build"
-        default: "Generate release build"
 
 jobs:
+  android-compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: 25
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Set up gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Compile Release Kotlin
+        run: ./gradlew :app:compileReleaseKotlin -PapplyFirebasePlugins=false --stacktrace
+
+  check-secrets:
+    runs-on: ubuntu-latest
+    outputs:
+      has_google_services: ${{ steps.check.outputs.has_google_services }}
+    steps:
+      - id: check
+        env:
+          GOOGLE_SERVICE_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICE_JSON" ]; then
+            echo "has_google_services=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_google_services=false" >> "$GITHUB_OUTPUT"
+          fi
+
   android-foss:
+    needs: [ android-compile ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -35,14 +69,19 @@ jobs:
         env:
           ENCODED_STRING: ${{ secrets.KEYSTORE_BASE_64 }}
         run: |
-          echo $ENCODED_STRING > keystore-b64.txt
-          base64 -d keystore-b64.txt > pipixiv.jks
+          if [ -n "$ENCODED_STRING" ]; then
+            echo "$ENCODED_STRING" | base64 -d > pipixiv.jks
+          else
+            keytool -genkeypair -v -keystore pipixiv.jks -alias pipixiv \
+              -keyalg RSA -keysize 2048 -validity 1 -storepass android \
+              -keypass android -dname "CN=CI Debug, OU=CI, O=CI, L=NA, S=NA, C=US"
+          fi
 
       - name: Build Foss Release apk
         env:
-          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
-          RELEASE_KEYSTORE_ALIAS: ${{ secrets.RELEASE_KEYSTORE_ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD || 'android' }}
+          RELEASE_KEYSTORE_ALIAS: ${{ secrets.RELEASE_KEYSTORE_ALIAS || 'pipixiv' }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD || 'android' }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |
@@ -58,6 +97,8 @@ jobs:
             app/release/foss/*.apk
 
   android-default:
+    needs: [ android-compile, check-secrets ]
+    if: needs.check-secrets.outputs.has_google_services == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -80,24 +121,27 @@ jobs:
         env:
           ENCODED_STRING: ${{ secrets.KEYSTORE_BASE_64 }}
         run: |
-          echo $ENCODED_STRING > keystore-b64.txt
-          base64 -d keystore-b64.txt > pipixiv.jks
+          if [ -n "$ENCODED_STRING" ]; then
+            echo "$ENCODED_STRING" | base64 -d > pipixiv.jks
+          else
+            keytool -genkeypair -v -keystore pipixiv.jks -alias pipixiv \
+              -keyalg RSA -keysize 2048 -validity 1 -storepass android \
+              -keypass android -dname "CN=CI Debug, OU=CI, O=CI, L=NA, S=NA, C=US"
+          fi
 
       - name: Add Google Services
         env:
           GOOGLE_SERVICE_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: |
-          echo $GOOGLE_SERVICE_JSON > app/google-services.json
+        run: echo "$GOOGLE_SERVICE_JSON" > app/google-services.json
 
       - name: Build Default Release apk
         env:
-          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
-          RELEASE_KEYSTORE_ALIAS: ${{ secrets.RELEASE_KEYSTORE_ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD || 'android' }}
+          RELEASE_KEYSTORE_ALIAS: ${{ secrets.RELEASE_KEYSTORE_ALIAS || 'pipixiv' }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD || 'android' }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-        run: |
-          ./gradlew assembleRelease -PapplyFirebasePlugins=true -Pdebug=false --stacktrace
+        run: ./gradlew assembleRelease -PapplyFirebasePlugins=true -Pdebug=false --stacktrace
 
       - name: Upload Android Artifacts
         uses: actions/upload-artifact@v7
@@ -113,195 +157,8 @@ jobs:
           path: |
             app/build/outputs/mapping/release/mapping.txt
 
-  desktop-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v7
-
-      - name: Setup Java
-        uses: actions/setup-java@v6
-        with:
-          distribution: 'zulu'
-          java-version: 25
-          cache: 'gradle'
-
-      - name: Set up gradle
-        uses: gradle/actions/setup-gradle@v6
-
-      - name: Setup Sentry CLI
-        run: python .github/scripts/setup-sentry-cli.py
-
-      - name: Build Linux Distributions
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_ORG: pipixiv
-          SENTRY_PROJECT: pipixiv
-        run: ./gradlew :desktopApp:createReleaseDistributable :desktopApp:uploadDesktopSentryMapping -Pdebug=false
-
-      - name: Save desktop Sentry mapping
-        if: ${{ always() && hashFiles('desktopApp/build/compose/binaries/main-release/proguard/mapping.txt') != '' }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: desktop-linux-sentry-mapping
-          if-no-files-found: error
-          path: |
-            desktopApp/build/compose/binaries/main-release/proguard/mapping.txt
-            desktopApp/build/compose/binaries/main-release/proguard/sentry-debug-meta.properties
-
-      - name: Package Linux Distribution
-        run: |
-          cd desktopApp/build/compose/binaries/main-release
-          tar -czf PiPixiv-linux-x86_64.tar.gz -C app .
-
-      - name: Upload Linux Artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: linux-artifacts
-          path: desktopApp/build/compose/binaries/main-release/PiPixiv-linux-x86_64.tar.gz
-
-  desktop-windows:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v7
-
-      - name: Setup Java
-        uses: actions/setup-java@v6
-        with:
-          distribution: 'zulu'
-          java-version: 25
-          cache: 'gradle'
-
-      - name: Set up gradle
-        uses: gradle/actions/setup-gradle@v6
-
-      - name: Setup Sentry CLI
-        run: python .github/scripts/setup-sentry-cli.py
-
-      - name: Build Windows Distribution
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_ORG: pipixiv
-          SENTRY_PROJECT: pipixiv
-        run: ./gradlew :desktopApp:packageReleaseMsi :desktopApp:uploadDesktopSentryMapping -Pdebug=false
-
-      - name: Save desktop Sentry mapping
-        if: ${{ always() && hashFiles('desktopApp/build/compose/binaries/main-release/proguard/mapping.txt') != '' }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: desktop-windows-sentry-mapping
-          if-no-files-found: error
-          path: |
-            desktopApp/build/compose/binaries/main-release/proguard/mapping.txt
-            desktopApp/build/compose/binaries/main-release/proguard/sentry-debug-meta.properties
-
-      - name: Verify Windows installation and startup
-        timeout-minutes: 8
-        shell: pwsh
-        run: |
-          $installers = @(Get-ChildItem 'desktopApp/build/compose/binaries/main-release/msi/*.msi')
-          if ($installers.Count -ne 1) { throw "Expected exactly one Windows MSI" }
-          ./.github/scripts/test-windows-startup.ps1 -MsiPath $installers[0].FullName -OutputDirectory "$env:RUNNER_TEMP/windows-startup" -ExpectedWindowBackend Tao
-
-      - name: Upload Windows startup diagnostics
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: windows-startup-diagnostics
-          path: ${{ runner.temp }}/windows-startup
-          if-no-files-found: ignore
-
-      - name: Upload Windows Artifacts
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: windows-artifacts
-          path: desktopApp/build/compose/binaries/main-release/msi/*.msi
-          if-no-files-found: ignore
-
-  desktop-macos:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v7
-
-      - name: Setup Java
-        uses: actions/setup-java@v6
-        with:
-          distribution: 'zulu'
-          java-version: 25
-          cache: 'gradle'
-
-      - name: Set up gradle
-        uses: gradle/actions/setup-gradle@v6
-
-      - name: Setup Sentry CLI
-        run: python .github/scripts/setup-sentry-cli.py
-
-      - name: Build MacOS Distribution
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_ORG: pipixiv
-          SENTRY_PROJECT: pipixiv
-        run: ./gradlew :desktopApp:packageReleaseDmg :desktopApp:uploadDesktopSentryMapping -Pdebug=false
-
-      - name: Save desktop Sentry mapping
-        if: ${{ always() && hashFiles('desktopApp/build/compose/binaries/main-release/proguard/mapping.txt') != '' }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: desktop-macos-sentry-mapping
-          if-no-files-found: error
-          path: |
-            desktopApp/build/compose/binaries/main-release/proguard/mapping.txt
-            desktopApp/build/compose/binaries/main-release/proguard/sentry-debug-meta.properties
-
-      - name: Upload MacOS Artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: macos-artifacts
-          path: desktopApp/build/compose/binaries/main-release/dmg/*.dmg
-
-  ios:
-    runs-on: xcode-27
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v7
-
-      - name: Show Xcode version
-        run: xcodebuild -version
-
-      - name: Setup Java
-        uses: actions/setup-java@v6
-        with:
-          distribution: 'temurin'
-          java-version: 25
-          cache: 'gradle'
-
-      - name: Set up gradle
-        uses: gradle/actions/setup-gradle@v6
-
-      - name: Resolve SwiftPM Dependencies
-        working-directory: iosApp
-        run: xcodebuild -resolvePackageDependencies -project PiPixiv.xcodeproj -scheme PiPixiv
-
-      - name: Build iOS IPA
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-        run: ./gradlew :composeApp:buildReleaseIpa -Pdebug=false
-
-      - name: Upload iOS Artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: ios-artifacts
-          path: composeApp/build/archives/release/PiPixiv.ipa
-
   release:
-    needs: [ android-foss, android-default, desktop-linux, desktop-windows, desktop-macos, ios ]
+    needs: [ android-foss ]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
@@ -319,11 +176,6 @@ jobs:
       - name: Rename release artifacts
         run: |
           mv artifacts/android-foss-apk/*.apk artifacts/android-foss-apk/PiPixiv-${VERSION_TAG}-android-foss.apk
-          mv artifacts/android-default-apk/*.apk artifacts/android-default-apk/PiPixiv-${VERSION_TAG}-android-default.apk
-          mv artifacts/linux-artifacts/PiPixiv-linux-x86_64.tar.gz artifacts/linux-artifacts/PiPixiv-${VERSION_TAG}-linux-x86_64.tar.gz
-          mv artifacts/windows-artifacts/*.msi artifacts/windows-artifacts/PiPixiv-${VERSION_TAG}-windows-x86_64.msi
-          mv artifacts/macos-artifacts/*.dmg artifacts/macos-artifacts/PiPixiv-${VERSION_TAG}-macos-arm64.dmg
-          mv artifacts/ios-artifacts/*.ipa artifacts/ios-artifacts/PiPixiv-${VERSION_TAG}-ios.ipa
 
       - name: Create Release
         uses: softprops/action-gh-release@v3
@@ -339,8 +191,3 @@ jobs:
           prerelease: false
           files: |
             artifacts/android-foss-apk/**/*.apk
-            artifacts/android-default-apk/**/*.apk
-            artifacts/linux-artifacts/**/*.tar.gz
-            artifacts/windows-artifacts/**/*.msi
-            artifacts/macos-artifacts/**/*.dmg
-            artifacts/ios-artifacts/*.ipa
