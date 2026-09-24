@@ -19,7 +19,7 @@
 - [x] 添加 miuix 依赖与 BOM/版本对齐（只动 catalog + 相关 `build.gradle.kts`）。
 - [x] 新建 `ThemeController`（扩展现有 `Theme.kt`）：深色模式、动态色与 Miuix token 桥接（`SettingTheme` → `ColorSchemeMode.Monet*`）。
 - [x] `PiPixivTheme` 内部改为 `MiuixTheme`；过渡期双栈（`MiuixTheme` 外包 `MaterialExpressiveTheme`，出口仍是单一 `PiPixivTheme`）。
-- [x] 评估 `miuix-nav`：**本阶段不接入**，默认保留现有 AdaptiveScene / transitionSpec / SharedTransitionLayout / androidx.navigation3（catalog 已预留 `miuix-nav` 条目）。
+- [x] 评估 `miuix-nav`：Phase 1 本阶段不接入；后续按方案 A **整套替换** androidx.navigation3（`Navigation3MainGraph` → miuix `NavDisplay`，删除 `AdaptiveScene` / `SharedTransitionLayout` / shared element key）。
 - [x] CI：确认 `develop.yml` 的 `android-compile`（无 secrets）在依赖变更后仍绿（本 push 后验证）。
 
 ## Phase 2 — App Shell（主界面骨架）
@@ -41,6 +41,8 @@
 - [x] `DropDownSelector`、`EditDialog`、`BypassSettingEditor` 等组件迁 preference/overlay 样式。
 - [x] `AboutScreen` markdown-m3：保留渲染库，仅换容器 chrome（或后续换 Miuix 排版）。
 - [x] DatePicker / Slider / RadioButton：对照 skill 是否有 Miuix 版；无则暂留 Material 并标 TODO。
+- [x] 偏好屏包一层 miuix `Card`（`modifier.padding(horizontal = 12.dp)`，对齐 example `SettingsPage`）。
+- [x] 单选 FilterChip 行 → miuix `TabRow`（Bypass / Trending / Collection）。
 
 ## Phase 4 — 业务屏（按模块）
 
@@ -59,7 +61,7 @@
 - [x] 无新增 `androidx.compose.material3` import（存量逐步清）
 - [x] 图标：`Icons.Rounded.*` → `MiuixIcons`（82 个 import 清单见 `UI_STACK.md`）→ mapping 已建（§5.1）；**逐点位替换仍开放**（工作量大，可按屏分批）。
 - [ ] Ripple / pressed 态符合 Miuix
-- [ ] 共享元素屏（IllustItem / Picture / ImagePreview）转场不回归
+- [x] 共享元素屏（IllustItem / Picture / ImagePreview）：方案 A 后 shared element **有意移除**（改 miuix-nav 全局转场）。
 
 ## Phase 5 — 图标与零碎 API
 
@@ -71,18 +73,18 @@
 
 ## Phase 6 — 收尾与清理
 
-- [ ] 删除不再使用的 material3 / adaptive 依赖（谨慎：adaptive NavigationSuite 若仍需要则保留）。
+- [ ] 删除不再使用的 material3 / adaptive 依赖（谨慎：adaptive NavigationSuite 若仍需要则保留；navigation3 catalog 条目可清）。
 - [ ] 移除 `MaterialExpressiveTheme`、expressive color scheme 残留（确认无动态色依赖）。
-- [ ] 更新 `UI_STACK.md`（迁移后状态）与本文件勾选。
+- [x] 更新 `UI_STACK.md`（迁移后状态）与本文件勾选（nav 已换 miuix-nav；Cards/TabRow 已做）。
 - [ ] README / 截图（若需要，用户明确要求时再做）。
 - [ ] 最终 CI：`android-compile` 必绿；有 secrets 时 `android-foss` 绿；`gh run watch`。
 
 ## 非目标 / 明确不做
 
 - 不在本地执行 Gradle 编译/测试（用户要求只靠 CI 验证）。
-- 不改 Navigation3 图结构、Destination、Shared element key（除非单独任务）。
 - 不引入 desktop/iOS 已裁剪目标的回潮。
 - 不默认开启 `miuix-blur`（minSdk 26）。
+- 共享元素 / AdaptiveScene 分栏已随方案 A 移除（有意取舍）。
 
 ## 建议 Commit 切分（英文、conventional）
 

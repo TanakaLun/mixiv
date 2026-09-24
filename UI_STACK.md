@@ -1,7 +1,8 @@
-# UI Stack Analysis (Material 3 + Navigation 3)
+# UI Stack Analysis (Material 3 → miuix 迁移中)
 
 > 目的：为 miuix 迁移提供现状盘点。仅 Android-only 构建（已裁剪 desktop/iOS）。
-> 统计基于仓库当前源码（约 88 个文件引用 `androidx.compose.material3.*`，82 个 material-icons import）。
+> **状态更新（方案 A 后）**：导航已改 **miuix-nav**（`NavDisplay` + `NavKey`），`AdaptiveScene` / `SharedTransitionLayout` / shared element 已删除。
+> 设置偏好屏已包 miuix `Card`；单选 FilterChip 行已改 miuix `TabRow`。
 
 ## 1. 依赖与主题
 
@@ -79,14 +80,16 @@
 
 ## 3. 导航架构与默认转场动画
 
-技术栈：**Navigation 3**（`NavDisplay` + `entry<>` graph），非 Navigation2。
+技术栈：**miuix-nav**（`NavDisplay` + `entry<NavigationRecord>`），**已移除** androidx.navigation3 运行时依赖（catalog 条目仍在，可后续清理）。
 
 关键文件：
 
 | 文件 | 职责 |
 |---|---|
-| `composeApp/.../navigation/AdaptiveScene.kt` | 自适应 Scene + 默认 enter/exit |
-| `composeApp/.../navigation/Navigation3MainGraph.kt` | 全局 entry 图 + per-entry `transitionSpec` + `SharedTransitionLayout` |
+| `composeApp/.../navigation/Navigation3MainGraph.kt` | miuix `NavDisplay` 全局 entry 图（文件名沿用，内部已换） |
+| `common/core/.../router/Navigation.kt` / `NavigationRecord.kt` | `NavKey` 路由 + 唯一 contentKey |
+| `common/core/.../router/NavigationManager.kt` | `navBackStack`（`SnapshotStateList<NavKey>`）+ `replaceRecords` |
+| ~~`AdaptiveScene.kt`~~ | **已删除**（方案 A 取舍：失去 split-pane / shared element） |
 | `common/core/.../animation/AnimationDefaults.kt` | `DefaultAnimationDuration = 200`，`DefaultFloatAnimationSpec = tween(200)` |
 | `feature/main/.../MainScreen.kt` | 底部/侧栏 `NavigationSuiteScaffold` + tab 切换动画 |
 
@@ -112,7 +115,7 @@
 | `ImagePreview` | `fadeIn(tween(200)) togetherWith fadeOut(tween(200))` | 同左 |
 | `Picture` | scale 0.9/1.1 + fade，spec=`DefaultFloatAnimationSpec`(tween 200) | scale 反向 + fade |
 
-其余 entry（Main、Setting、Search、Collection…）走 **默认 fade 220/140**。
+其余 entry 走 **miuix 默认全局转场**（`NavTransitions.MiuixDefault`，不再 per-entry `transitionSpec`）。
 
 ### 3.4 主界面 Tab 切换（`MainScreen.kt`）
 
@@ -123,9 +126,8 @@ exit:  fadeOut(tween(90))
 
 ### 3.5 Shared Element
 
-- 根：`Navigation3MainGraph` 内 `SharedTransitionLayout`，经 `LocalSharedTransitionScope` 下发
-- 使用点：`IllustItem`（`sharedBounds` + `sharedElement`）、`PictureScreen`、`ImagePreview`、`ProfileScreen` 相关
-- `placeholderSize = SharedTransitionScope.PlaceholderSize.AnimatedSize`
+- **已移除**（方案 A）：`SharedTransitionLayout` / `LocalSharedTransitionScope` / `sharedElementKey` 均已删除
+- 页面转场统一走 miuix `NavTransitions.MiuixDefault`（全局同一 transition）
 
 ## 4. 页面 / 模块规模（迁移工作量参考）
 
@@ -150,13 +152,14 @@ exit:  fadeOut(tween(90))
 |---|---|
 | `Scaffold` + `TopAppBar` | Miuix `Scaffold` / `TopAppBar`（Overlay* 需 Scaffold 祖先） |
 | `NavigationBar` / `NavigationRail` / `NavigationSuiteScaffold` | Miuix `NavigationBar` / `NavigationRail`（自适应策略需自研或保留 adaptive 壳） |
-| `ListItem` + `Switch` | `SwitchPreference` / `ArrowPreference` 等 `miuix-preference` |
+| `ListItem` + `Switch` | `SwitchPreference` / `ArrowPreference` 等 `miuix-preference`，外层包 `Card` |
+| 单选 `FilterChip` 行 | miuix `TabRow` / `TabRowWithContour` |
 | `AlertDialog` | `OverlayDialog` |
 | `ModalBottomSheet` | 底部 Overlay（skill 中 OverlayDialog/BottomSheet 体系） |
 | `CircularProgressIndicator` / Wavy | Miuix progress（查 skill API） |
 | `Text` / `Button` / `IconButton` | Miuix 基础组件 + `MiuixIcons` |
 | `MaterialExpressiveTheme` | `MiuixTheme` 包裹（skill 强制） |
-| Navigation3 转场 | **保留 Navigation3**；优先只换 chrome，不动 `AdaptiveScene`/`transitionSpec`；或评估 `miuix-nav`（更名自 `miuix-navigation3-ui`，自研 runtime、零依赖 androidx.navigation3，接入=整套替换） |
+| Navigation3 转场 | **已换 miuix-nav**（`NavDisplay` + `NavTransitions.MiuixDefault`）；AdaptiveScene / Shared element 已删 |
 | 毛玻璃 / textureBlur | `miuix-blur`（**minSdk 33**，应用 minSdk 26 → 需门控） |
 
 ### 5.1 Material Icons → MiuixIcons mapping
