@@ -266,7 +266,7 @@ markdown = ["markdown-core", "markdown-m3"]
 lottie = ["lottie", "lottie-compose"]
 firebase = ["firebase-analytics", "firebase-crashlytics"]
 filekit = ["filekit-core", "filekit-dialogs", "filekit-dialogs-compose", "filekit-coil"]
-miuix = ["miuix-ui", "miuix-preference", "miuix-icons"]
+miuix = ["miuix-ui", "miuix-preference", "miuix-icons", "miuix-nav"]
 
 # AndroidX
 androidx = ["androidx-activity-compose", "androidx-appcompat", "androidx-core-ktx"]

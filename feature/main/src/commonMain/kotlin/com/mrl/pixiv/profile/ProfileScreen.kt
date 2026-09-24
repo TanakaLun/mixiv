@@ -35,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mrl.pixiv.common.compose.LocalSharedTransitionScope
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.compose.ui.image.UserAvatar
 import com.mrl.pixiv.common.data.setting.SettingTheme
@@ -129,18 +128,16 @@ fun ProfileScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    with(LocalSharedTransitionScope.current) {
-                        UserAvatar(
-                            url = userInfo.user.profileImageUrls.medium,
-                            modifier = Modifier.size(80.dp),
-                            onClick = {
-                                navigationManager.navigateToProfileDetailScreen(userInfo.user.id)
-                            },
-                        )
-                        Column {
-                            Text(text = userInfo.user.name)
-                            Text(text = "ID: ${userInfo.user.id}")
-                        }
+                    UserAvatar(
+                        url = userInfo.user.profileImageUrls.medium,
+                        modifier = Modifier.size(80.dp),
+                        onClick = {
+                            navigationManager.navigateToProfileDetailScreen(userInfo.user.id)
+                        },
+                    )
+                    Column {
+                        Text(text = userInfo.user.name)
+                        Text(text = "ID: ${userInfo.user.id}")
                     }
                 }
             }

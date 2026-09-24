@@ -8,11 +8,11 @@ import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.navigation3.runtime.NavKey
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.Type
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import top.yukonga.miuix.kmp.nav.core.NavKey
 
 @Serializable
 @Stable
@@ -55,7 +55,6 @@ sealed class Destination : NavKey {
     data class ImagePreview(
         val imageUrls: List<String>,
         val initialIndex: Int,
-        val sharedElementKey: String? = null,
     ) : Destination()
 
     @Serializable

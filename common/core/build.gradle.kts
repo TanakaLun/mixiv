@@ -35,7 +35,8 @@ kotlin {
             implementation(project(":common:data"))
             implementation(libs.compose.jetbrains.compose.resources)
             implementation(libs.androidx.annotation)
-            implementation(libs.bundles.compose.navigation3)
+            // miuix-nav (Destination/NavigationRecord NavKey)
+            implementation(libs.miuix.nav)
             // Ktor
             implementation(libs.bundles.kotlinx.ktor)
             // Serialization
@@ -56,7 +57,6 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.material)
             implementation(libs.androidx.lifecycle.process)
-            implementation(libs.bundles.compose.navigation3.android)
             implementation(libs.kotlinx.ktor.client.okhttp)
             implementation(libs.coil3.gif)
             implementation(libs.mmkv)

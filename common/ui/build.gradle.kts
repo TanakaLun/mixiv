@@ -19,8 +19,6 @@ kotlin {
             // Coil3
             implementation(project.dependencies.platform(libs.coil3.bom))
             implementation(libs.bundles.coil3)
-            // Navigation3
-            implementation(libs.bundles.compose.navigation3)
             // Toast
             implementation(libs.sonner)
             // miuix (api: features compile against miuix types)
@@ -29,11 +27,6 @@ kotlin {
 
         commonTest.dependencies {
             implementation(kotlin("test"))
-        }
-
-        androidMain.dependencies {
-            // Navigation3
-            implementation(libs.bundles.compose.navigation3.android)
         }
     }
 }

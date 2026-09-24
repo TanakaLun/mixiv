@@ -4,9 +4,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import top.yukonga.miuix.kmp.nav.core.NavKey
 
 /** A visit has its own identity, even when another visit has exactly the same arguments. */
 @Immutable

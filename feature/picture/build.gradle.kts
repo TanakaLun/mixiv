@@ -21,8 +21,6 @@ kotlin {
             // Paging
             implementation(libs.bundles.androidx.paging)
 
-            // Navigation3
-            implementation(libs.bundles.compose.navigation3)
             // Coil3
             implementation(project.dependencies.platform(libs.coil3.bom))
             implementation(libs.bundles.coil3)
@@ -34,8 +32,6 @@ kotlin {
             implementation(libs.compose.navigationevent.compose)
         }
         androidMain.dependencies {
-            // Navigation3
-            implementation(libs.bundles.compose.navigation3.android)
             // Permission
             implementation(libs.compose.accompanist.permissions)
         }

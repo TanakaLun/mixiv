@@ -1,9 +1,5 @@
 package com.mrl.pixiv.common.compose.ui.illust
 
-import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,14 +40,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.mrl.pixiv.common.animation.DefaultAnimationDuration
-import com.mrl.pixiv.common.animation.DefaultFloatAnimationSpec
-import com.mrl.pixiv.common.compose.LocalSharedTransitionScope
 import com.mrl.pixiv.common.compose.layout.isWidthAtLeastExpanded
 import com.mrl.pixiv.common.compose.ui.BookmarkIcon
 import com.mrl.pixiv.common.compose.ui.IllustBottomBookmarkSheet
@@ -106,91 +98,75 @@ fun SquareIllustItem(
     val onClick = {
         navToPictureScreen(prefix, enableTransition)
     }
-    val animatedContentScope = LocalNavAnimatedContentScope.current
 
-    with(LocalSharedTransitionScope.current) {
-        Box(
-            modifier = modifier
-                .aspectRatio(1f)
-                .sharedBounds(
-                    rememberSharedContentState(key = "${prefix}-card-${illust.id}"),
-                    animatedContentScope,
-                    enter = fadeIn(DefaultFloatAnimationSpec),
-                    exit = fadeOut(DefaultFloatAnimationSpec),
-                    boundsTransform = { _, _ -> tween(DefaultAnimationDuration) },
-//                    renderInOverlayDuringTransition = false
-                )
-                .shadow(elevation, shape)
-                .background(MiuixTheme.colorScheme.background)
-                .throttleClick { onClick() }
+    Box(
+        modifier = modifier
+            .aspectRatio(1f)
+            .shadow(elevation, shape)
+            .background(MiuixTheme.colorScheme.background)
+            .throttleClick { onClick() }
+    ) {
+        val imageKey = illust.imageUrls.squareMedium
+        AsyncImage(
+            modifier = Modifier
+                .matchParentSize()
+                .conditionally(isIllustBlocked || isUserBlocked) {
+                    blur(50.dp, BlurredEdgeTreatment(shape))
+                },
+            model = ImageRequest.Builder(LocalPlatformContext.current)
+                .data(illust.imageUrls.squareMedium)
+                .crossfade(1.seconds.inWholeMilliseconds.toInt())
+                .allowRgb565(true)
+                .placeholderMemoryCacheKey(imageKey)
+                .memoryCacheKey(imageKey)
+                .build(),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+        )
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(5.dp),
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            val imageKey = illust.imageUrls.squareMedium
-            AsyncImage(
-                modifier = Modifier
-                    .matchParentSize()
-                    .sharedElement(
-                        rememberSharedContentState(key = "${prefix}-$imageKey"),
-                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                        placeholderSize = SharedTransitionScope.PlaceholderSize.AnimatedSize,
-                    )
-                    .conditionally(isIllustBlocked || isUserBlocked) {
-                        blur(50.dp, BlurredEdgeTreatment(shape))
-                    },
-                model = ImageRequest.Builder(LocalPlatformContext.current)
-                    .data(illust.imageUrls.squareMedium)
-                    .crossfade(1.seconds.inWholeMilliseconds.toInt())
-                    .allowRgb565(true)
-                    .placeholderMemoryCacheKey(imageKey)
-                    .memoryCacheKey(imageKey)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-            )
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(5.dp),
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (illust.illustAIType == AiType.AiGeneratedWorks) {
-                    AIBadge()
-                }
-                if (illust.type == Type.Ugoira) {
-                    GifBadge()
-                }
-                if (illust.type == Type.Manga) {
-                    TextBadge(text = stringResource(RStrings.manga))
-                }
-                if (illust.series != null) {
-                    TextBadge(text = stringResource(RStrings.series))
-                }
-                if (illust.pageCount > 1) {
-                    PageBadge(
-                        pageCount = illust.pageCount,
-                    )
-                }
+            if (illust.illustAIType == AiType.AiGeneratedWorks) {
+                AIBadge()
             }
-            if (!isUserBlocked && !isIllustBlocked) {
-                BookmarkTooltipBox(
-                    shouldShowTip = shouldShowTip,
-                    modifier = Modifier.align(Alignment.BottomEnd),
+            if (illust.type == Type.Ugoira) {
+                GifBadge()
+            }
+            if (illust.type == Type.Manga) {
+                TextBadge(text = stringResource(RStrings.manga))
+            }
+            if (illust.series != null) {
+                TextBadge(text = stringResource(RStrings.series))
+            }
+            if (illust.pageCount > 1) {
+                PageBadge(
+                    pageCount = illust.pageCount,
+                )
+            }
+        }
+        if (!isUserBlocked && !isIllustBlocked) {
+            BookmarkTooltipBox(
+                shouldShowTip = shouldShowTip,
+                modifier = Modifier.align(Alignment.BottomEnd),
+            ) {
+                LongPressIconButton(
+                    onClick = throttleClick {
+                        val restrict =
+                            if (requireUserPreferenceValue.defaultPrivateBookmark) Restrict.PRIVATE else Restrict.PUBLIC
+                        onBookmarkClick(restrict, null, false)
+                    },
+                    onLongClick = { showBottomSheet = true },
                 ) {
-                    LongPressIconButton(
-                        onClick = throttleClick {
-                            val restrict =
-                                if (requireUserPreferenceValue.defaultPrivateBookmark) Restrict.PRIVATE else Restrict.PUBLIC
-                            onBookmarkClick(restrict, null, false)
-                        },
-                        onLongClick = { showBottomSheet = true },
-                    ) {
-                        BookmarkIcon(
-                            isBookmarked = isBookmarked,
-                            isPrivate = illust.isPrivateBookmark,
-                            iconSize = 24.dp,
-                            contentDescription = "",
-                        )
-                    }
+                    BookmarkIcon(
+                        isBookmarked = isBookmarked,
+                        isPrivate = illust.isPrivateBookmark,
+                        iconSize = 24.dp,
+                        contentDescription = "",
+                    )
                 }
             }
         }
@@ -220,8 +196,6 @@ fun RectangleIllustItem(
     shouldShowTip: Boolean = false,
 ) {
     val scale = calculateIllustAspectRatio(illust.width, illust.height)
-    val sharedTransitionScope = LocalSharedTransitionScope.current
-    val animatedContentScope = LocalNavAnimatedContentScope.current
     val prefix = rememberSaveable(enableTransition) { Uuid.random().toHexString() }
     val isIllustBlocked = BlockingRepositoryV2.collectIllustBlockAsState(illust.id)
     val isUserBlocked = BlockingRepositoryV2.collectUserBlockAsState(illust.user.id)
@@ -232,121 +206,106 @@ fun RectangleIllustItem(
     }
     val context = LocalPlatformContext.current
 
-    with(sharedTransitionScope) {
-        val shape = 10f.round
-        Box(
-            modifier = modifier
-                .sharedBounds(
-                    rememberSharedContentState(key = "${prefix}-card-${illust.id}"),
-                    animatedContentScope,
-                    enter = fadeIn(DefaultFloatAnimationSpec),
-                    exit = fadeOut(DefaultFloatAnimationSpec),
-                    boundsTransform = { _, _ -> tween(DefaultAnimationDuration) },
-//                    renderInOverlayDuringTransition = false
-                )
-                .padding(horizontal = 5.dp)
-                .padding(bottom = 5.dp)
-                .throttleClick {
-                    navToPictureScreen(prefix, enableTransition)
-                }
-                .shadow(4.dp, shape, clip = false)
-                .background(color = MiuixTheme.colorScheme.surface, shape = shape)
-                .clip(shape),
-        ) {
-            Column {
-                val imageKey = illust.imageUrls.medium
-                val imageShape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)
-                AsyncImage(
-                    model = remember {
-                        ImageRequest.Builder(context)
-                            .data(illust.imageUrls.medium)
-                            .allowRgb565(true)
-                            .crossfade(1.seconds.inWholeMilliseconds.toInt())
-                            .placeholderMemoryCacheKey(imageKey)
-                            .memoryCacheKey(imageKey)
-                            .build()
-                    },
-                    contentDescription = null,
-                    modifier = Modifier
-                        .aspectRatio(scale)
-                        .conditionally(isIllustBlocked || isUserBlocked) {
-                            blur(50.dp, BlurredEdgeTreatment(imageShape))
-                        }
-                        .clip(imageShape)
-                        .sharedElement(
-                            sharedTransitionScope.rememberSharedContentState(key = "${prefix}-$imageKey"),
-                            animatedVisibilityScope = animatedContentScope,
-                            placeholderSize = SharedTransitionScope.PlaceholderSize.AnimatedSize,
-                        ),
-                    alignment = Alignment.TopCenter,
-                )
-                Row(
-                    modifier = Modifier
-                        .padding(start = 5.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = illust.title,
-                            style = MiuixTheme.textStyles.main,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Text(
-                            text = illust.user.name,
-                            style = MiuixTheme.textStyles.body1,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+    val shape = 10f.round
+    Box(
+        modifier = modifier
+            .padding(horizontal = 5.dp)
+            .padding(bottom = 5.dp)
+            .throttleClick {
+                navToPictureScreen(prefix, enableTransition)
+            }
+            .shadow(4.dp, shape, clip = false)
+            .background(color = MiuixTheme.colorScheme.surface, shape = shape)
+            .clip(shape),
+    ) {
+        Column {
+            val imageKey = illust.imageUrls.medium
+            val imageShape = RoundedCornerShape(topStart = 10.dp, topEnd = 10.dp)
+            AsyncImage(
+                model = remember {
+                    ImageRequest.Builder(context)
+                        .data(illust.imageUrls.medium)
+                        .allowRgb565(true)
+                        .crossfade(1.seconds.inWholeMilliseconds.toInt())
+                        .placeholderMemoryCacheKey(imageKey)
+                        .memoryCacheKey(imageKey)
+                        .build()
+                },
+                contentDescription = null,
+                modifier = Modifier
+                    .aspectRatio(scale)
+                    .conditionally(isIllustBlocked || isUserBlocked) {
+                        blur(50.dp, BlurredEdgeTreatment(imageShape))
                     }
-                    BookmarkTooltipBox(
-                        shouldShowTip = shouldShowTip,
+                    .clip(imageShape),
+                alignment = Alignment.TopCenter,
+            )
+            Row(
+                modifier = Modifier
+                    .padding(start = 5.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = illust.title,
+                        style = MiuixTheme.textStyles.main,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = illust.user.name,
+                        style = MiuixTheme.textStyles.body1,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                BookmarkTooltipBox(
+                    shouldShowTip = shouldShowTip,
+                ) {
+                    LongPressIconButton(
+                        onClick = throttleClick {
+                            val restrict =
+                                if (requireUserPreferenceValue.defaultPrivateBookmark) Restrict.PRIVATE else Restrict.PUBLIC
+                            onBookmarkClick(restrict, null, false)
+                        },
+                        onLongClick = onBookmarkLongClick,
                     ) {
-                        LongPressIconButton(
-                            onClick = throttleClick {
-                                val restrict =
-                                    if (requireUserPreferenceValue.defaultPrivateBookmark) Restrict.PRIVATE else Restrict.PUBLIC
-                                onBookmarkClick(restrict, null, false)
-                            },
-                            onLongClick = onBookmarkLongClick,
-                        ) {
-                            BookmarkIcon(
-                                isBookmarked = isBookmarked,
-                                isPrivate = illust.isPrivateBookmark,
-                                iconSize = 24.dp,
-                                contentDescription = "",
-                            )
-                        }
+                        BookmarkIcon(
+                            isBookmarked = isBookmarked,
+                            isPrivate = illust.isPrivateBookmark,
+                            iconSize = 24.dp,
+                            contentDescription = "",
+                        )
                     }
                 }
             }
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(5.dp),
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (illust.illustAIType == AiType.AiGeneratedWorks) {
-                    AIBadge()
-                }
-                if (illust.type == Type.Ugoira) {
-                    GifBadge()
-                }
-                if (illust.type == Type.Manga) {
-                    TextBadge(text = stringResource(RStrings.manga))
-                }
-                if (illust.series != null) {
-                    TextBadge(text = stringResource(RStrings.series))
-                }
-                if (illust.pageCount > 1) {
-                    PageBadge(
-                        pageCount = illust.pageCount,
-                    )
-                }
+        }
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(5.dp),
+            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (illust.illustAIType == AiType.AiGeneratedWorks) {
+                AIBadge()
+            }
+            if (illust.type == Type.Ugoira) {
+                GifBadge()
+            }
+            if (illust.type == Type.Manga) {
+                TextBadge(text = stringResource(RStrings.manga))
+            }
+            if (illust.series != null) {
+                TextBadge(text = stringResource(RStrings.series))
+            }
+            if (illust.pageCount > 1) {
+                PageBadge(
+                    pageCount = illust.pageCount,
+                )
             }
         }
     }

@@ -31,9 +31,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import com.github.panpf.zoomimage.CoilZoomAsyncImage
-import com.mrl.pixiv.common.compose.LocalSharedTransitionScope
 import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
@@ -46,7 +44,6 @@ import kotlin.math.abs
 fun ImagePreviewScreen(
     imageUrls: List<String>,
     initialIndex: Int,
-    sharedElementKey: String?,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -63,9 +60,6 @@ fun ImagePreviewScreen(
     )
     val errorImage = rememberVectorPainter(Icons.Rounded.ErrorOutline)
     val pageLoadingStates = remember(imageUrls) { mutableStateMapOf<Int, Boolean>() }
-    val sharedTransitionScope = LocalSharedTransitionScope.current
-    val animatedContentScope = LocalNavAnimatedContentScope.current
-    val safeInitialIndex = initialIndex.coerceIn(0, imageUrls.lastIndex)
     val dismissDistance = with(LocalDensity.current) { 120.dp.toPx() }
     var dragOffsetY by remember { mutableFloatStateOf(0f) }
     val backgroundAlpha = (1f - abs(dragOffsetY) / (dismissDistance * 3f))
@@ -107,25 +101,11 @@ fun ImagePreviewScreen(
                 modifier = Modifier.fillMaxSize()
             ) { page ->
                 val isPageLoading = pageLoadingStates[page] ?: true
-                val imageModifier = with(sharedTransitionScope) {
-                    Modifier
-                        .fillMaxSize()
-                        .then(
-                            if (sharedElementKey != null && page == safeInitialIndex) {
-                                Modifier.sharedElement(
-                                    sharedContentState = rememberSharedContentState(sharedElementKey),
-                                    animatedVisibilityScope = animatedContentScope,
-                                )
-                            } else {
-                                Modifier
-                            }
-                        )
-                }
                 Box(modifier = Modifier.fillMaxSize()) {
                     CoilZoomAsyncImage(
                         model = imageUrls[page],
                         contentDescription = null,
-                        modifier = imageModifier,
+                        modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Fit,
                         error = errorImage,
                         onLoading = {

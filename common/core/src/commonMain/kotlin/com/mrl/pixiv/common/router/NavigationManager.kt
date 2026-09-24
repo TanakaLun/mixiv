@@ -4,12 +4,15 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import co.touchlab.kermit.Logger
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.Illust
 import com.mrl.pixiv.common.data.Type
 import com.mrl.pixiv.common.repository.IllustCacheRepo
 import org.koin.core.annotation.Single
+import top.yukonga.miuix.kmp.nav.core.NavBackStack
 import kotlin.time.measureTime
 import kotlin.uuid.Uuid
 
@@ -30,6 +33,11 @@ class NavigationManager(
 
     val backStack: List<NavigationRecord>
         get() = store.records
+
+    /** Live stack for miuix-nav [NavDisplay]; same instance as [backStack]. */
+    @Suppress("UNCHECKED_CAST")
+    val navBackStack: NavBackStack
+        get() = store.records as NavBackStack
 
     val currentDestination: Destination
         get() = backStack.last().destination
@@ -68,7 +76,7 @@ class NavigationManager(
                 }
             }
         }
-        store.records = snapshot.records.toList()
+        replaceRecords(snapshot.records)
         store.currentMainPage = snapshot.currentMainPage
     }
 
@@ -84,7 +92,7 @@ class NavigationManager(
         } else {
             records.lastIndex
         }
-        store.records = records.take(keepCount)
+        replaceRecords(records.take(keepCount))
     }
 
     fun navigate(destination: Destination) {
@@ -108,20 +116,20 @@ class NavigationManager(
         } else {
             records
         }
-        store.records = history + newRecord(destination, ownerEntryId)
+        replaceRecords(history + newRecord(destination, ownerEntryId))
     }
 
     /** Explicitly opens a new independent visit, for example full-width novel reading. */
     fun openInMainPane() {
         val source = activeSource(backStack) ?: return
-        store.records = backStack + newRecord(source.destination)
+        replaceRecords(backStack + newRecord(source.destination))
     }
 
     fun closeDetailBranch(ownerEntryId: String) {
         val records = backStack
         if (records.lastOrNull()?.ownerEntryId != ownerEntryId) return
         val ownerIndex = records.indexOfFirst { it.entryId == ownerEntryId }
-        if (ownerIndex >= 0) store.records = records.take(ownerIndex + 1)
+        if (ownerIndex >= 0) replaceRecords(records.take(ownerIndex + 1))
     }
 
     /** Used when a source changes its selected content without creating a navigation visit. */
@@ -138,13 +146,13 @@ class NavigationManager(
     }
 
     fun loginToMainScreen() {
-        store.records = listOf(newRecord(Destination.Main))
+        replaceRecords(listOf(newRecord(Destination.Main)))
     }
 
     fun popBackToMainScreen() {
         val records = backStack
         val mainIndex = records.indexOfLast { it.destination == Destination.Main }
-        if (mainIndex >= 0) store.records = records.take(mainIndex + 1)
+        if (mainIndex >= 0) replaceRecords(records.take(mainIndex + 1))
     }
 
     private fun activeSource(records: List<NavigationRecord>): NavigationRecord? {
@@ -176,14 +184,12 @@ class NavigationManager(
     fun navigateToImagePreviewScreen(
         imageUrls: List<String>,
         initialIndex: Int,
-        sharedElementKey: String? = null,
     ) {
         if (imageUrls.isEmpty()) return
         navigate(
             Destination.ImagePreview(
                 imageUrls = imageUrls,
                 initialIndex = initialIndex.coerceIn(0, imageUrls.lastIndex),
-                sharedElementKey = sharedElementKey,
             )
         )
     }
@@ -235,7 +241,7 @@ class NavigationManager(
     }
 
     fun navigateToLoginOptionScreen() {
-        store.records = listOf(newRecord(Destination.LoginOption))
+        replaceRecords(listOf(newRecord(Destination.LoginOption)))
     }
 
     fun navigateToUserIllustScreen(userId: Long, initialType: Type = Type.Illust) {
@@ -315,10 +321,18 @@ class NavigationManager(
     fun navigateToNovelSeriesScreen(seriesId: Long) {
         navigate(destination = Destination.NovelSeries(seriesId))
     }
+
+    private fun replaceRecords(newRecords: List<NavigationRecord>) {
+        store.records.apply {
+            clear()
+            addAll(newRecords)
+        }
+    }
 }
 
 private class NavigationStore(initialDestinations: List<Destination>) {
-    var records by mutableStateOf(initialDestinations.map { newRecord(it) })
+    val records: SnapshotStateList<NavigationRecord> =
+        initialDestinations.map { newRecord(it) }.toMutableStateList()
     var currentMainPage by mutableStateOf<MainPage>(MainPage.Home)
 }
 

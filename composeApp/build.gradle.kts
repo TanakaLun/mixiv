@@ -27,7 +27,6 @@ kotlin {
                 rootDir.resolve("feature").listFiles()?.filter { it.isDirectory }?.forEach {
                     implementation(project(":feature:${it.name}"))
                 }
-                implementation(libs.bundles.compose.navigation3)
                 // Coil3
                 implementation(project.dependencies.platform(libs.coil3.bom))
                 implementation(libs.bundles.coil3)
@@ -37,12 +36,6 @@ kotlin {
                 implementation(libs.filekit.core)
                 // MMKV
                 implementation(libs.mmkv.kotlin)
-            }
-        }
-        androidMain {
-            dependencies {
-                // Navigation3
-                implementation(libs.bundles.compose.navigation3.android)
             }
         }
         commonTest.dependencies {

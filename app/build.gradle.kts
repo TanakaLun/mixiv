@@ -142,8 +142,6 @@ dependencies {
     implementation(libs.androidx.splashscreen)
     // ProfileInstaller
     implementation(libs.androidx.profileinstaller)
-    // Navigation3
-    implementation(libs.bundles.compose.navigation3.android)
     // Coil3
     implementation(platform(libs.coil3.bom))
     implementation(libs.bundles.coil3)

@@ -1,7 +1,6 @@
 package com.mrl.pixiv.picture
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -24,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ErrorOutline
@@ -32,7 +32,6 @@ import androidx.compose.material.icons.rounded.PersonOff
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -58,7 +57,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.paging.compose.collectAsLazyPagingItems
 import be.digitalia.compose.htmlconverter.htmlToAnnotatedString
 import coil3.compose.AsyncImage
@@ -67,8 +65,6 @@ import coil3.request.ImageRequest
 import com.mrl.pixiv.common.animation.DefaultAnimationDuration
 import com.mrl.pixiv.common.animation.DefaultFloatAnimationSpec
 import com.mrl.pixiv.common.compose.IllustGridDefaults
-import com.mrl.pixiv.common.compose.LocalSharedKeyPrefix
-import com.mrl.pixiv.common.compose.LocalSharedTransitionScope
 import com.mrl.pixiv.common.compose.layout.ResizableSplitLayout
 import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
 import com.mrl.pixiv.common.compose.layout.isWidthAtLeastExpanded
@@ -76,6 +72,7 @@ import com.mrl.pixiv.common.compose.layout.rememberSplitPaneState
 import com.mrl.pixiv.common.compose.ui.BlockSurface
 import com.mrl.pixiv.common.compose.ui.BookmarkIcon
 import com.mrl.pixiv.common.compose.ui.IllustBottomBookmarkSheet
+import com.mrl.pixiv.common.compose.ui.LongPressIconButton
 import com.mrl.pixiv.common.compose.ui.TagItem
 import com.mrl.pixiv.common.compose.ui.illust.RectangleIllustItem
 import com.mrl.pixiv.common.compose.ui.illust.SquareIllustItem
@@ -162,7 +159,6 @@ import top.yukonga.miuix.kmp.theme.LocalContentColor
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowListPopup
 import kotlin.time.Duration.Companion.seconds
-import kotlin.uuid.Uuid
 
 @Composable
 fun PictureDeeplinkScreen(
@@ -284,9 +280,6 @@ internal fun PictureScreen(
     val isAnyBlocked = isIllustBlocked || isUserBlocked
     val errorImage = rememberVectorPainter(Icons.Rounded.ErrorOutline)
 
-    val prefix = LocalSharedKeyPrefix.current
-    val sharedTransitionScope = LocalSharedTransitionScope.current
-    val animatedContentScope = LocalNavAnimatedContentScope.current
     var showAdvancedBookmark by rememberSaveable { mutableStateOf(false) }
     val bottomSheetState = rememberBottomSheetState(
         initialValue = SheetValue.Hidden,
@@ -358,7 +351,7 @@ internal fun PictureScreen(
             )
         }.firstOrNull { !it.isNullOrBlank() }
     }
-    val openOriginalPreview: (Int, String?) -> Unit = openOriginalPreview@{ index, sharedElementKey ->
+    val openOriginalPreview: (Int) -> Unit = openOriginalPreview@{ index ->
         if (browsingSettings.autoHidePreviewControls && !arePreviewControlsVisible) {
             revealPreviewControls()
             return@openOriginalPreview
@@ -371,7 +364,6 @@ internal fun PictureScreen(
             navigationManager.navigateToImagePreviewScreen(
                 imageUrls = imageUrls,
                 initialIndex = imageUrls.indexOf(selectedUrl).coerceAtLeast(0),
-                sharedElementKey = sharedElementKey,
             )
         }
     }
@@ -402,7 +394,7 @@ internal fun PictureScreen(
     }
 
     fun LazyListScope.illustImageItems() {
-        with(sharedTransitionScope) {
+        run {
             if (illust.type == Type.Ugoira) {
                 item(key = KEY_UGOIRA) {
                     UgoiraPlayer(
@@ -431,7 +423,6 @@ internal fun PictureScreen(
                         pageCount = illust.pageCount,
                     )
                     val imageKey = "image-${illust.id}-$index"
-                    val sharedImageKey = "${prefix}-$imageKey"
                     if (illust.pageCount > 1) {
                         illust.metaPages?.get(index)?.let {
                             Box {
@@ -443,21 +434,10 @@ internal fun PictureScreen(
                                     contentDescription = null,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .conditionally(enableTransition) {
-                                            sharedElement(
-                                                sharedTransitionScope.rememberSharedContentState(
-                                                    key = sharedImageKey
-                                                ),
-                                                animatedVisibilityScope = animatedContentScope,
-                                                placeholderSize = SharedTransitionScope.PlaceholderSize.AnimatedSize,
-                                            )
-                                        }
+                                        
                                         .throttleClick(
                                             onClick = {
-                                                openOriginalPreview(
-                                                    index,
-                                                    sharedImageKey.takeIf { enableTransition }
-                                                )
+                                                openOriginalPreview(index)
                                             },
                                             onLongClick = {
                                                 dispatch(PictureAction.GetPictureInfo(index))
@@ -500,21 +480,10 @@ internal fun PictureScreen(
                                 contentDescription = null,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .conditionally(enableTransition) {
-                                        sharedElement(
-                                            sharedTransitionScope.rememberSharedContentState(
-                                                key = sharedImageKey
-                                            ),
-                                            animatedVisibilityScope = animatedContentScope,
-                                            placeholderSize = SharedTransitionScope.PlaceholderSize.AnimatedSize,
-                                        )
-                                    }
+                                    
                                     .throttleClick(
                                         onClick = {
-                                            openOriginalPreview(
-                                                0,
-                                                sharedImageKey.takeIf { enableTransition }
-                                            )
+                                            openOriginalPreview(0)
                                         },
                                         onLongClick = {
                                             dispatch(PictureAction.GetPictureInfo(0))
@@ -659,37 +628,32 @@ internal fun PictureScreen(
                 horizontalArrangement = 5f.spaceBy,
                 maxLines = 1,
             ) {
-                val otherPrefix = rememberSaveable { Uuid.random().toHexString() }
-                CompositionLocalProvider(
-                    LocalSharedKeyPrefix provides otherPrefix
-                ) {
-                    val illusts = state.userIllusts.take(currentUserSpanCount)
-                    illusts.forEachIndexed { index, it ->
-                        val innerIsBookmarked = it.isBookmark
-                        SquareIllustItem(
-                            illust = it,
-                            isBookmarked = innerIsBookmarked,
-                            onBookmarkClick = { restrict, tags, isEdit ->
-                                if (isEdit || !innerIsBookmarked) {
-                                    BookmarkState.bookmarkIllust(it.id, restrict, tags)
-                                } else {
-                                    BookmarkState.deleteBookmarkIllust(it.id)
-                                }
-                            },
-                            navToPictureScreen = { prefix, enableTransition ->
-                                navToPictureScreen(
-                                    illusts,
-                                    index,
-                                    prefix,
-                                    enableTransition
-                                )
-                            },
-                            modifier = Modifier.weight(1f / currentUserSpanCount),
-                        )
-                    }
-                    if (illusts.size < currentUserSpanCount) {
-                        Spacer(modifier = Modifier.weight((currentUserSpanCount - illusts.size) / currentUserSpanCount.toFloat()))
-                    }
+                val illusts = state.userIllusts.take(currentUserSpanCount)
+                illusts.forEachIndexed { index, it ->
+                    val innerIsBookmarked = it.isBookmark
+                    SquareIllustItem(
+                        illust = it,
+                        isBookmarked = innerIsBookmarked,
+                        onBookmarkClick = { restrict, tags, isEdit ->
+                            if (isEdit || !innerIsBookmarked) {
+                                BookmarkState.bookmarkIllust(it.id, restrict, tags)
+                            } else {
+                                BookmarkState.deleteBookmarkIllust(it.id)
+                            }
+                        },
+                        navToPictureScreen = { prefix, enableTransition ->
+                            navToPictureScreen(
+                                illusts,
+                                index,
+                                prefix,
+                                enableTransition
+                            )
+                        },
+                        modifier = Modifier.weight(1f / currentUserSpanCount),
+                    )
+                }
+                if (illusts.size < currentUserSpanCount) {
+                    Spacer(modifier = Modifier.weight((currentUserSpanCount - illusts.size) / currentUserSpanCount.toFloat()))
                 }
             }
         }
@@ -790,19 +754,9 @@ internal fun PictureScreen(
         }
     }
 
-    with(sharedTransitionScope) {
+    run {
         Scaffold(
-            modifier = modifier
-                .conditionally(enableTransition) {
-                    sharedBounds(
-                        rememberSharedContentState(key = "${prefix}-card-${illust.id}"),
-                        animatedContentScope,
-                        enter = fadeIn(DefaultFloatAnimationSpec),
-                        exit = fadeOut(DefaultFloatAnimationSpec),
-                        boundsTransform = { _, _ -> tween(DefaultAnimationDuration) },
-//                    renderInOverlayDuringTransition = false
-                    )
-                },
+            modifier = modifier,
             topBar = {
                 if (!useTwoPaneLayout) {
                     AnimatedVisibility(
@@ -827,17 +781,16 @@ internal fun PictureScreen(
             },
             floatingActionButton = {
                 if (!isAnyBlocked && showPreviewControls) {
-                    androidx.compose.material3.IconButton(
+                    LongPressIconButton(
                         onClick = throttleClick {
                             val restrict =
                                 if (requireUserPreferenceValue.defaultPrivateBookmark) Restrict.PRIVATE else Restrict.PUBLIC
                             onBookmarkClick(restrict, null)
                         },
                         onLongClick = { showAdvancedBookmark = true },
-                        modifier = Modifier.size(50.dp),
-                        colors = androidx.compose.material3.IconButtonDefaults.filledIconButtonColors(
-                            containerColor = MiuixTheme.colorScheme.surfaceContainer,
-                        )
+                        modifier = Modifier
+                            .size(50.dp)
+                            .background(MiuixTheme.colorScheme.surfaceContainer, CircleShape),
                     ) {
                         BookmarkIcon(
                             isBookmarked = isBookmarked,

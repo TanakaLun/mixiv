@@ -15,8 +15,6 @@ kotlin {
             implementation(libs.bundles.miuix)
             implementation(project(":common:core"))
 
-            // Navigation3
-            implementation(libs.compose.androidx.navigation3.runtime)
             implementation(libs.compose.webview.multiplatform)
             implementation(libs.okio)
             implementation(libs.kotlinx.ktor.client.core)
