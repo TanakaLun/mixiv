@@ -144,7 +144,8 @@ internal fun NovelReaderContent(
                 layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
             },
             state = listState,
-            contentPadding = WindowInsets.systemBars.only(WindowInsetsSides.Vertical)
+            // 系统栏显隐时保持列表坐标稳定，避免重复进入正文时累加恢复偏移。
+            contentPadding = novelReaderContentInsets().only(WindowInsetsSides.Vertical)
                 .asPaddingValues(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
