@@ -19,18 +19,10 @@ kotlin {
             // FileKit
             implementation(libs.filekit.core)
         }
-        jvmTest.dependencies {
-            implementation(kotlin("test"))
-            implementation(project.dependencies.platform(libs.kotlinx.coroutines.bom))
-            implementation(libs.kotlinx.coroutines.test)
-        }
     }
 
 }
 
 dependencies {
     kspAndroid(libs.androidx.room3.compiler)
-    kspIosArm64(libs.androidx.room3.compiler)
-    kspIosSimulatorArm64(libs.androidx.room3.compiler)
-    kspJvm(libs.androidx.room3.compiler)
 }

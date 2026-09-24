@@ -15,11 +15,3 @@ fun DependencyHandlerScope.kspCommonMainMetadata(dependencyNotation: Any): Depen
 
 fun DependencyHandlerScope.kspAndroid(dependencyNotation: Any): Dependency? =
     add("kspAndroid", dependencyNotation)
-
-fun DependencyHandlerScope.kspIos(dependencyNotation: Any) {
-    "kspIosArm64"(dependencyNotation)
-    "kspIosSimulatorArm64"(dependencyNotation)
-}
-
-fun DependencyHandlerScope.kspJvm(dependencyNotation: Any): Dependency? =
-    add("kspJvm", dependencyNotation)

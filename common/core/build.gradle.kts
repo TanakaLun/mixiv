@@ -24,7 +24,6 @@ kotlin {
             dependsOn(commonMain.get())
         }
         androidMain.get().dependsOn(androidJvmMain)
-        jvmMain.get().dependsOn(androidJvmMain)
 
         commonMain.dependencies {
             api(project(":common:platform-api"))
@@ -61,12 +60,6 @@ kotlin {
             implementation(libs.kotlinx.ktor.client.okhttp)
             implementation(libs.coil3.gif)
             implementation(libs.mmkv)
-        }
-        jvmMain.dependencies {
-            implementation(libs.nucleus.window.tao)
-        }
-        jvmTest.dependencies {
-            implementation(kotlin("test"))
         }
     }
 }

@@ -41,18 +41,9 @@ internal fun KotlinMultiplatformExtension.commonDependencies() {
             // Coroutines
             implementation(libs.findLibrary("kotlinx-coroutines-android").get())
         }
-        iosMain.dependencies {
-
-        }
-        jvmMain.dependencies {
-            // Coroutines
-            implementation(libs.findLibrary("kotlinx-coroutines-swing").get())
-        }
     }
     project.dependencies {
         kspAndroid(libs.findLibrary("koin-ksp-compiler").get())
-        kspIos(libs.findLibrary("koin-ksp-compiler").get())
-        kspJvm(libs.findLibrary("koin-ksp-compiler").get())
         kspCommonMainMetadata(libs.findLibrary("koin-ksp-compiler").get())
     }
     project.tasks.configureEach {
@@ -77,12 +68,6 @@ internal fun KotlinMultiplatformExtension.composeDependencies() {
         }
         androidMain.dependencies {
             implementation(libs.findBundle("compose-baselibs-android").get())
-        }
-        iosMain.dependencies {
-
-        }
-        jvmMain.dependencies {
-
         }
     }
 }

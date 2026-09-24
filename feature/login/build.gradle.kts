@@ -24,9 +24,5 @@ kotlin {
             implementation(libs.mp.stools)
             implementation(libs.html.converter)
         }
-
-        jvmMain.dependencies {
-            implementation(libs.filekit.core)
-        }
     }
 }

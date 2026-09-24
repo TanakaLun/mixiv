@@ -17,11 +17,5 @@ kotlin {
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.bundles.firebase)
         }
-        iosMain.dependencies {
-
-        }
-        jvmMain.dependencies {
-
-        }
     }
 }

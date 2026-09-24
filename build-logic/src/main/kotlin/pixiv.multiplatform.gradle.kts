@@ -32,15 +32,6 @@ kotlin {
         configureSortKoinKspGeneration()
     }
 
-    iosArm64()
-    iosSimulatorArm64()
-
-    jvm {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_25)
-        }
-    }
-
     sourceSets.commonMain {
         kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
     }
