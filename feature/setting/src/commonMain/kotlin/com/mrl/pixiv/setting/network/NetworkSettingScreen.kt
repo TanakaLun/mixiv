@@ -5,14 +5,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -30,6 +22,12 @@ import com.mrl.pixiv.strings.network_setting
 import com.mrl.pixiv.strings.restart_app_to_take_effect
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
 
 @Composable
 fun NetworkSettingScreen(
@@ -45,32 +43,27 @@ fun NetworkSettingScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = stringResource(RStrings.network_setting))
-                },
+                title = stringResource(RStrings.network_setting),
                 navigationIcon = {
-                    IconButton(
-                        onClick = navigationManager::popBackStack,
-                        shapes = IconButtonDefaults.shapes(),
-                    ) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
+                    IconButton(onClick = navigationManager::popBackStack) {
+                        Icon(MiuixIcons.Back, contentDescription = null)
                     }
-                }
+                },
             )
-        }
+        },
     ) {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .padding(it)
-                .imePadding()
+                .imePadding(),
         ) {
             val itemModifier = Modifier.padding(horizontal = 8.dp)
 
             BypassSettingEditor(
                 modifier = itemModifier,
                 bypassSetting = userPreference.bypassSetting,
-                onUpdate = { setting -> viewModel.updateBypassSetting(setting) }
+                onUpdate = { setting -> viewModel.updateBypassSetting(setting) },
             )
 
             PictureSourceWidget(
@@ -79,11 +72,8 @@ fun NetworkSettingScreen(
                 savePictureSourceHost = { host ->
                     viewModel.savePictureSourceHost(host)
                     toaster.show(RStrings.restart_app_to_take_effect)
-                }
+                },
             )
         }
     }
 }
-
-
-

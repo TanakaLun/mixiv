@@ -9,7 +9,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,14 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Warning
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearWavyProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,6 +39,16 @@ import com.mrl.pixiv.strings.migrate_data_title
 import com.mrl.pixiv.strings.migrating
 import com.mrl.pixiv.strings.permission_rationale
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.LinearProgressIndicator
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.overlay.OverlayDialog
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 actual fun MigrationCard(
@@ -102,11 +103,12 @@ actual fun MigrationCard(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
-                .clickable { showMigrationConfirmDialog = true },
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            )
+                .padding(16.dp),
+            onClick = { showMigrationConfirmDialog = true },
+            colors = CardDefaults.defaultColors(
+                color = MiuixTheme.colorScheme.primaryContainer,
+                contentColor = MiuixTheme.colorScheme.onPrimaryContainer,
+            ),
         ) {
             Row(
                 modifier = Modifier
@@ -118,18 +120,18 @@ actual fun MigrationCard(
                 Icon(
                     imageVector = Icons.Rounded.Warning,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    tint = MiuixTheme.colorScheme.onPrimaryContainer
                 )
                 Column {
                     Text(
                         text = stringResource(RStrings.migrate_data_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        style = MiuixTheme.textStyles.title3,
+                        color = MiuixTheme.colorScheme.onPrimaryContainer
                     )
                     Text(
                         text = stringResource(RStrings.migrate_data_desc, state.oldImageCount),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        style = MiuixTheme.textStyles.body1,
+                        color = MiuixTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
@@ -137,30 +139,39 @@ actual fun MigrationCard(
     }
 
     if (showMigrationConfirmDialog) {
-        AlertDialog(
+        OverlayDialog(
+            show = true,
+            title = stringResource(RStrings.migrate_confirm_title),
             onDismissRequest = { showMigrationConfirmDialog = false },
-            title = { Text(text = stringResource(RStrings.migrate_confirm_title)) },
-            text = { Text(text = stringResource(RStrings.migrate_confirm_desc)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showMigrationConfirmDialog = false
-                        // Check permission before migration
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                        } else {
-                            permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                        }
+            content = {
+                Column {
+                    Text(text = stringResource(RStrings.migrate_confirm_desc))
+                    HorizontalDivider()
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        TextButton(
+                            text = stringResource(RStrings.cancel),
+                            onClick = { showMigrationConfirmDialog = false },
+                            modifier = Modifier.weight(1f),
+                        )
+                        TextButton(
+                            text = stringResource(RStrings.confirm),
+                            onClick = {
+                                showMigrationConfirmDialog = false
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                    permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                                } else {
+                                    permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.textButtonColorsPrimary(),
+                        )
                     }
-                ) {
-                    Text(text = stringResource(RStrings.confirm))
                 }
             },
-            dismissButton = {
-                TextButton(onClick = { showMigrationConfirmDialog = false }) {
-                    Text(text = stringResource(RStrings.cancel))
-                }
-            }
         )
     }
 
@@ -169,9 +180,7 @@ actual fun MigrationCard(
             onDismissRequest = {},
             properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
         ) {
-            Card(
-                shape = MaterialTheme.shapes.medium,
-            ) {
+            Card {
                 Column(
                     modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -183,10 +192,10 @@ actual fun MigrationCard(
                             state.migratedCount,
                             state.oldImageCount
                         ),
-                        style = MaterialTheme.typography.titleMedium
+                        style = MiuixTheme.textStyles.title3
                     )
-                    LinearWavyProgressIndicator(
-                        progress = { state.progress },
+                    LinearProgressIndicator(
+                        progress = state.progress,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
@@ -199,9 +208,7 @@ actual fun MigrationCard(
             onDismissRequest = {},
             properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
         ) {
-            Card(
-                shape = MaterialTheme.shapes.medium,
-            ) {
+            Card {
                 Column(
                     modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -210,10 +217,10 @@ actual fun MigrationCard(
                     if (state.loadingMessage != null) {
                         Text(
                             text = stringResource(state.loadingMessage),
-                            style = MaterialTheme.typography.titleMedium
+                            style = MiuixTheme.textStyles.title3
                         )
                     }
-                    LinearWavyProgressIndicator(
+                    LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }

@@ -19,29 +19,16 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PersonOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -127,6 +114,18 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.ListPopupColumn
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.window.WindowListPopup
 import kotlin.math.pow
 
 private const val KEY_USER_INFO = "user_info"
@@ -159,18 +158,17 @@ fun ProfileDetailScreen(
         topBar = {
             if (isBlocked) {
                 TopAppBar(
-                    title = {},
+                    title = "",
                     navigationIcon = {
                         IconButton(
                             onClick = { navigationManager.popBackStack() },
-                            shapes = IconButtonDefaults.shapes(),
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos,
-                                contentDescription = null
+                                contentDescription = null,
                             )
                         }
-                    }
+                    },
                 )
             } else {
                 ProfileDetailAppBar(
@@ -201,18 +199,16 @@ fun ProfileDetailScreen(
                 title = {
                     Text(
                         text = stringResource(RStrings.user_blocked),
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MiuixTheme.textStyles.body1,
                     )
                 },
                 button = {
                     Button(
                         onClick = {
                             viewModel.removeBlockUser(uid)
-                        }
+                        },
                     ) {
-                        Text(
-                            text = stringResource(RStrings.cancel_user_blocked)
-                        )
+                        Text(text = stringResource(RStrings.cancel_user_blocked))
                     }
                 }
             )
@@ -234,7 +230,7 @@ fun ProfileDetailScreen(
                             SelectionContainer {
                                 Text(
                                     text = userInfo.user.name,
-                                    style = MaterialTheme.typography.titleLarge,
+                                    style = MiuixTheme.textStyles.title2,
                                     fontWeight = FontWeight.SemiBold,
                                 )
                             }
@@ -258,8 +254,8 @@ fun ProfileDetailScreen(
                                 modifier = Modifier.throttleClick {
                                     navigationManager.navigateToFollowingScreen(userInfo.user.id)
                                 },
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.primary,
+                                style = MiuixTheme.textStyles.footnote1,
+                                color = MiuixTheme.colorScheme.primary,
                             )
                         }
                         //id点击可复制
@@ -270,8 +266,8 @@ fun ProfileDetailScreen(
                             SelectionContainer {
                                 Text(
                                     text = "ID: ${userInfo.user.id}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MiuixTheme.textStyles.footnote2,
+                                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                                 )
                             }
                             Icon(
@@ -279,13 +275,13 @@ fun ProfileDetailScreen(
                                 contentDescription = stringResource(RStrings.copy_to_clipboard),
                                 modifier = Modifier
                                     .size(40.dp)
-                                    .throttleClick(indication = ripple(radius = 20.dp)) {
+                                    .throttleClick {
                                         coroutineScope.launch {
                                             copyToClipboard(userInfo.user.id.toString())
                                         }
                                     }
                                     .padding(10.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                tint = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                             )
                         }
                         // 个人简介
@@ -299,8 +295,8 @@ fun ProfileDetailScreen(
                             SelectionContainer {
                                 Text(
                                     text = comment,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MiuixTheme.textStyles.body2,
+                                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                                 )
                             }
                         }
@@ -485,19 +481,15 @@ private fun ProfileDetailSection(
         Text(
             text = title,
             modifier = Modifier.padding(horizontal = 4.dp),
-            style = MaterialTheme.typography.titleMedium,
+            style = MiuixTheme.textStyles.subtitle,
             fontWeight = FontWeight.SemiBold,
         )
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.large,
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-            ),
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 if (imageUrl.isNotEmpty()) {
-                    val imageShape = MaterialTheme.shapes.medium
+                    val imageShape = RoundedCornerShape(12.dp)
                     AsyncImage(
                         model = ImageRequest.Builder(LocalPlatformContext.current)
                             .data(imageUrl)
@@ -511,7 +503,7 @@ private fun ProfileDetailSection(
                             .clip(imageShape)
                             .border(
                                 width = 1.dp,
-                                color = MaterialTheme.colorScheme.outlineVariant,
+                                color = MiuixTheme.colorScheme.outlineVariant,
                                 shape = imageShape,
                             ),
                     )
@@ -530,7 +522,6 @@ private fun ProfileDetailSection(
                                 if (index < details.lastIndex) {
                                     HorizontalDivider(
                                         modifier = Modifier.padding(vertical = 12.dp),
-                                        color = MaterialTheme.colorScheme.outlineVariant,
                                     )
                                 }
                             }
@@ -550,12 +541,12 @@ private fun ProfileDetailRow(label: String, value: String) {
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MiuixTheme.textStyles.footnote1,
+            color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MiuixTheme.textStyles.body2,
         )
     }
 }
@@ -629,7 +620,6 @@ private fun ProfileDetailAppBar(
         navigationIcon = {
             IconButton(
                 onClick = onBack,
-                shapes = IconButtonDefaults.shapes(),
                 modifier = Modifier.padding(vertical = 10.dp),
             ) {
                 Icon(
@@ -642,53 +632,42 @@ private fun ProfileDetailAppBar(
             if (!isBlocked) {
                 IconButton(
                     onClick = { showMenu = true },
-                    shapes = IconButtonDefaults.shapes(),
                     modifier = Modifier.padding(vertical = 10.dp),
                 ) {
                     Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = null)
                 }
             }
-            DropdownMenu(
-                expanded = showMenu,
-                onDismissRequest = { showMenu = false }
+            WindowListPopup(
+                show = showMenu,
+                onDismissRequest = { showMenu = false },
             ) {
-                val isSelf = userInfo.user.isSelf
-                if (!userInfo.user.isFollowing && !isSelf) {
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = stringResource(RStrings.private_follow),
-                            )
-                        },
-                        onClick = {
-                            onPrivateFollow(userInfo.user.id)
-                            showMenu = false
-                        }
-                    )
-                }
-                if (!isSelf) {
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = stringResource(RStrings.block_user),
-                            )
-                        },
-                        onClick = {
-                            onBlockUser(userInfo.user.id)
-                            showMenu = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = stringResource(RStrings.report_user),
-                            )
-                        },
-                        onClick = {
-                            // todo report
-                            showMenu = false
-                        }
-                    )
+                ListPopupColumn {
+                    val isSelf = userInfo.user.isSelf
+                    if (!userInfo.user.isFollowing && !isSelf) {
+                        BasicComponent(
+                            title = stringResource(RStrings.private_follow),
+                            onClick = {
+                                onPrivateFollow(userInfo.user.id)
+                                showMenu = false
+                            },
+                        )
+                    }
+                    if (!isSelf) {
+                        BasicComponent(
+                            title = stringResource(RStrings.block_user),
+                            onClick = {
+                                onBlockUser(userInfo.user.id)
+                                showMenu = false
+                            },
+                        )
+                        BasicComponent(
+                            title = stringResource(RStrings.report_user),
+                            onClick = {
+                                // todo report
+                                showMenu = false
+                            },
+                        )
+                    }
                 }
             }
         },

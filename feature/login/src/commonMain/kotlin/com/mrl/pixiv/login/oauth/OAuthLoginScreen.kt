@@ -6,18 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,6 +25,17 @@ import com.mrl.pixiv.strings.sign_in
 import com.mrl.pixiv.strings.token
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SmallTopAppBar
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
 
 @Composable
 fun OAuthLoginScreen(
@@ -55,15 +54,14 @@ fun OAuthLoginScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = {},
+            SmallTopAppBar(
+                title = "",
                 navigationIcon = {
                     IconButton(
                         onClick = { navigationManager.popBackStack() },
-                        shapes = IconButtonDefaults.shapes(),
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            imageVector = MiuixIcons.Back,
                             contentDescription = "Back"
                         )
                     }
@@ -86,9 +84,7 @@ fun OAuthLoginScreen(
                     value = token,
                     onValueChange = { token = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = {
-                        Text(text = stringResource(RStrings.token))
-                    }
+                    label = stringResource(RStrings.token),
                 )
                 Button(
                     onClick = click@{
@@ -96,7 +92,7 @@ fun OAuthLoginScreen(
                         focusManager.clearFocus()
                         viewModel.dispatch(OAuthLoginAction.Login(token))
                     },
-                    shapes = ButtonDefaults.shapes(),
+                    colors = ButtonDefaults.buttonColorsPrimary(),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
@@ -105,7 +101,7 @@ fun OAuthLoginScreen(
                 }
             }
             if (state.loading) {
-                CircularWavyProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         }
     }

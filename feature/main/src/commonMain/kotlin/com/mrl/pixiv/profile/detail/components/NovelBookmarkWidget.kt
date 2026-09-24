@@ -10,10 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +25,10 @@ import com.mrl.pixiv.strings.novel_collection
 import com.mrl.pixiv.strings.novel_description
 import com.mrl.pixiv.strings.view_all
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.theme.LocalContentColor
 
 private const val MAX_SHOW_NOVEL_COUNT = 3
 

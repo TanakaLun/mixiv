@@ -15,16 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +35,16 @@ import com.mrl.pixiv.strings.page_index
 import com.mrl.pixiv.strings.previous_page
 import com.mrl.pixiv.strings.retry
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Forward
+import top.yukonga.miuix.kmp.icon.extended.Ok
+import top.yukonga.miuix.kmp.icon.extended.Refresh
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun PageControls(
@@ -67,10 +67,8 @@ fun PageControls(
         modifier = modifier
             .padding(horizontal = 12.dp, vertical = 8.dp),
         shape = RoundedCornerShape(32.dp),
-        tonalElevation = 1.dp,
-        shadowElevation = 0.dp,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.72f)),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+        border = BorderStroke(1.dp, MiuixTheme.colorScheme.dividerLine.copy(alpha = 0.72f)),
+        color = MiuixTheme.colorScheme.surface.copy(alpha = 0.96f),
     ) {
         Row(
             modifier = Modifier
@@ -85,7 +83,7 @@ fun PageControls(
                 modifier = Modifier.size(40.dp),
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                    imageVector = MiuixIcons.Back,
                     contentDescription = stringResource(RStrings.previous_page),
                     modifier = Modifier.size(20.dp),
                 )
@@ -105,7 +103,7 @@ fun PageControls(
                     modifier = Modifier.size(40.dp),
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Check,
+                        imageVector = MiuixIcons.Ok,
                         contentDescription = stringResource(RStrings.confirm),
                         modifier = Modifier.size(20.dp),
                     )
@@ -113,7 +111,7 @@ fun PageControls(
             } else {
                 Text(
                     text = stringResource(RStrings.page_index, state.currentPage),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MiuixTheme.textStyles.main,
                 )
             }
             IconButton(
@@ -122,7 +120,7 @@ fun PageControls(
                 modifier = Modifier.size(40.dp),
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                    imageVector = MiuixIcons.Forward,
                     contentDescription = stringResource(RStrings.next_page),
                     modifier = Modifier.size(20.dp),
                 )
@@ -134,7 +132,7 @@ fun PageControls(
                     modifier = Modifier.size(40.dp),
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Refresh,
+                        imageVector = MiuixIcons.Refresh,
                         contentDescription = stringResource(RStrings.retry),
                         modifier = Modifier.size(20.dp),
                     )
@@ -156,8 +154,8 @@ private fun PageNumberField(
             .width(64.dp)
             .height(36.dp),
         shape = RoundedCornerShape(18.dp),
-        color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.72f)),
+        color = MiuixTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MiuixTheme.colorScheme.dividerLine.copy(alpha = 0.72f)),
     ) {
         Box(
             modifier = Modifier
@@ -177,15 +175,15 @@ private fun PageNumberField(
                 keyboardActions = KeyboardActions(
                     onGo = { onSubmit() },
                 ),
-                textStyle = MaterialTheme.typography.bodyMedium.copy(
+                textStyle = MiuixTheme.textStyles.main.copy(
                     color = if (enabled) {
-                        MaterialTheme.colorScheme.onSurface
+                        MiuixTheme.colorScheme.onSurface
                     } else {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        MiuixTheme.colorScheme.onSurface.copy(alpha = 0.38f)
                     },
                     textAlign = TextAlign.Center,
                 ),
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                cursorBrush = SolidColor(MiuixTheme.colorScheme.primary),
                 modifier = Modifier.width(44.dp),
             )
         }

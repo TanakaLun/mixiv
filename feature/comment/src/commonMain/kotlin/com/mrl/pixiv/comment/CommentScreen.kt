@@ -10,20 +10,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
@@ -72,6 +57,18 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.PullToRefresh
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
 
 @Composable
 fun CommentScreen(
@@ -138,15 +135,13 @@ fun CommentScreen(
             .imePadding(),
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = stringResource(RStrings.view_comments))
-                },
+                title = stringResource(RStrings.view_comments),
                 navigationIcon = {
                     IconButton(
                         onClick = { navigationManager.popBackStack() }
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            imageVector = MiuixIcons.Back,
                             contentDescription = null
                         )
                     }
@@ -176,7 +171,7 @@ fun CommentScreen(
             )
         }
     ) { innerPadding ->
-        PullToRefreshBox(
+        PullToRefresh(
             isRefreshing = comments.loadState.refresh is LoadState.Loading,
             onRefresh = { comments.refresh() },
             modifier = Modifier
@@ -246,84 +241,76 @@ fun CommentScreen(
                 }
             }
         }
-    }
 
-    if (state.expandedComment != null) {
-        ModalBottomSheet(
-            onDismissRequest = { viewModel.setExpandedComment(null) },
-            sheetState = rememberBottomSheetState(
-                initialValue = SheetValue.Hidden,
-                enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-            ),
-        ) {
-            Column(modifier = Modifier.fillMaxHeight(2 / 3f)) {
-                RepliesContent(
-                    parentComment = state.expandedComment,
-                    replies = replies,
-                    listState = repliesListState,
-                    navigationManager = navigationManager,
-                    onReply = { comment, index ->
-                        viewModel.setSubCommentReplyTarget(comment)
-                        showInputSheet = true
-                        scope.launch {
-                            repliesListState.animateScrollToItem(index)
-                        }
-                    },
-                    onCancelReply = {
-                        viewModel.setSubCommentReplyTarget(null)
-                    },
-                    onDeleteComment = { id ->
-                        viewModel.deleteComment(id)
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-                CommentInputPlaceholder(
-                    onClick = { showInputSheet = true },
-                    modifier = Modifier.fillMaxWidth()
-                )
+        if (state.expandedComment != null) {
+            OverlayBottomSheet(
+                show = true,
+                onDismissRequest = { viewModel.setExpandedComment(null) },
+            ) {
+                Column(modifier = Modifier.fillMaxHeight(2 / 3f)) {
+                    RepliesContent(
+                        parentComment = state.expandedComment,
+                        replies = replies,
+                        listState = repliesListState,
+                        navigationManager = navigationManager,
+                        onReply = { comment, index ->
+                            viewModel.setSubCommentReplyTarget(comment)
+                            showInputSheet = true
+                            scope.launch {
+                                repliesListState.animateScrollToItem(index)
+                            }
+                        },
+                        onCancelReply = {
+                            viewModel.setSubCommentReplyTarget(null)
+                        },
+                        onDeleteComment = { id ->
+                            viewModel.deleteComment(id)
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                    CommentInputPlaceholder(
+                        onClick = { showInputSheet = true },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
-    }
 
-    if (showInputSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showInputSheet = false },
-            sheetState = rememberBottomSheetState(
-                initialValue = SheetValue.Hidden,
-                enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-            ),
-            shape = RectangleShape,
-            dragHandle = null
-        ) {
-            val focusManager = LocalFocusManager.current
-            val isSending = state.isSending
-            val focusRequester = remember { FocusRequester() }
+        if (showInputSheet) {
+            OverlayBottomSheet(
+                show = true,
+                onDismissRequest = { showInputSheet = false },
+            ) {
+                val focusManager = LocalFocusManager.current
+                val isSending = state.isSending
+                val focusRequester = remember { FocusRequester() }
 
-            LaunchedEffect(Unit) {
-                focusRequester.requestFocus()
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                }
+
+                CommentInput(
+                    state = viewModel.subCommentInput,
+                    isSending = isSending,
+                    emojis = emojis?.emojiDefinitions.orEmpty().toPersistentList(),
+                    stamps = stamps?.stamps.orEmpty().toPersistentList(),
+                    onInsertEmoji = { viewModel.insertEmoji(it, isSubComment = true) },
+                    onSendStamp = {
+                        viewModel.sendStamp(it, isSubComment = true)
+                        focusManager.clearFocus()
+                    },
+                    onSendText = {
+                        viewModel.sendText(isSubComment = true)
+                        focusManager.clearFocus()
+                    },
+                    replyTarget = state.subCommentReplyTarget,
+                    onClearReplyTarget = { viewModel.setSubCommentReplyTarget(null) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .imePadding(),
+                    focusRequester = focusRequester
+                )
             }
-
-            CommentInput(
-                state = viewModel.subCommentInput,
-                isSending = isSending,
-                emojis = emojis?.emojiDefinitions.orEmpty().toPersistentList(),
-                stamps = stamps?.stamps.orEmpty().toPersistentList(),
-                onInsertEmoji = { viewModel.insertEmoji(it, isSubComment = true) },
-                onSendStamp = {
-                    viewModel.sendStamp(it, isSubComment = true)
-                    focusManager.clearFocus()
-                },
-                onSendText = {
-                    viewModel.sendText(isSubComment = true)
-                    focusManager.clearFocus()
-                },
-                replyTarget = state.subCommentReplyTarget,
-                onClearReplyTarget = { viewModel.setSubCommentReplyTarget(null) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .imePadding(),
-                focusRequester = focusRequester
-            )
         }
     }
 }
@@ -438,9 +425,10 @@ private fun RepliesContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(stringResource(RStrings.load_failed, error.message.orEmpty()))
-                        TextButton(onClick = replies::retry) {
-                            Text(stringResource(RStrings.retry))
-                        }
+                        TextButton(
+                            text = stringResource(RStrings.retry),
+                            onClick = replies::retry,
+                        )
                     }
                 }
             }

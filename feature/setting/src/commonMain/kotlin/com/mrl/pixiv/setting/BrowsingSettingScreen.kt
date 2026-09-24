@@ -1,11 +1,6 @@
 package com.mrl.pixiv.setting
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -13,37 +8,22 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.FilterAlt
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.Tag
 import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.ViewModule
 import androidx.compose.material.icons.rounded.VisibilityOff
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.data.setting.BrowsingSettings
 import com.mrl.pixiv.common.data.setting.PreviewImageQuality
 import com.mrl.pixiv.common.data.setting.SearchResultIllustLayout
@@ -52,8 +32,6 @@ import com.mrl.pixiv.common.repository.requireUserPreferenceFlow
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
-import com.mrl.pixiv.common.util.throttleClick
-import com.mrl.pixiv.setting.components.DropDownSelector
 import com.mrl.pixiv.strings.auto_hide_preview_controls
 import com.mrl.pixiv.strings.auto_hide_preview_controls_desc
 import com.mrl.pixiv.strings.browsing_setting
@@ -76,6 +54,16 @@ import com.mrl.pixiv.strings.span_count_portrait
 import com.mrl.pixiv.strings.tap_image_to_open_full_resolution_preview
 import com.mrl.pixiv.strings.tap_image_to_open_full_resolution_preview_desc
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
+import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 @Composable
 fun BrowsingSettingScreen(
@@ -89,26 +77,21 @@ fun BrowsingSettingScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = stringResource(RStrings.browsing_setting))
-                },
+                title = stringResource(RStrings.browsing_setting),
                 navigationIcon = {
-                    IconButton(
-                        onClick = navigationManager::popBackStack,
-                        shapes = IconButtonDefaults.shapes(),
-                    ) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
+                    IconButton(onClick = navigationManager::popBackStack) {
+                        Icon(MiuixIcons.Back, contentDescription = null)
                     }
-                }
+                },
             )
-        }
+        },
     ) {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .padding(it)
                 .imePadding()
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 8.dp),
         ) {
             SpanCountSetting(
                 title = stringResource(RStrings.span_count_portrait),
@@ -124,7 +107,7 @@ fun BrowsingSettingScreen(
                 selectedLayout = browsingSettings.searchResultIllustLayout,
                 onLayoutChange = { layout ->
                     SettingRepository.setBrowsingSettings(
-                        browsingSettings.copy(searchResultIllustLayout = layout)
+                        browsingSettings.copy(searchResultIllustLayout = layout),
                     )
                 },
             )
@@ -132,135 +115,42 @@ fun BrowsingSettingScreen(
                 selectedQuality = browsingSettings.previewImageQuality,
                 onQualityChange = { quality ->
                     SettingRepository.setBrowsingSettings(
-                        browsingSettings.copy(previewImageQuality = quality)
+                        browsingSettings.copy(previewImageQuality = quality),
                     )
-                }
-            )
-            ListItem(
-                onClick = rememberThrottleClick {
-                    SettingRepository.setBrowsingSettings(
-                        browsingSettings.copy(
-                            autoHidePreviewControls = !browsingSettings.autoHidePreviewControls
-                        )
-                    )
-                },
-                shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                content = {
-                    Text(text = stringResource(RStrings.auto_hide_preview_controls))
-                },
-                supportingContent = {
-                    Text(text = stringResource(RStrings.auto_hide_preview_controls_desc))
-                },
-                modifier = Modifier
-                    .height(IntrinsicSize.Min),
-                leadingContent = {
-                    Column(
-                        modifier = Modifier.fillMaxHeight(),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(Icons.Rounded.VisibilityOff, contentDescription = null)
-                    }
-                },
-                trailingContent = {
-                    Column(
-                        modifier = Modifier.fillMaxHeight(),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Switch(
-                            checked = browsingSettings.autoHidePreviewControls,
-                            onCheckedChange = { checked ->
-                                SettingRepository.setBrowsingSettings(
-                                    browsingSettings.copy(autoHidePreviewControls = checked)
-                                )
-                            }
-                        )
-                    }
                 },
             )
-            ListItem(
-                onClick = rememberThrottleClick {
+            SwitchPreference(
+                checked = browsingSettings.autoHidePreviewControls,
+                onCheckedChange = { checked ->
                     SettingRepository.setBrowsingSettings(
-                        browsingSettings.copy(
-                            tapImageToOpenFullResolutionPreview =
-                                !browsingSettings.tapImageToOpenFullResolutionPreview
-                        )
+                        browsingSettings.copy(autoHidePreviewControls = checked),
                     )
                 },
-                shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                content = {
-                    Text(text = stringResource(RStrings.tap_image_to_open_full_resolution_preview))
-                },
-                supportingContent = {
-                    Text(text = stringResource(RStrings.tap_image_to_open_full_resolution_preview_desc))
-                },
-                modifier = Modifier
-                    .height(IntrinsicSize.Min),
-                leadingContent = {
-                    Column(
-                        modifier = Modifier.fillMaxHeight(),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(Icons.Rounded.TouchApp, contentDescription = null)
-                    }
-                },
-                trailingContent = {
-                    Column(
-                        modifier = Modifier.fillMaxHeight(),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Switch(
-                            checked = browsingSettings.tapImageToOpenFullResolutionPreview,
-                            onCheckedChange = { checked ->
-                                SettingRepository.setBrowsingSettings(
-                                    browsingSettings.copy(
-                                        tapImageToOpenFullResolutionPreview = checked
-                                    )
-                                )
-                            }
-                        )
-                    }
-                },
+                title = stringResource(RStrings.auto_hide_preview_controls),
+                summary = stringResource(RStrings.auto_hide_preview_controls_desc),
+                startAction = { Icon(Icons.Rounded.VisibilityOff, contentDescription = null) },
             )
-            ListItem(
-                onClick = rememberThrottleClick {
+            SwitchPreference(
+                checked = browsingSettings.tapImageToOpenFullResolutionPreview,
+                onCheckedChange = { checked ->
                     SettingRepository.setBrowsingSettings(
-                        browsingSettings.copy(
-                            filterLongNovelTags = !browsingSettings.filterLongNovelTags
-                        )
+                        browsingSettings.copy(tapImageToOpenFullResolutionPreview = checked),
                     )
                 },
-                shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                content = {
-                    Text(text = stringResource(RStrings.filter_long_novel_tags))
+                title = stringResource(RStrings.tap_image_to_open_full_resolution_preview),
+                summary = stringResource(RStrings.tap_image_to_open_full_resolution_preview_desc),
+                startAction = { Icon(Icons.Rounded.TouchApp, contentDescription = null) },
+            )
+            SwitchPreference(
+                checked = browsingSettings.filterLongNovelTags,
+                onCheckedChange = { checked ->
+                    SettingRepository.setBrowsingSettings(
+                        browsingSettings.copy(filterLongNovelTags = checked),
+                    )
                 },
-                supportingContent = {
-                    Text(text = stringResource(RStrings.filter_long_novel_tags_desc))
-                },
-                modifier = Modifier
-                    .height(IntrinsicSize.Min),
-                leadingContent = {
-                    Column(
-                        modifier = Modifier.fillMaxHeight(),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(Icons.Rounded.FilterAlt, contentDescription = null)
-                    }
-                },
-                trailingContent = {
-                    Column(
-                        modifier = Modifier.fillMaxHeight(),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Switch(
-                            checked = browsingSettings.filterLongNovelTags,
-                            onCheckedChange = { checked ->
-                                SettingRepository.setBrowsingSettings(
-                                    browsingSettings.copy(filterLongNovelTags = checked)
-                                )
-                            }
-                        )
-                    }
-                },
+                title = stringResource(RStrings.filter_long_novel_tags),
+                summary = stringResource(RStrings.filter_long_novel_tags_desc),
+                startAction = { Icon(Icons.Rounded.FilterAlt, contentDescription = null) },
             )
             if (browsingSettings.filterLongNovelTags) {
                 NovelTagLimitSetting(
@@ -269,9 +159,9 @@ fun BrowsingSettingScreen(
                     value = browsingSettings.maxNovelTagLength,
                     onValueChange = { value ->
                         SettingRepository.setBrowsingSettings(
-                            browsingSettings.copy(maxNovelTagLength = value)
+                            browsingSettings.copy(maxNovelTagLength = value),
                         )
-                    }
+                    },
                 )
                 NovelTagLimitSetting(
                     title = stringResource(RStrings.max_novel_tag_segments),
@@ -279,9 +169,9 @@ fun BrowsingSettingScreen(
                     value = browsingSettings.maxNovelTagSegments,
                     onValueChange = { value ->
                         SettingRepository.setBrowsingSettings(
-                            browsingSettings.copy(maxNovelTagSegments = value)
+                            browsingSettings.copy(maxNovelTagSegments = value),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -294,35 +184,20 @@ private fun SearchResultIllustLayoutSetting(
     onLayoutChange: (SearchResultIllustLayout) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var expanded by remember { mutableStateOf(false) }
     val layouts = remember { SearchResultIllustLayout.entries }
+    var selectedIndex by remember(selectedLayout) {
+        mutableIntStateOf(layouts.indexOf(selectedLayout).coerceAtLeast(0))
+    }
 
-    ListItem(
-        headlineContent = { Text(text = stringResource(RStrings.search_result_illust_layout)) },
+    OverlayDropdownPreference(
+        items = layouts.map { it.label() },
+        selectedIndex = selectedIndex,
+        title = stringResource(RStrings.search_result_illust_layout),
         modifier = modifier,
-        leadingContent = { Icon(Icons.Rounded.ViewModule, contentDescription = null) },
-        trailingContent = {
-            DropDownSelector(
-                modifier = Modifier.throttleClick { expanded = !expanded },
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                current = selectedLayout.label(),
-            ) {
-                layouts.forEach { layout ->
-                    DropdownMenuItem(
-                        text = { Text(text = layout.label()) },
-                        trailingIcon = {
-                            if (layout == selectedLayout) {
-                                Icon(Icons.Rounded.Check, contentDescription = null)
-                            }
-                        },
-                        onClick = {
-                            onLayoutChange(layout)
-                            expanded = false
-                        },
-                    )
-                }
-            }
+        startAction = { Icon(Icons.Rounded.ViewModule, contentDescription = null) },
+        onSelectedIndexChange = { index ->
+            selectedIndex = index
+            onLayoutChange(layouts[index])
         },
     )
 }
@@ -343,44 +218,25 @@ private fun SpanCountSetting(
     onSpanCountChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val options = listOf(
-        2 to "2",
-        3 to "3",
-        4 to "4",
-        -1 to stringResource(RStrings.span_count_adaptive),
-    )
-    val currentLabel = options.firstOrNull { it.first == currentSpanCount }?.second
-        ?: options.last().second
-    var expanded by remember { mutableStateOf(false) }
+    val options = remember {
+        listOf(
+            2 to "2",
+            3 to "3",
+            4 to "4",
+            -1 to stringResource(RStrings.span_count_adaptive),
+        )
+    }
+    val selectedIndex = options.indexOfFirst { it.first == currentSpanCount }
+        .coerceAtLeast(0)
 
-    ListItem(
-        headlineContent = { Text(text = title) },
+    OverlayDropdownPreference(
+        items = options.map { it.second },
+        selectedIndex = selectedIndex,
+        title = title,
         modifier = modifier,
-        leadingContent = { Icon(Icons.Rounded.ViewModule, contentDescription = null) },
-        trailingContent = {
-            DropDownSelector(
-                modifier = Modifier.throttleClick { expanded = !expanded },
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                current = currentLabel,
-            ) {
-                options.forEach { (count, label) ->
-                    DropdownMenuItem(
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = label, modifier = Modifier.padding(16.dp))
-                                if (currentSpanCount == count) {
-                                    Icon(Icons.Rounded.Check, contentDescription = null)
-                                }
-                            }
-                        },
-                        onClick = {
-                            onSpanCountChange(count)
-                            expanded = false
-                        },
-                    )
-                }
-            }
+        startAction = { Icon(Icons.Rounded.ViewModule, contentDescription = null) },
+        onSelectedIndexChange = { index ->
+            onSpanCountChange(options[index].first)
         },
     )
 }
@@ -396,20 +252,12 @@ private fun NovelTagLimitSetting(
     val validRange = BrowsingSettings.MIN_NOVEL_TAG_LIMIT..BrowsingSettings.MAX_NOVEL_TAG_LIMIT
     val parsedValue = input.toIntOrNull()
 
-    ListItem(
-        headlineContent = { Text(text = title) },
-        supportingContent = { Text(text = description) },
-        modifier = Modifier.height(IntrinsicSize.Min),
-        leadingContent = {
-            Column(
-                modifier = Modifier.fillMaxHeight(),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Icon(Icons.Rounded.Tag, contentDescription = null)
-            }
-        },
-        trailingContent = {
-            OutlinedTextField(
+    BasicComponent(
+        title = title,
+        summary = description,
+        startAction = { Icon(Icons.Rounded.Tag, contentDescription = null) },
+        endActions = {
+            TextField(
                 modifier = Modifier.width(104.dp),
                 value = input,
                 onValueChange = { newValue ->
@@ -420,10 +268,10 @@ private fun NovelTagLimitSetting(
                         ?.let(onValueChange)
                 },
                 singleLine = true,
-                isError = parsedValue == null || parsedValue !in validRange,
+                enabled = parsedValue != null && parsedValue in validRange,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             )
-        }
+        },
     )
 }
 
@@ -433,38 +281,21 @@ private fun PreviewImageQualitySetting(
     onQualityChange: (PreviewImageQuality) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var expanded by remember { mutableStateOf(false) }
     val qualities = remember { PreviewImageQuality.entries }
+    var selectedIndex by remember(selectedQuality) {
+        mutableIntStateOf(qualities.indexOf(selectedQuality).coerceAtLeast(0))
+    }
 
-    ListItem(
-        headlineContent = { Text(text = stringResource(RStrings.preview_image_quality)) },
+    OverlayDropdownPreference(
+        items = qualities.map { it.label() },
+        selectedIndex = selectedIndex,
+        title = stringResource(RStrings.preview_image_quality),
         modifier = modifier,
-        leadingContent = { Icon(Icons.Rounded.Image, contentDescription = null) },
-        trailingContent = {
-            DropDownSelector(
-                modifier = Modifier.throttleClick { expanded = !expanded },
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                current = selectedQuality.label(),
-            ) {
-                qualities.forEach { quality ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = quality.label())
-                        },
-                        trailingIcon = {
-                            if (quality == selectedQuality) {
-                                Icon(Icons.Rounded.Check, contentDescription = null)
-                            }
-                        },
-                        onClick = {
-                            onQualityChange(quality)
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
+        startAction = { Icon(Icons.Rounded.Image, contentDescription = null) },
+        onSelectedIndexChange = { index ->
+            selectedIndex = index
+            onQualityChange(qualities[index])
+        },
     )
 }
 

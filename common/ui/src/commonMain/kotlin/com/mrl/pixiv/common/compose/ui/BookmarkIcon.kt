@@ -5,12 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.FavoriteBorder
-import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +13,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.FavoriteDualColor
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Favorites
+import top.yukonga.miuix.kmp.icon.extended.FavoritesFill
+import top.yukonga.miuix.kmp.icon.extended.Lock
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun BookmarkIcon(
@@ -26,8 +26,8 @@ fun BookmarkIcon(
     isPrivate: Boolean,
     modifier: Modifier = Modifier,
     iconSize: Dp = 24.dp,
-    bookmarkedImageVector: ImageVector = Icons.Rounded.Favorite,
-    unbookmarkedImageVector: ImageVector = Icons.Rounded.FavoriteBorder,
+    bookmarkedImageVector: ImageVector = MiuixIcons.FavoritesFill,
+    unbookmarkedImageVector: ImageVector = MiuixIcons.Favorites,
     tint: Color = FavoriteDualColor(isBookmarked),
     contentDescription: String? = null,
 ) {
@@ -42,14 +42,14 @@ fun BookmarkIcon(
         )
         if (isBookmarked && isPrivate) {
             Icon(
-                imageVector = Icons.Rounded.Lock,
+                imageVector = MiuixIcons.Lock,
                 contentDescription = null,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .size(iconSize * 0.46f)
-                    .background(MaterialTheme.colorScheme.surface, CircleShape)
+                    .background(MiuixTheme.colorScheme.surface, CircleShape)
                     .padding(1.dp),
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = MiuixTheme.colorScheme.onSurface,
             )
         }
     }

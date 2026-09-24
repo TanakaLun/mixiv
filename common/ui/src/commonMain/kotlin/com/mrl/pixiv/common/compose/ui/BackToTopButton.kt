@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowUpward
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -22,6 +20,8 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import kotlinx.coroutines.launch
+import top.yukonga.miuix.kmp.basic.FloatingActionButton
+import top.yukonga.miuix.kmp.basic.Icon
 
 @Composable
 fun BackToTopButton(

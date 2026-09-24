@@ -1,29 +1,17 @@
 package com.mrl.pixiv.common.compose.ui
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,9 +25,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.mrl.pixiv.common.compose.transparentIndicatorColors
 import com.mrl.pixiv.common.coroutine.launchProcess
 import com.mrl.pixiv.common.coroutine.withIOContext
 import com.mrl.pixiv.common.data.Illust
@@ -63,6 +51,19 @@ import com.mrl.pixiv.strings.max_bookmark_tags_reached
 import com.mrl.pixiv.strings.word_private
 import com.mrl.pixiv.strings.word_public
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Checkbox
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.RadioButton
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Add
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.window.WindowBottomSheet
 
 private const val MAX_BOOKMARK_TAGS = 10
 
@@ -144,207 +145,206 @@ private fun BottomBookmarkSheet(
     onBookmarkClick: (Restrict, List<String>?, Boolean) -> Unit,
     isBookmarked: Boolean,
 ) {
-    ModalBottomSheet(
+    WindowBottomSheet(
+        show = true,
         onDismissRequest = hideBottomSheet,
-        modifier = Modifier.imePadding(),
-        sheetState = bottomSheetState,
-        containerColor = MaterialTheme.colorScheme.background,
-    ) {
-        val allTags = remember(tags.size) {
-            tags.map { it.name to it.isRegistered }.toMutableStateList()
-        }
-        val selectedTagsIndex = allTags.indices.filter { allTags[it].second }
-        var inputTag by remember { mutableStateOf(TextFieldValue()) }
+        backgroundColor = MiuixTheme.colorScheme.background,
+        content = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                val allTags = remember(tags.size) {
+                    tags.map { it.name to it.isRegistered }.toMutableStateList()
+                }
+                val selectedTagsIndex = allTags.indices.filter { allTags[it].second }
+                var inputTag by remember { mutableStateOf(TextFieldValue()) }
 
-        Text(
-            text = if (isBookmarked) stringResource(RStrings.edit_favorite) else stringResource(
-                RStrings.add_to_favorite
-            ),
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .selectableGroup(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            RestrictRadioItem(
-                restrict = Restrict.PUBLIC,
-                selectedRestrict = selectedRestrict,
-                onRestrictChange = onRestrictChange,
-                modifier = Modifier.weight(1f),
-            )
-            RestrictRadioItem(
-                restrict = Restrict.PRIVATE,
-                selectedRestrict = selectedRestrict,
-                onRestrictChange = onRestrictChange,
-                modifier = Modifier.weight(1f),
-            )
-        }
-        Row(
-            modifier = Modifier
-                .padding(bottom = 8.dp)
-                .fillMaxWidth()
-//                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(RStrings.bookmark_tags),
-                style = MaterialTheme.typography.labelMedium,
-            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
                 Text(
-                    text = "${selectedTagsIndex.size} / $MAX_BOOKMARK_TAGS",
-                    style = MaterialTheme.typography.labelMedium
+                    text = if (isBookmarked) stringResource(RStrings.edit_favorite) else stringResource(
+                        RStrings.add_to_favorite
+                    ),
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
-                Checkbox(
-                    checked = allTags.count { it.second }.let {
-                        it != 0 && (it == MAX_BOOKMARK_TAGS || it == allTags.size)
-                    },
-                    onCheckedChange = { checked ->
-                        if (checked) {
-                            (0..<minOf(allTags.size, MAX_BOOKMARK_TAGS)).forEach { index ->
-                                allTags[index] = allTags[index].first to true
-                            }
-                        } else {
-                            allTags.indices.forEach { index ->
-                                allTags[index] = allTags[index].first to false
-                            }
-                        }
-                    }
-                )
-            }
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextField(
-                value = inputTag,
-                onValueChange = { inputTag = it },
-                modifier = Modifier.weight(1f),
-                enabled = selectedTagsIndex.size < MAX_BOOKMARK_TAGS,
-                placeholder = { Text(text = stringResource(RStrings.add_tags)) },
-                shape = MaterialTheme.shapes.small,
-                colors = transparentIndicatorColors
-            )
-            IconButton(
-                onClick = throttleClick {
-                    handleInputTag(inputTag, allTags)
-                    inputTag = inputTag.copy(text = "")
-                },
-            ) {
-                Icon(imageVector = Icons.Rounded.Add, contentDescription = null)
-            }
-        }
-        LazyColumn(
-            modifier = Modifier
-                .height(LocalWindowInfo.current.containerDpSize.height / 3)
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            itemsIndexed(
-                items = allTags,
-                key = { index, item -> "${index}_${item.first}" }
-            ) { index, item ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .throttleClick(indication = ripple()) {
-                            if (item.second) {
-                                allTags[index] = item.first to false
-                            } else {
-                                if (selectedTagsIndex.size < MAX_BOOKMARK_TAGS) {
-                                    allTags[index] = item.first to true
-                                } else {
-                                    ToastUtil.safeShortToast(
-                                        RStrings.max_bookmark_tags_reached,
-                                        MAX_BOOKMARK_TAGS
-                                    )
-                                }
-                            }
-                        }
+                        .padding(8.dp)
+                        .selectableGroup(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RestrictRadioItem(
+                        restrict = Restrict.PUBLIC,
+                        selectedRestrict = selectedRestrict,
+                        onRestrictChange = onRestrictChange,
+                        modifier = Modifier.weight(1f),
+                    )
+                    RestrictRadioItem(
+                        restrict = Restrict.PRIVATE,
+                        selectedRestrict = selectedRestrict,
+                        onRestrictChange = onRestrictChange,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .fillMaxWidth()
                         .padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = item.first,
-                        style = MaterialTheme.typography.bodyLarge
+                        text = stringResource(RStrings.bookmark_tags),
+                        style = MiuixTheme.textStyles.footnote1,
                     )
-                    Checkbox(
-                        checked = item.second,
-                        onCheckedChange = { checked ->
-                            if (checked) {
-                                if (selectedTagsIndex.size < MAX_BOOKMARK_TAGS) {
-                                    allTags[index] = item.first to true
-                                } else {
-                                    ToastUtil.safeShortToast(
-                                        RStrings.max_bookmark_tags_reached,
-                                        MAX_BOOKMARK_TAGS
-                                    )
-                                }
-                            } else {
-                                allTags[index] = item.first to false
-                            }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "${selectedTagsIndex.size} / $MAX_BOOKMARK_TAGS",
+                            style = MiuixTheme.textStyles.footnote1
+                        )
+                        val allChecked = allTags.count { it.second }.let {
+                            it != 0 && (it == MAX_BOOKMARK_TAGS || it == allTags.size)
                         }
-                    )
+                        Checkbox(
+                            state = ToggleableState(allChecked),
+                            onClick = {
+                                val checked = !allChecked
+                                if (checked) {
+                                    (0..<minOf(allTags.size, MAX_BOOKMARK_TAGS)).forEach { index ->
+                                        allTags[index] = allTags[index].first to true
+                                    }
+                                } else {
+                                    allTags.indices.forEach { index ->
+                                        allTags[index] = allTags[index].first to false
+                                    }
+                                }
+                            }
+                        )
+                    }
                 }
-            }
-        }
-        Row(
-            modifier = Modifier
-                .align(Alignment.End)
-                .padding(8.dp),
-            horizontalArrangement = 8f.spaceBy,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = throttleClick {
-                    onBookmarkClick(
-                        selectedRestrict,
-                        selectedTagsIndex.map { allTags[it].first },
-                        isBookmarked
-                    )
-                    hideBottomSheet()
-                },
-                modifier = Modifier
-            ) {
-                BookmarkIcon(
-                    isBookmarked = isBookmarked,
-                    isPrivate = selectedRestrict == Restrict.PRIVATE,
-                    iconSize = 24.dp,
-                )
-                8f.HSpacer
-                Text(
-                    text = stringResource(if (isBookmarked) RStrings.edit_favorite else RStrings.add_to_favorite),
-                    style = MaterialTheme.typography.labelLarge,
-                )
-            }
-            if (isBookmarked) {
-                OutlinedButton(
-                    onClick = throttleClick {
-                        onBookmarkClick(Restrict.PUBLIC, null, false)
-                        hideBottomSheet()
-                    },
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = stringResource(RStrings.cancel_favorite),
-                        style = MaterialTheme.typography.labelLarge,
+                    TextField(
+                        value = inputTag,
+                        onValueChange = { inputTag = it },
+                        modifier = Modifier.weight(1f),
+                        enabled = selectedTagsIndex.size < MAX_BOOKMARK_TAGS,
+                        label = stringResource(RStrings.add_tags),
+                        useLabelAsPlaceholder = true,
                     )
+                    IconButton(
+                        onClick = throttleClick {
+                            handleInputTag(inputTag, allTags)
+                            inputTag = inputTag.copy(text = "")
+                        },
+                    ) {
+                        Icon(imageVector = MiuixIcons.Add, contentDescription = null)
+                    }
+                }
+                LazyColumn(
+                    modifier = Modifier
+                        .height(LocalWindowInfo.current.containerDpSize.height / 3)
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    itemsIndexed(
+                        items = allTags,
+                        key = { index, item -> "${index}_${item.first}" }
+                    ) { index, item ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .throttleClick(indication = LocalIndication.current) {
+                                    if (item.second) {
+                                        allTags[index] = item.first to false
+                                    } else {
+                                        if (selectedTagsIndex.size < MAX_BOOKMARK_TAGS) {
+                                            allTags[index] = item.first to true
+                                        } else {
+                                            ToastUtil.safeShortToast(
+                                                RStrings.max_bookmark_tags_reached,
+                                                MAX_BOOKMARK_TAGS
+                                            )
+                                        }
+                                    }
+                                }
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = item.first,
+                                style = MiuixTheme.textStyles.main
+                            )
+                            Checkbox(
+                                state = ToggleableState(item.second),
+                                onClick = {
+                                    if (item.second) {
+                                        allTags[index] = item.first to false
+                                    } else {
+                                        if (selectedTagsIndex.size < MAX_BOOKMARK_TAGS) {
+                                            allTags[index] = item.first to true
+                                        } else {
+                                            ToastUtil.safeShortToast(
+                                                RStrings.max_bookmark_tags_reached,
+                                                MAX_BOOKMARK_TAGS
+                                            )
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(8.dp),
+                    horizontalArrangement = 8f.spaceBy,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(
+                        onClick = throttleClick {
+                            onBookmarkClick(
+                                selectedRestrict,
+                                selectedTagsIndex.map { allTags[it].first },
+                                isBookmarked
+                            )
+                            hideBottomSheet()
+                        },
+                        modifier = Modifier,
+                        colors = ButtonDefaults.buttonColorsPrimary(),
+                    ) {
+                        BookmarkIcon(
+                            isBookmarked = isBookmarked,
+                            isPrivate = selectedRestrict == Restrict.PRIVATE,
+                            iconSize = 24.dp,
+                        )
+                        8f.HSpacer
+                        Text(
+                            text = stringResource(if (isBookmarked) RStrings.edit_favorite else RStrings.add_to_favorite),
+                            style = MiuixTheme.textStyles.footnote1,
+                        )
+                    }
+                    if (isBookmarked) {
+                        TextButton(
+                            text = stringResource(RStrings.cancel_favorite),
+                            onClick = throttleClick {
+                                onBookmarkClick(Restrict.PUBLIC, null, false)
+                                hideBottomSheet()
+                            },
+                        )
+                    }
                 }
             }
-        }
-    }
+        },
+    )
 }
 
 @Composable
@@ -374,7 +374,7 @@ private fun RestrictRadioItem(
             text = stringResource(
                 if (restrict == Restrict.PUBLIC) RStrings.word_public else RStrings.word_private
             ),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MiuixTheme.textStyles.main,
         )
     }
 }

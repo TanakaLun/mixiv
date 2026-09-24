@@ -6,25 +6,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.repository.BookmarkedTagRepository
@@ -33,6 +22,15 @@ import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.strings.bookmark_tags
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Delete
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.preference.ArrowPreference
 
 @Composable
 fun BookmarkedTagsScreen(
@@ -45,13 +43,13 @@ fun BookmarkedTagsScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(RStrings.bookmark_tags)) },
+                title = stringResource(RStrings.bookmark_tags),
                 navigationIcon = {
                     IconButton(
                         onClick = { navigationManager.popBackStack() }
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            imageVector = MiuixIcons.Back,
                             contentDescription = null
                         )
                     }
@@ -75,7 +73,7 @@ fun BookmarkedTagsScreen(
                                 .background(Color.Red)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Delete,
+                                imageVector = MiuixIcons.Delete,
                                 contentDescription = null,
                                 modifier = Modifier
                                     .padding(horizontal = 10.dp)
@@ -94,15 +92,12 @@ fun BookmarkedTagsScreen(
                         BookmarkedTagRepository.removeTag(tag)
                     }
                 ) {
-                    ListItem(
+                    ArrowPreference(
+                        title = tag.name,
+                        summary = tag.translatedName.ifEmpty { null },
                         onClick = {
                             navigationManager.navigateToSearchResultScreen(tag.name)
                         },
-                        shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                        content = { Text(text = tag.name) },
-                        supportingContent = if (tag.translatedName.isNotEmpty()) {
-                            { Text(text = tag.translatedName) }
-                        } else null,
                         modifier = Modifier
                             .animateItem(),
                     )

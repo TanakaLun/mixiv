@@ -7,11 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -19,20 +15,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.ViewList
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.History
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material.icons.automirrored.rounded.ViewList
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +26,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -71,6 +55,15 @@ import com.mrl.pixiv.strings.local_history_cleared
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
+import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 @Composable
 fun HistorySettingScreen(
@@ -86,26 +79,21 @@ fun HistorySettingScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = stringResource(RStrings.history_setting))
-                },
+                title = stringResource(RStrings.history_setting),
                 navigationIcon = {
-                    IconButton(
-                        onClick = navigationManager::popBackStack,
-                        shapes = IconButtonDefaults.shapes(),
-                    ) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
+                    IconButton(onClick = navigationManager::popBackStack) {
+                        Icon(MiuixIcons.Back, contentDescription = null)
                     }
-                }
+                },
             )
-        }
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
                 .imePadding()
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 8.dp),
         ) {
             HistorySwitchItem(
                 title = stringResource(RStrings.enable_history),
@@ -114,7 +102,7 @@ fun HistorySettingScreen(
                 icon = { Icon(Icons.Rounded.History, contentDescription = null) },
                 onCheckedChange = { checked ->
                     SettingRepository.setHistorySettings(historySettings.copy(enabled = checked))
-                }
+                },
             )
             AnimatedVisibility(
                 visible = historySettings.enabled,
@@ -128,7 +116,7 @@ fun HistorySettingScreen(
                         checked = historySettings.cloudEnabled,
                         onCheckedChange = { checked ->
                             SettingRepository.setHistorySettings(historySettings.copy(cloudEnabled = checked))
-                        }
+                        },
                     )
                     HistorySwitchItem(
                         title = stringResource(RStrings.history_auto_clean),
@@ -136,7 +124,7 @@ fun HistorySettingScreen(
                         checked = historySettings.autoClean,
                         onCheckedChange = { checked ->
                             SettingRepository.setHistorySettings(historySettings.copy(autoClean = checked))
-                        }
+                        },
                     )
                     HistorySwitchItem(
                         title = stringResource(RStrings.history_unlimited),
@@ -144,7 +132,7 @@ fun HistorySettingScreen(
                         checked = historySettings.unlimited,
                         onCheckedChange = { checked ->
                             SettingRepository.setHistorySettings(historySettings.copy(unlimited = checked))
-                        }
+                        },
                     )
                     AnimatedVisibility(
                         visible = !historySettings.unlimited,
@@ -155,33 +143,19 @@ fun HistorySettingScreen(
                             selectedLimit = historySettings.maxEntries,
                             onLimitChange = { limit ->
                                 SettingRepository.setHistorySettings(
-                                    historySettings.copy(maxEntries = limit)
+                                    historySettings.copy(maxEntries = limit),
                                 )
-                            }
+                            },
                         )
                     }
-                    ListItem(
+                    BasicComponent(
+                        title = stringResource(RStrings.clear_local_history),
+                        summary = stringResource(RStrings.clear_local_history_desc),
+                        startAction = { Icon(Icons.Rounded.Delete, contentDescription = null) },
                         onClick = rememberThrottleClick {
                             scope.launch {
                                 browsingHistoryRepository.clearAllLocalHistory()
                                 ToastUtil.safeShortToast(RStrings.local_history_cleared)
-                            }
-                        },
-                        shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                        content = {
-                            Text(text = stringResource(RStrings.clear_local_history))
-                        },
-                        supportingContent = {
-                            Text(text = stringResource(RStrings.clear_local_history_desc))
-                        },
-                        modifier = Modifier
-                            .height(IntrinsicSize.Min),
-                        leadingContent = {
-                            Column(
-                                modifier = Modifier.fillMaxHeight(),
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Icon(Icons.Rounded.Delete, contentDescription = null)
                             }
                         },
                     )
@@ -199,40 +173,12 @@ private fun HistorySwitchItem(
     onCheckedChange: (Boolean) -> Unit,
     icon: (@Composable () -> Unit)? = null,
 ) {
-    ListItem(
-        onClick = rememberThrottleClick {
-            onCheckedChange(!checked)
-        },
-        shapes = ListItemDefaults.shapes(shape = RectangleShape),
-        content = {
-            Text(text = title)
-        },
-        supportingContent = {
-            Text(text = description)
-        },
-        modifier = Modifier
-            .height(IntrinsicSize.Min),
-        leadingContent = icon?.let {
-            {
-                Column(
-                    modifier = Modifier.fillMaxHeight(),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    it()
-                }
-            }
-        },
-        trailingContent = {
-            Column(
-                modifier = Modifier.fillMaxHeight(),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Switch(
-                    checked = checked,
-                    onCheckedChange = onCheckedChange,
-                )
-            }
-        },
+    SwitchPreference(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        title = title,
+        summary = description,
+        startAction = icon,
     )
 }
 
@@ -246,30 +192,16 @@ private fun HistoryLimitSetting(
     val inputLimit = input.toIntOrNull()
     val isInputError = inputLimit == null || inputLimit !in validLimitRange
 
-    ListItem(
-        headlineContent = {
-            Text(text = stringResource(RStrings.history_max_entries))
-        },
-        supportingContent = {
-            Text(
-                text = stringResource(
-                    RStrings.history_max_entries_desc,
-                    validLimitRange.first,
-                    validLimitRange.last,
-                )
-            )
-        },
-        modifier = Modifier.height(IntrinsicSize.Min),
-        leadingContent = {
-            Column(
-                modifier = Modifier.fillMaxHeight(),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Icon(Icons.AutoMirrored.Rounded.ViewList, contentDescription = null)
-            }
-        },
-        trailingContent = {
-            OutlinedTextField(
+    BasicComponent(
+        title = stringResource(RStrings.history_max_entries),
+        summary = stringResource(
+            RStrings.history_max_entries_desc,
+            validLimitRange.first,
+            validLimitRange.last,
+        ),
+        startAction = { Icon(Icons.AutoMirrored.Rounded.ViewList, contentDescription = null) },
+        endActions = {
+            TextField(
                 modifier = Modifier.width(128.dp),
                 value = input,
                 onValueChange = { value ->
@@ -282,9 +214,9 @@ private fun HistoryLimitSetting(
                         ?.let(onLimitChange)
                 },
                 singleLine = true,
-                isError = isInputError,
+                enabled = !isInputError,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             )
-        }
+        },
     )
 }

@@ -14,12 +14,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ErrorOutline
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,6 +34,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import com.github.panpf.zoomimage.CoilZoomAsyncImage
 import com.mrl.pixiv.common.compose.LocalSharedTransitionScope
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
 import kotlin.math.abs
 
 @Composable
@@ -138,7 +139,7 @@ fun ImagePreviewScreen(
                         },
                     )
                     if (isPageLoading) {
-                        CircularWavyProgressIndicator(
+                        CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center)
                         )
                     }
@@ -154,7 +155,7 @@ fun ImagePreviewScreen(
             ) {
                 IconButton(onClick = onBack) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                        imageVector = MiuixIcons.Back,
                         contentDescription = null,
                         tint = Color.White,
                     )

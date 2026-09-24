@@ -5,12 +5,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
@@ -18,7 +17,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.analytics.logEvent
 import com.mrl.pixiv.common.repository.VersionManager
@@ -40,6 +38,11 @@ import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.annotation.KoinExperimentalAPI
+import top.yukonga.miuix.kmp.basic.Badge
+import top.yukonga.miuix.kmp.basic.NavigationBar
+import top.yukonga.miuix.kmp.basic.NavigationBarItem
+import top.yukonga.miuix.kmp.basic.NavigationRail
+import top.yukonga.miuix.kmp.basic.NavigationRailItem
 
 @Composable
 fun MainNavigationScaffold(
@@ -58,47 +61,63 @@ fun MainNavigationScaffold(
             MainPage.Profile to RStrings.my,
         )
     }
+    val layoutType = if (showNavigation) {
+        NavigationSuiteScaffoldDefaults.navigationSuiteType(currentWindowAdaptiveInfoV2())
+    } else {
+        NavigationSuiteType.None
+    }
 
-    NavigationSuiteScaffold(
-        navigationSuiteItems = {
-            screens.forEach { (screen, title) ->
-                item(
-                    selected = page == screen,
-                    onClick = {
-                        if (page != screen) {
-                            navigationManager.switchMainPage(screen)
-                        }
-                    },
-                    icon = {
-                        if (screen == MainPage.Profile && hasNewVersion) {
-                            BadgedBox(
-                                badge = { Badge() }
-                            ) {
-                                Icon(
-                                    imageVector = screen.icon,
-                                    contentDescription = null
-                                )
-                            }
-                        } else {
-                            Icon(
-                                imageVector = screen.icon,
-                                contentDescription = null
-                            )
-                        }
-                    },
-                    label = {
-                        Text(text = stringResource(title), textAlign = TextAlign.Center)
-                    }
-                )
+    when (layoutType) {
+        NavigationSuiteType.None -> content()
+        NavigationSuiteType.BottomBar -> Column(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.weight(1f)) {
+                content()
             }
-        },
-        layoutType = if (showNavigation) {
-            NavigationSuiteScaffoldDefaults.navigationSuiteType(currentWindowAdaptiveInfoV2())
-        } else {
-            NavigationSuiteType.None
+            NavigationBar {
+                screens.forEach { (screen, title) ->
+                    NavigationBarItem(
+                        selected = page == screen,
+                        onClick = {
+                            if (page != screen) {
+                                navigationManager.switchMainPage(screen)
+                            }
+                        },
+                        icon = screen.icon,
+                        label = stringResource(title),
+                        badge = if (screen == MainPage.Profile && hasNewVersion) {
+                            { Badge() }
+                        } else {
+                            null
+                        },
+                    )
+                }
+            }
         }
-    ) {
-        content()
+
+        else -> Row(modifier = Modifier.fillMaxSize()) {
+            NavigationRail {
+                screens.forEach { (screen, title) ->
+                    NavigationRailItem(
+                        selected = page == screen,
+                        onClick = {
+                            if (page != screen) {
+                                navigationManager.switchMainPage(screen)
+                            }
+                        },
+                        icon = screen.icon,
+                        label = stringResource(title),
+                        badge = if (screen == MainPage.Profile && hasNewVersion) {
+                            { Badge() }
+                        } else {
+                            null
+                        },
+                    )
+                }
+            }
+            Box(modifier = Modifier.weight(1f)) {
+                content()
+            }
+        }
     }
 }
 

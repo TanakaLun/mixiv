@@ -7,8 +7,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +21,8 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.mrl.pixiv.common.data.search.TrendingTag
 import com.mrl.pixiv.common.util.throttleClick
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.basic.Text
 
 @Composable
 fun TrendingItem(
@@ -31,7 +32,7 @@ fun TrendingItem(
     Box(
         modifier = Modifier
             .aspectRatio(1f)
-            .clip(MaterialTheme.shapes.medium)
+            .clip(RoundedCornerShape(12.dp))
             .throttleClick {
                 onSearch(trendingTag.tag)
             }
@@ -57,14 +58,14 @@ fun TrendingItem(
         ) {
             Text(
                 text = "#${trendingTag.tag}",
-                style = MaterialTheme.typography.bodySmall,
+                style = MiuixTheme.textStyles.body2,
                 color = Color.White,
                 textAlign = TextAlign.Center,
             )
             trendingTag.translatedName?.let {
                 Text(
                     text = it,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MiuixTheme.textStyles.body2,
                     color = Color.White,
                     textAlign = TextAlign.Center,
                 )

@@ -19,16 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -63,6 +53,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.PullToRefresh
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.rememberPullToRefreshState
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun NewNovelPage(
@@ -107,18 +104,11 @@ private fun NovelFeedPage(
         }
     }
 
-    PullToRefreshBox(
+    PullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = pagingItems::refresh,
         modifier = modifier.fillMaxSize(),
-        state = pullRefreshState,
-        indicator = {
-            PullToRefreshDefaults.LoadingIndicator(
-                state = pullRefreshState,
-                isRefreshing = isRefreshing,
-                modifier = Modifier.align(Alignment.TopCenter),
-            )
-        },
+        pullToRefreshState = pullRefreshState,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
@@ -204,18 +194,11 @@ fun NovelWatchlistPage(
         }
     }
 
-    PullToRefreshBox(
+    PullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = watchlist::refresh,
         modifier = modifier.fillMaxSize(),
-        state = pullRefreshState,
-        indicator = {
-            PullToRefreshDefaults.LoadingIndicator(
-                state = pullRefreshState,
-                isRefreshing = isRefreshing,
-                modifier = Modifier.align(Alignment.TopCenter),
-            )
-        },
+        pullToRefreshState = pullRefreshState,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
@@ -253,7 +236,7 @@ fun NovelWatchlistPage(
                                 .fillMaxWidth()
                                 .padding(48.dp),
                             textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                         )
                     }
                 }
@@ -308,7 +291,7 @@ private fun NovelWatchlistItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
             )
             return@Card
         }
@@ -324,7 +307,7 @@ private fun NovelWatchlistItem(
                     modifier = Modifier
                         .width(84.dp)
                         .fillMaxHeight()
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                        .background(MiuixTheme.colorScheme.surfaceVariant),
                 )
             } else {
                 AsyncImage(
@@ -345,15 +328,15 @@ private fun NovelWatchlistItem(
             ) {
                 Text(
                     text = series.title.orEmpty(),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MiuixTheme.textStyles.subtitle,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
                 series.user?.let { user ->
                     Text(
                         text = user.name,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MiuixTheme.textStyles.body2,
+                        color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -367,8 +350,8 @@ private fun NovelWatchlistItem(
                             RStrings.novel_series_chapter_count,
                             series.publishedContentCount ?: 0,
                         ),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MiuixTheme.textStyles.footnote1,
+                        color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                         modifier = Modifier.weight(1f),
                     )
                     series.lastPublishedContentDatetime
@@ -377,18 +360,17 @@ private fun NovelWatchlistItem(
                         ?.let { date ->
                             Text(
                                 text = date,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MiuixTheme.textStyles.footnote2,
+                                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                             )
                         }
                 }
                 series.latestContentId?.takeIf { it > 0L }?.let { novelId ->
                     TextButton(
+                        text = stringResource(RStrings.switch_to_latest),
                         onClick = { onLatestNovelClick(novelId) },
                         modifier = Modifier.align(Alignment.End),
-                    ) {
-                        Text(text = stringResource(RStrings.switch_to_latest))
-                    }
+                    )
                 }
             }
         }
@@ -430,7 +412,7 @@ private fun LatestLoading() {
             .padding(48.dp),
         contentAlignment = Alignment.Center,
     ) {
-        CircularWavyProgressIndicator()
+        CircularProgressIndicator()
     }
 }
 
@@ -450,8 +432,9 @@ private fun LatestLoadError(
             text = stringResource(RStrings.load_failed, message),
             textAlign = TextAlign.Center,
         )
-        Button(onClick = onRetry) {
-            Text(text = stringResource(RStrings.retry))
-        }
+        TextButton(
+            text = stringResource(RStrings.retry),
+            onClick = onRetry,
+        )
     }
 }

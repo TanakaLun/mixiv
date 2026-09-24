@@ -14,9 +14,6 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -43,6 +40,9 @@ import coil3.request.ImageRequest
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.strings.ai_translation_in_progress
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 private data class ParagraphRenderData(
     val annotatedText: AnnotatedString,
@@ -67,11 +67,11 @@ internal fun NovelTranslationLoading(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
     ) {
-        CircularWavyProgressIndicator(modifier = Modifier.size(32.dp))
+        CircularProgressIndicator(modifier = Modifier.size(32.dp))
         Text(
             text = stringResource(RStrings.ai_translation_in_progress),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MiuixTheme.textStyles.body1,
+            color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
         )
     }
 }
@@ -87,8 +87,8 @@ internal fun NovelParagraph(
     onPixivImageClick: (Long) -> Unit,
 ) {
     val uriHandler = LocalUriHandler.current
-    val linkColor = MaterialTheme.colorScheme.primary
-    val textStyle = MaterialTheme.typography.bodyLarge.copy(
+    val linkColor = MiuixTheme.colorScheme.primary
+    val textStyle = MiuixTheme.textStyles.main.copy(
         fontSize = fontSize.sp,
         lineHeight = (fontSize + lineSpacingSp + 8).sp
     )
@@ -176,7 +176,7 @@ private fun buildParagraphRenderData(
                         height = 180.sp,
                         placeholderVerticalAlign = PlaceholderVerticalAlign.Center
                     )
-                ) {
+                    ) {
                     val imageUrl = span.imageUrl
                     if (imageUrl.isNullOrBlank()) {
                         Text(text = span.token, style = textStyle)

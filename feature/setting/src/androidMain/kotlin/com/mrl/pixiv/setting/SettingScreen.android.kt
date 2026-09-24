@@ -4,20 +4,9 @@ import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddLink
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.Text
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import androidx.core.os.LocaleListCompat
@@ -26,6 +15,8 @@ import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.strings.allow_open_link
 import com.mrl.pixiv.strings.default_open
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.preference.ArrowPreference
 
 actual fun getInitialLanguages(): String? {
     return AppCompatDelegate.getApplicationLocales().get(0)?.toLanguageTag()
@@ -44,7 +35,12 @@ actual fun LazyListScope.appLinkItem() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         item(KEY_DEFAULT_OPEN_LINK) {
             val context = LocalContext.current
-            ListItem(
+            ArrowPreference(
+                title = stringResource(RStrings.default_open),
+                summary = stringResource(RStrings.allow_open_link),
+                startAction = {
+                    Icon(imageVector = Icons.Rounded.AddLink, contentDescription = null)
+                },
                 onClick = rememberThrottleClick {
                     try {
                         val intent = Intent().apply {
@@ -56,27 +52,6 @@ actual fun LazyListScope.appLinkItem() {
                         }
                         context.startActivity(intent)
                     } catch (_: Throwable) {
-                    }
-                },
-                shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                content = {
-                    Text(
-                        text = stringResource(RStrings.default_open),
-                    )
-                },
-                modifier = Modifier
-                    .height(IntrinsicSize.Min),
-                supportingContent = {
-                    Text(
-                        text = stringResource(RStrings.allow_open_link),
-                    )
-                },
-                leadingContent = {
-                    Column(
-                        modifier = Modifier.fillMaxHeight(),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(imageVector = Icons.Rounded.AddLink, contentDescription = null)
                     }
                 },
             )

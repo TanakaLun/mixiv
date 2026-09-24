@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -18,6 +17,7 @@ import com.mrl.pixiv.common.kts.itemIndexKey
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.BookmarkState
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.isBookmark
 import com.mrl.pixiv.common.router.NavigateToHorizontalPictureScreen
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 
 private const val KEY_LOADING = "loading"
 
@@ -34,7 +34,7 @@ fun LazyGridScope.illustGrid(
                     .heightIn(min = 200.dp),
                 contentAlignment = Alignment.Center
             ) {
-                CircularWavyProgressIndicator()
+                CircularProgressIndicator()
             }
         }
     }
@@ -75,7 +75,7 @@ fun LazyStaggeredGridScope.illustGrid(
                     .heightIn(min = 200.dp),
                 contentAlignment = Alignment.Center
             ) {
-                CircularWavyProgressIndicator()
+                CircularProgressIndicator()
             }
         }
     }

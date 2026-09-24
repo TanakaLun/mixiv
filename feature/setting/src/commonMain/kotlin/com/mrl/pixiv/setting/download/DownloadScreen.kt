@@ -13,22 +13,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LinearWavyProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryScrollableTabRow
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -54,6 +42,17 @@ import com.mrl.pixiv.strings.status_failed
 import com.mrl.pixiv.strings.status_running
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.LinearProgressIndicator
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TabRow
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun DownloadScreen(
@@ -76,36 +75,26 @@ fun DownloadScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(RStrings.download_manager)) },
+                title = stringResource(RStrings.download_manager),
                 navigationIcon = {
-                    IconButton(
-                        onClick = navigationManager::popBackStack,
-                        shapes = IconButtonDefaults.shapes()
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = null
-                        )
+                    IconButton(onClick = navigationManager::popBackStack) {
+                        Icon(MiuixIcons.Back, contentDescription = null)
                     }
-                }
+                },
             )
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
             val selectedIndex =
                 tabs.indexOfFirst { it.first == state.filterStatus }.coerceAtLeast(0)
-            PrimaryScrollableTabRow(
+            TabRow(
+                tabs = tabs.map { stringResource(it.second) },
                 selectedTabIndex = selectedIndex,
-                edgePadding = 0.dp
-            ) {
-                tabs.forEachIndexed { index, (status, titleRes) ->
-                    Tab(
-                        selected = selectedIndex == index,
-                        onClick = { viewModel.changeFilterStatus(status) },
-                        text = { Text(stringResource(titleRes)) }
-                    )
-                }
-            }
+                onTabSelected = { index ->
+                    val (status, _) = tabs[index]
+                    viewModel.changeFilterStatus(status)
+                },
+            )
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
@@ -154,28 +143,28 @@ fun DownloadItem(
             ) {
                 Text(
                     text = item.title,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MiuixTheme.textStyles.subtitle,
                     maxLines = 1
                 )
                 Text(
                     text = item.userName,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MiuixTheme.textStyles.body1,
                     maxLines = 1
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 if (item.status == DownloadStatus.RUNNING.value ||
                     item.status == DownloadStatus.PENDING.value
                 ) {
-                    LinearWavyProgressIndicator(
-                        progress = { item.progress },
+                    LinearProgressIndicator(
+                        progress = item.progress,
                         modifier = Modifier.fillMaxWidth()
                     )
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         val (icon, tint) = when (item.status) {
-                            DownloadStatus.SUCCESS.value -> Icons.Rounded.CheckCircle to MaterialTheme.colorScheme.primary
-                            DownloadStatus.FAILED.value -> Icons.Rounded.Error to MaterialTheme.colorScheme.error
-                            else -> Icons.Rounded.CheckCircle to MaterialTheme.colorScheme.onSurface
+                            DownloadStatus.SUCCESS.value -> Icons.Rounded.CheckCircle to MiuixTheme.colorScheme.primary
+                            DownloadStatus.FAILED.value -> Icons.Rounded.Error to MiuixTheme.colorScheme.error
+                            else -> Icons.Rounded.CheckCircle to MiuixTheme.colorScheme.onSurface
                         }
                         Icon(
                             imageVector = icon,
@@ -192,7 +181,7 @@ fun DownloadItem(
                                     else -> RStrings.status_running
                                 }
                             ),
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MiuixTheme.textStyles.footnote2,
                             color = tint
                         )
                     }

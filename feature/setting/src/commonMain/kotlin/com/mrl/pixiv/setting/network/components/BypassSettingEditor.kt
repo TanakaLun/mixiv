@@ -7,18 +7,13 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.data.setting.UserPreference
@@ -57,6 +51,14 @@ import com.mrl.pixiv.strings.use_sni_desc
 import io.ktor.http.URLProtocol
 import io.ktor.http.parseUrl
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.material3.FilterChip
+import top.yukonga.miuix.kmp.basic.RadioButton
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.overlay.OverlayDialog
+import top.yukonga.miuix.kmp.preference.ArrowPreference
+import top.yukonga.miuix.kmp.preference.SwitchPreference
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * IPv4：0.0.0.0 ~ 255.255.255.255
@@ -91,7 +93,7 @@ fun BypassSettingEditor(
     Column(modifier = modifier) {
         Text(
             text = stringResource(RStrings.network_plan),
-            style = MaterialTheme.typography.titleMedium,
+            style = MiuixTheme.textStyles.subtitle,
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
         )
 
@@ -164,8 +166,8 @@ fun BypassSettingEditor(
                     }
                 ),
                 modifier = Modifier.padding(start = 16.dp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyMedium,
+                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+                style = MiuixTheme.textStyles.body1,
             )
         }
     }
@@ -209,12 +211,13 @@ fun ProxyEditor(
     }
 
     if (showEditType) {
-        AlertDialog(
+        OverlayDialog(
+            show = true,
+            title = stringResource(RStrings.proxy_type),
             onDismissRequest = { showEditType = false },
-            title = { Text(text = stringResource(RStrings.proxy_type)) },
-            text = {
-                val types = remember { UserPreference.BypassSetting.Proxy.ProxyType.entries }
+            content = {
                 Column {
+                    val types = remember { UserPreference.BypassSetting.Proxy.ProxyType.entries }
                     types.forEach { type ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -241,50 +244,37 @@ fun ProxyEditor(
                             )
                         }
                     }
+                    Spacer(Modifier.height(16.dp))
+                    TextButton(
+                        text = stringResource(RStrings.cancel),
+                        onClick = { showEditType = false },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
             },
-            confirmButton = {},
-            dismissButton = {
-                TextButton(onClick = { showEditType = false }) {
-                    Text(text = stringResource(RStrings.cancel))
-                }
-            }
         )
     }
 
     Column {
-        ListItem(
-            onClick = {
-                showEditHost = true
-            },
-            shapes = ListItemDefaults.shapes(shape = RectangleShape),
-            content = { Text(text = stringResource(RStrings.proxy_host)) },
-            supportingContent = { Text(text = setting.host) },
+        ArrowPreference(
+            title = stringResource(RStrings.proxy_host),
+            summary = setting.host,
+            onClick = { showEditHost = true },
         )
-        ListItem(
-            onClick = {
-                showEditPort = true
-            },
-            shapes = ListItemDefaults.shapes(shape = RectangleShape),
-            content = { Text(text = stringResource(RStrings.proxy_port)) },
-            supportingContent = { Text(text = setting.port.toString()) },
+        ArrowPreference(
+            title = stringResource(RStrings.proxy_port),
+            summary = setting.port.toString(),
+            onClick = { showEditPort = true },
         )
-        ListItem(
-            onClick = {
-                showEditType = true
-            },
-            shapes = ListItemDefaults.shapes(shape = RectangleShape),
-            content = { Text(text = stringResource(RStrings.proxy_type)) },
-            supportingContent = {
-                Text(
-                    text = stringResource(
-                        when (setting.proxyType) {
-                            UserPreference.BypassSetting.Proxy.ProxyType.HTTP -> RStrings.protocol_http
-                            UserPreference.BypassSetting.Proxy.ProxyType.SOCKS -> RStrings.protocol_socks
-                        }
-                    )
-                )
-            },
+        ArrowPreference(
+            title = stringResource(RStrings.proxy_type),
+            summary = stringResource(
+                when (setting.proxyType) {
+                    UserPreference.BypassSetting.Proxy.ProxyType.HTTP -> RStrings.protocol_http
+                    UserPreference.BypassSetting.Proxy.ProxyType.SOCKS -> RStrings.protocol_socks
+                }
+            ),
+            onClick = { showEditType = true },
         )
     }
 }
@@ -359,38 +349,25 @@ fun SniEditor(
     }
 
     Column {
-        ListItem(
-            onClick = {
-                showEditUrl = true
-            },
-            shapes = ListItemDefaults.shapes(shape = RectangleShape),
-            content = { Text(text = stringResource(RStrings.sni_doh_url)) },
-            supportingContent = { Text(text = setting.url) },
+        ArrowPreference(
+            title = stringResource(RStrings.sni_doh_url),
+            summary = setting.url,
+            onClick = { showEditUrl = true },
         )
-        ListItem(
-            onClick = {
-                showEditTimeout = true
-            },
-            shapes = ListItemDefaults.shapes(shape = RectangleShape),
-            content = { Text(text = stringResource(RStrings.sni_timeout)) },
-            supportingContent = { Text(text = setting.dohTimeout.toString()) },
+        ArrowPreference(
+            title = stringResource(RStrings.sni_timeout),
+            summary = setting.dohTimeout.toString(),
+            onClick = { showEditTimeout = true },
         )
-        ListItem(
-            headlineContent = { Text(text = stringResource(RStrings.sni_non_strict_ssl)) },
-            trailingContent = {
-                Switch(
-                    checked = setting.nonStrictSSL,
-                    onCheckedChange = { onUpdate(setting.copy(nonStrictSSL = it)) }
-                )
-            }
+        SwitchPreference(
+            checked = setting.nonStrictSSL,
+            onCheckedChange = { onUpdate(setting.copy(nonStrictSSL = it)) },
+            title = stringResource(RStrings.sni_non_strict_ssl),
         )
-        ListItem(
-            onClick = {
-                showEditInternalIpPool = true
-            },
-            shapes = ListItemDefaults.shapes(shape = RectangleShape),
-            content = { Text(text = stringResource(RStrings.internal_ip_pool)) },
-            supportingContent = { Text(text = stringResource(RStrings.internal_ip_pool_desc)) },
+        ArrowPreference(
+            title = stringResource(RStrings.internal_ip_pool),
+            summary = stringResource(RStrings.internal_ip_pool_desc),
+            onClick = { showEditInternalIpPool = true },
         )
     }
 }

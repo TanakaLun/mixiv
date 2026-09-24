@@ -2,29 +2,14 @@ package com.mrl.pixiv.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -57,6 +42,14 @@ import com.mrl.pixiv.strings.manga
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.PullToRefresh
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TabRow
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.basic.rememberPullToRefreshState
 
 
 @Composable
@@ -87,7 +80,7 @@ fun HomeScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(RStrings.app_name)) },
+                title = stringResource(RStrings.app_name),
                 actions = {
                     IconButton(
                         onClick = {
@@ -96,7 +89,6 @@ fun HomeScreen(
                             }
                             onRefresh()
                         },
-                        shapes = IconButtonDefaults.shapes(),
                     ) {
                         Icon(imageVector = Icons.Rounded.Refresh, contentDescription = null)
                     }
@@ -125,7 +117,6 @@ fun HomeScreen(
                 )
             }
         },
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
     ) { paddingValues ->
         when (appViewMode) {
             AppViewMode.ILLUST -> {
@@ -182,31 +173,23 @@ private fun IllustMode(
             .fillMaxSize()
             .fillMaxWidth(),
     ) {
-        PrimaryTabRow(
-            selectedTabIndex = pagerState.currentPage,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            HomeImageFeedMode.entries.forEachIndexed { index, mode ->
-                Tab(
-                    selected = pagerState.currentPage == index,
-                    onClick = {
-                        scope.launch {
-                            pagerState.animateScrollToPage(index)
-                        }
-                    },
-                    text = {
-                        Text(
-                            text = stringResource(
-                                when (mode) {
-                                    HomeImageFeedMode.Illust -> RStrings.illustrations
-                                    HomeImageFeedMode.Manga -> RStrings.manga
-                                }
-                            )
-                        )
+        TabRow(
+            tabs = HomeImageFeedMode.entries.map { mode ->
+                stringResource(
+                    when (mode) {
+                        HomeImageFeedMode.Illust -> RStrings.illustrations
+                        HomeImageFeedMode.Manga -> RStrings.manga
                     }
                 )
-            }
-        }
+            },
+            selectedTabIndex = pagerState.currentPage,
+            onTabSelected = { index ->
+                scope.launch {
+                    pagerState.animateScrollToPage(index)
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+        )
 
         HorizontalPager(
             state = pagerState,
@@ -254,18 +237,11 @@ private fun HomeImageFeedPage(
         }
     }
 
-    PullToRefreshBox(
+    PullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = recommendImageList::refresh,
-        modifier = Modifier.fillMaxSize(),
-        state = pullRefreshState,
-        indicator = {
-            PullToRefreshDefaults.LoadingIndicator(
-                state = pullRefreshState,
-                isRefreshing = isRefreshing,
-                modifier = Modifier.align(Alignment.TopCenter),
-            )
-        }
+        modifier = modifier.fillMaxSize(),
+        pullToRefreshState = pullRefreshState,
     ) {
         Box(
             modifier = Modifier
@@ -314,18 +290,11 @@ private fun NovelMode(
         }
     }
 
-    PullToRefreshBox(
+    PullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
         modifier = modifier,
-        state = pullRefreshState,
-        indicator = {
-            PullToRefreshDefaults.LoadingIndicator(
-                state = pullRefreshState,
-                isRefreshing = isRefreshing,
-                modifier = Modifier.align(Alignment.TopCenter),
-            )
-        }
+        pullToRefreshState = pullRefreshState,
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),

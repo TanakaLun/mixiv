@@ -6,18 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,6 +27,17 @@ import com.mrl.pixiv.strings.recommend_cookie_export_plugin
 import com.mrl.pixiv.strings.sign_in
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SmallTopAppBar
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
 
 @Composable
 fun WebCookieLoginScreen(
@@ -57,15 +56,14 @@ fun WebCookieLoginScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = {},
+            SmallTopAppBar(
+                title = "",
                 navigationIcon = {
                     IconButton(
                         onClick = { navigationManager.popBackStack() },
-                        shapes = IconButtonDefaults.shapes(),
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            imageVector = MiuixIcons.Back,
                             contentDescription = "Back"
                         )
                     }
@@ -88,9 +86,7 @@ fun WebCookieLoginScreen(
                     value = phpSessionId,
                     onValueChange = { phpSessionId = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = {
-                        Text(text = stringResource(RStrings.cookies))
-                    },
+                    label = stringResource(RStrings.cookies),
                     maxLines = 5
                 )
                 Button(
@@ -99,7 +95,7 @@ fun WebCookieLoginScreen(
                         focusManager.clearFocus()
                         viewModel.loginWithCookies(phpSessionId)
                     },
-                    shapes = ButtonDefaults.shapes(),
+                    colors = ButtonDefaults.buttonColorsPrimary(),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
@@ -112,7 +108,7 @@ fun WebCookieLoginScreen(
                 )
             }
             if (state.loading) {
-                CircularWavyProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         }
     }

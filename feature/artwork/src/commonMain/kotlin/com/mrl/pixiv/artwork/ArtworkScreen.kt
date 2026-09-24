@@ -1,38 +1,24 @@
 package com.mrl.pixiv.artwork
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
@@ -62,6 +48,15 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.PullToRefresh
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TabRow
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
 
 @Stable
 private enum class ArtworkPage(
@@ -151,22 +146,20 @@ fun ArtworkScreen(
                 }
             )
         },
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
+        contentWindowInsets = WindowInsets.statusBars,
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
-            PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
-                pages.forEachIndexed { index, page ->
-                    Tab(
-                        selected = pagerState.currentPage == index,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                        text = { Text(text = stringResource(page.title)) }
-                    )
-                }
-            }
+            TabRow(
+                tabs = pages.map { page -> stringResource(page.title) },
+                selectedTabIndex = pagerState.currentPage,
+                onTabSelected = { index ->
+                    scope.launch { pagerState.animateScrollToPage(index) }
+                },
+            )
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize(),
@@ -203,43 +196,36 @@ private fun UserIllustPage(
     navToPictureScreen: com.mrl.pixiv.common.router.NavigateToHorizontalPictureScreen,
 ) {
     val layoutParams = IllustGridDefaults.relatedLayoutParameters()
-    val pullRefreshState = rememberPullToRefreshState()
     val isRefreshing = illusts.loadState.refresh is LoadState.Loading
 
-    PullToRefreshBox(
+    PullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = { illusts.refresh() },
-        state = pullRefreshState,
-        indicator = {
-            PullToRefreshDefaults.LoadingIndicator(
-                state = pullRefreshState,
-                isRefreshing = isRefreshing,
-                modifier = Modifier.align(Alignment.TopCenter),
-            )
-        }
     ) {
-        LazyVerticalGrid(
-            state = gridState,
-            modifier = Modifier.fillMaxSize(),
-            columns = layoutParams.gridCells,
-            verticalArrangement = layoutParams.verticalArrangement,
-            horizontalArrangement = layoutParams.horizontalArrangement,
-            contentPadding = PaddingValues(
-                start = 8.dp,
-                top = 8.dp,
-                end = 8.dp,
-                bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-            ),
-        ) {
-            illustGrid(
-                illusts = illusts,
-                navToPictureScreen = navToPictureScreen,
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyVerticalGrid(
+                state = gridState,
+                modifier = Modifier.fillMaxSize(),
+                columns = layoutParams.gridCells,
+                verticalArrangement = layoutParams.verticalArrangement,
+                horizontalArrangement = layoutParams.horizontalArrangement,
+                contentPadding = PaddingValues(
+                    start = 8.dp,
+                    top = 8.dp,
+                    end = 8.dp,
+                    bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                ),
+            ) {
+                illustGrid(
+                    illusts = illusts,
+                    navToPictureScreen = navToPictureScreen,
+                )
+            }
+            VerticalScrollbar(
+                state = gridState,
+                modifier = Modifier.align(androidx.compose.ui.Alignment.CenterEnd)
             )
         }
-        VerticalScrollbar(
-            state = gridState,
-            modifier = Modifier.align(Alignment.CenterEnd)
-        )
     }
 }
 
@@ -250,53 +236,46 @@ private fun UserNovelPage(
     navToNovelDetailScreen: (Long) -> Unit,
     navToNovelSeriesScreen: (Long) -> Unit,
 ) {
-    val pullRefreshState = rememberPullToRefreshState()
     val isRefreshing = novels.loadState.refresh is LoadState.Loading
 
-    PullToRefreshBox(
+    PullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = { novels.refresh() },
-        state = pullRefreshState,
-        indicator = {
-            PullToRefreshDefaults.LoadingIndicator(
-                state = pullRefreshState,
-                isRefreshing = isRefreshing,
-                modifier = Modifier.align(Alignment.TopCenter),
-            )
-        }
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            state = listState,
-            contentPadding = PaddingValues(
-                top = 8.dp,
-                bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-            ),
-        ) {
-            items(
-                count = novels.itemCount,
-                key = novels.itemIndexKey { index, item -> "${index}_${item.id}" }
-            ) { index ->
-                novels[index]?.let { novel ->
-                    NovelItem(
-                        novel = novel,
-                        onNovelClick = navToNovelDetailScreen,
-                        onSeriesClick = navToNovelSeriesScreen,
-                        onBookmarkClick = { isBookmarked, restrict, tags ->
-                            if (isBookmarked) {
-                                BookmarkState.deleteBookmarkNovel(novel.id)
-                            } else {
-                                BookmarkState.bookmarkNovel(novel.id, restrict, tags)
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                state = listState,
+                contentPadding = PaddingValues(
+                    top = 8.dp,
+                    bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                ),
+            ) {
+                items(
+                    count = novels.itemCount,
+                    key = novels.itemIndexKey { index, item -> "${index}_${item.id}" }
+                ) { index ->
+                    novels[index]?.let { novel ->
+                        NovelItem(
+                            novel = novel,
+                            onNovelClick = navToNovelDetailScreen,
+                            onSeriesClick = navToNovelSeriesScreen,
+                            onBookmarkClick = { isBookmarked, restrict, tags ->
+                                if (isBookmarked) {
+                                    BookmarkState.deleteBookmarkNovel(novel.id)
+                                } else {
+                                    BookmarkState.bookmarkNovel(novel.id, restrict, tags)
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
+            VerticalScrollbar(
+                state = listState,
+                modifier = Modifier.align(androidx.compose.ui.Alignment.CenterEnd)
+            )
         }
-        VerticalScrollbar(
-            state = listState,
-            modifier = Modifier.align(Alignment.CenterEnd)
-        )
     }
 }
 
@@ -306,15 +285,12 @@ private fun CollectionTopAppBar(
 ) {
     TopAppBar(
         modifier = Modifier.shadow(4.dp),
-        title = {
-            Text(text = stringResource(RStrings.artworks))
-        },
+        title = stringResource(RStrings.artworks),
         navigationIcon = {
             IconButton(
                 onClick = onBack,
-                shapes = IconButtonDefaults.shapes(),
             ) {
-                Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
+                Icon(MiuixIcons.Back, contentDescription = null)
             }
         },
     )

@@ -1,14 +1,12 @@
 package com.mrl.pixiv.search.result
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,19 +20,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -94,6 +80,13 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import top.yukonga.miuix.kmp.basic.PullToRefresh
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TabRow
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.rememberPullToRefreshState
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 internal enum class SearchResultContentLayout(
     val compactNovelTitle: Boolean = false,
@@ -146,10 +139,6 @@ fun SearchResultsScreen(
     val isPremium by viewModel.isPremium.collectAsStateWithLifecycle()
     val usePagedSearchResults = searchResultDisplayMode == SearchResultDisplayMode.PAGED
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
-    val bottomSheetState = rememberBottomSheetState(
-        initialValue = SheetValue.Hidden,
-        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-    )
     val squareLayoutParams = IllustGridDefaults.relatedLayoutParameters()
     val originalAspectRatioLayoutParams = RecommendGridDefaults.coverLayoutParameters()
     val contentLayout = resolveSearchResultContentLayout(searchMode, searchResultIllustLayout)
@@ -249,25 +238,19 @@ fun SearchResultsScreen(
                     },
                     showFilterAction = pagerState.currentPage == 0
                 )
-                PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
-                    Tab(
-                        selected = pagerState.currentPage == 0,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(0) } },
-                        text = {
-                            Text(
-                                text = when (searchMode) {
-                                    AppViewMode.ILLUST -> stringResource(RStrings.illusts)
-                                    AppViewMode.NOVEL -> stringResource(RStrings.novels)
-                                }
-                            )
-                        }
-                    )
-                    Tab(
-                        selected = pagerState.currentPage == 1,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(1) } },
-                        text = { Text(text = stringResource(RStrings.users)) }
-                    )
-                }
+                TabRow(
+                    tabs = listOf(
+                        when (searchMode) {
+                            AppViewMode.ILLUST -> stringResource(RStrings.illusts)
+                            AppViewMode.NOVEL -> stringResource(RStrings.novels)
+                        },
+                        stringResource(RStrings.users),
+                    ),
+                    selectedTabIndex = pagerState.currentPage,
+                    onTabSelected = { index ->
+                        scope.launch { pagerState.animateScrollToPage(index) }
+                    },
+                )
             }
         },
         floatingActionButton = {
@@ -312,15 +295,14 @@ fun SearchResultsScreen(
                 },
                 onRefresh = onRefresh,
             )
+            )
         },
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
     ) {
         HorizontalPager(
             state = pagerState,
             modifier = modifier.padding(it),
         ) { index ->
-            val navigationBarBottomPadding = WindowInsets.navigationBars.asPaddingValues()
-                .calculateBottomPadding()
+            val navigationBarBottomPadding = 0.dp
 
             when (pages[index]) {
                 SearchResultsPage.IllustsOrNovel -> {
@@ -383,7 +365,7 @@ fun SearchResultsScreen(
                             val bottomContentPadding = navigationBarBottomPadding +
                                 if (showPagingControls || showPopularPreviewNotice) 88.dp else 0.dp
 
-                            PullToRefreshBox(
+                            PullToRefresh(
                                 isRefreshing = isRefreshing,
                                 onRefresh = {
                                     if (manualIllustResults != null) {
@@ -392,15 +374,10 @@ fun SearchResultsScreen(
                                         searchResults?.refresh()
                                     }
                                 },
-                                state = pullRefreshState,
-                                indicator = {
-                                    PullToRefreshDefaults.LoadingIndicator(
-                                        state = pullRefreshState,
-                                        isRefreshing = isRefreshing,
-                                        modifier = Modifier.align(Alignment.TopCenter),
-                                    )
-                                },
+                                modifier = Modifier.fillMaxSize(),
+                                pullToRefreshState = pullRefreshState,
                             ) {
+                                Box(modifier = Modifier.fillMaxSize()) {
                                 when (searchResultIllustLayout) {
                                     SearchResultIllustLayout.SQUARE -> {
                                         LazyVerticalGrid(
@@ -523,6 +500,7 @@ fun SearchResultsScreen(
                                             .navigationBarsPadding(),
                                     )
                                 }
+                                }
                             }
                         }
 
@@ -575,7 +553,7 @@ fun SearchResultsScreen(
                             val bottomContentPadding = navigationBarBottomPadding +
                                 if (showPagingControls || showPopularPreviewNotice) 88.dp else 0.dp
 
-                            PullToRefreshBox(
+                            PullToRefresh(
                                 isRefreshing = isNovelRefreshing,
                                 onRefresh = {
                                     if (manualNovelResults != null) {
@@ -584,15 +562,10 @@ fun SearchResultsScreen(
                                         novelSearchResults?.refresh()
                                     }
                                 },
-                                state = novelPullRefreshState,
-                                indicator = {
-                                    PullToRefreshDefaults.LoadingIndicator(
-                                        state = novelPullRefreshState,
-                                        isRefreshing = isNovelRefreshing,
-                                        modifier = Modifier.align(Alignment.TopCenter),
-                                    )
-                                },
+                                modifier = Modifier.fillMaxSize(),
+                                pullToRefreshState = novelPullRefreshState,
                             ) {
+                                Box(modifier = Modifier.fillMaxSize()) {
                                 LazyColumn(
                                     modifier = Modifier.fillMaxSize(),
                                     state = novelsListState,
@@ -663,6 +636,7 @@ fun SearchResultsScreen(
                                             .navigationBarsPadding(),
                                     )
                                 }
+                                }
                             }
                         }
                     }
@@ -708,7 +682,7 @@ fun SearchResultsScreen(
                     val bottomContentPadding = navigationBarBottomPadding +
                         if (showPagingControls) 88.dp else 0.dp
 
-                    PullToRefreshBox(
+                    PullToRefresh(
                         isRefreshing = isUserRefreshing,
                         onRefresh = {
                             if (manualUserResults != null) {
@@ -717,15 +691,10 @@ fun SearchResultsScreen(
                                 userSearchResults?.refresh()
                             }
                         },
-                        state = userPullRefreshState,
-                        indicator = {
-                            PullToRefreshDefaults.LoadingIndicator(
-                                state = userPullRefreshState,
-                                isRefreshing = isUserRefreshing,
-                                modifier = Modifier.align(Alignment.TopCenter),
-                            )
-                        },
+                        modifier = Modifier.fillMaxSize(),
+                        pullToRefreshState = userPullRefreshState,
                     ) {
+                        Box(modifier = Modifier.fillMaxSize()) {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             state = usersListState,
@@ -782,24 +751,23 @@ fun SearchResultsScreen(
                                     .navigationBarsPadding(),
                             )
                         }
+                        }
                     }
                 }
             }
         }
 
-        if (showBottomSheet) {
-            FilterBottomSheet(
-                bottomSheetState = bottomSheetState,
-                searchFilter = state.searchFilter,
-                onDismissRequest = {
-                    showBottomSheet = false
-                },
-                onUpdateFilter = {
-                    viewModel.dispatch(SearchResultAction.UpdateFilter(it))
-                },
-                isNovelMode = searchMode == AppViewMode.NOVEL
-            )
-        }
+        FilterBottomSheet(
+            show = showBottomSheet,
+            searchFilter = state.searchFilter,
+            onDismissRequest = {
+                showBottomSheet = false
+            },
+            onUpdateFilter = {
+                viewModel.dispatch(SearchResultAction.UpdateFilter(it))
+            },
+            isNovelMode = searchMode == AppViewMode.NOVEL
+        )
     }
 }
 
@@ -831,7 +799,7 @@ private fun PopularPreviewNotice(
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 8.dp),
         shape = RoundedCornerShape(28.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer,
+        color = MiuixTheme.colorScheme.surfaceVariant,
         tonalElevation = 1.dp,
     ) {
         Row(
@@ -841,11 +809,12 @@ private fun PopularPreviewNotice(
             Text(
                 text = stringResource(RStrings.popular_preview_paging_unavailable),
                 modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MiuixTheme.textStyles.body2,
             )
-            TextButton(onClick = onSwitchToLatest) {
-                Text(text = stringResource(RStrings.switch_to_latest))
-            }
+            TextButton(
+                text = stringResource(RStrings.switch_to_latest),
+                onClick = onSwitchToLatest,
+            )
         }
     }
 }

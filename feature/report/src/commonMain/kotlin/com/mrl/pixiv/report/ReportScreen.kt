@@ -11,24 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.maxLength
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,7 +18,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.router.ReportType
@@ -54,6 +35,20 @@ import com.mrl.pixiv.strings.send
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 private const val MAX_REPORT_CONTENT_LENGTH = 3000
 
@@ -75,16 +70,13 @@ fun ReportScreen(
             .imePadding(),
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = stringResource(RStrings.report))
-                },
+                title = stringResource(RStrings.report),
                 navigationIcon = {
                     IconButton(
-                        onClick = { navigationManager.popBackStack() },
-                        shapes = IconButtonDefaults.shapes()
+                        onClick = { navigationManager.popBackStack() }
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            imageVector = MiuixIcons.Back,
                             contentDescription = null
                         )
                     }
@@ -99,7 +91,7 @@ fun ReportScreen(
                     .padding(innerPadding),
                 contentAlignment = Alignment.Center
             ) {
-                CircularWavyProgressIndicator()
+                CircularProgressIndicator()
             }
         } else {
             Column(
@@ -110,8 +102,8 @@ fun ReportScreen(
             ) {
                 Text(
                     text = stringResource(RStrings.report_reason),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
+                    style = MiuixTheme.textStyles.subtitle,
+                    color = MiuixTheme.colorScheme.primary,
                     modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                 )
 
@@ -122,31 +114,36 @@ fun ReportScreen(
                         .fillMaxWidth()
                         .clickable { showTopicSheet = true }
                         .padding(vertical = 12.dp),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MiuixTheme.textStyles.main
                 )
 
                 Text(
                     text = stringResource(RStrings.report_detail),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
+                    style = MiuixTheme.textStyles.subtitle,
+                    color = MiuixTheme.colorScheme.primary,
                     modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                 )
 
-                OutlinedTextField(
-                    state = reportContent,
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f),
-                    placeholder = { Text(stringResource(RStrings.report_detail_hint)) },
-                    supportingText = {
-                        Text(
-                            text = "${reportContent.text.length}/$MAX_REPORT_CONTENT_LENGTH",
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.End
-                        )
-                    },
-                    inputTransformation = InputTransformation.maxLength(MAX_REPORT_CONTENT_LENGTH),
-                )
+                        .weight(1f)
+                ) {
+                    TextField(
+                        state = reportContent,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        label = stringResource(RStrings.report_detail_hint),
+                        useLabelAsPlaceholder = true,
+                        inputTransformation = InputTransformation.maxLength(MAX_REPORT_CONTENT_LENGTH),
+                    )
+                    Text(
+                        text = "${reportContent.text.length}/$MAX_REPORT_CONTENT_LENGTH",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.End
+                    )
+                }
 
                 Button(
                     onClick = {
@@ -165,29 +162,23 @@ fun ReportScreen(
         }
     }
 
-    if (showTopicSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showTopicSheet = false },
-            sheetState = rememberBottomSheetState(
-                initialValue = SheetValue.Hidden,
-                enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-            )
-        ) {
-            LazyColumn {
-                items(
-                    items = state.topicList,
-                    key = { it.topicId }
-                ) { topic ->
-                    ListItem(
-                        onClick = {
-                            viewModel.selectTopic(topic.topicId)
-                            showTopicSheet = false
-                        },
-                        shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                        content = { Text(topic.topicTitle) },
-                    )
-                    HorizontalDivider()
-                }
+    OverlayBottomSheet(
+        show = showTopicSheet,
+        onDismissRequest = { showTopicSheet = false },
+    ) {
+        LazyColumn {
+            items(
+                items = state.topicList,
+                key = { it.topicId }
+            ) { topic ->
+                BasicComponent(
+                    title = topic.topicTitle,
+                    onClick = {
+                        viewModel.selectTopic(topic.topicId)
+                        showTopicSheet = false
+                    },
+                )
+                HorizontalDivider()
             }
         }
     }

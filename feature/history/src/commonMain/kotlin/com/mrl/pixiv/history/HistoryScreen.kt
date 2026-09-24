@@ -6,11 +6,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -20,23 +20,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Book
-import androidx.compose.material.icons.rounded.Clear
-import androidx.compose.material.icons.rounded.Image
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,7 +30,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -59,7 +42,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.mrl.pixiv.common.compose.IllustGridDefaults
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
-import com.mrl.pixiv.common.compose.transparentIndicatorColors
 import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
@@ -85,6 +67,21 @@ import com.mrl.pixiv.strings.switch_to_novel_mode
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.FloatingActionButton
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SmallTopAppBar
+import top.yukonga.miuix.kmp.basic.TabRow
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Clear
+import top.yukonga.miuix.kmp.icon.extended.Image
 
 private enum class HistorySource {
     Local,
@@ -134,24 +131,20 @@ fun HistoryScreen(
                     },
                     onBack = { navigationManager.popBackStack() }
                 )
-                PrimaryTabRow(selectedTabIndex = selectedTabIndex) {
-                    sources.forEachIndexed { index, source ->
-                        Tab(
-                            selected = selectedTabIndex == index,
-                            onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                            text = {
-                                Text(
-                                    text = stringResource(
-                                        when (source) {
-                                            HistorySource.Local -> RStrings.local_history
-                                            HistorySource.Cloud -> RStrings.cloud_history
-                                        }
-                                    )
-                                )
+                TabRow(
+                    tabs = sources.map { source ->
+                        stringResource(
+                            when (source) {
+                                HistorySource.Local -> RStrings.local_history
+                                HistorySource.Cloud -> RStrings.cloud_history
                             }
                         )
-                    }
-                }
+                    },
+                    selectedTabIndex = selectedTabIndex,
+                    onTabSelected = { index ->
+                        scope.launch { pagerState.animateScrollToPage(index) }
+                    },
+                )
             }
         },
         floatingActionButton = {
@@ -160,7 +153,7 @@ fun HistoryScreen(
                 onModeChange = { viewModel.dispatch(HistoryAction.UpdateMode(it)) },
             )
         },
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
+        contentWindowInsets = WindowInsets.statusBars,
     ) { paddingValues ->
         HorizontalPager(
             state = pagerState,
@@ -262,7 +255,7 @@ private fun HistoryViewModeToggleButton(
 
             AppViewMode.NOVEL -> {
                 Icon(
-                    imageVector = Icons.Rounded.Image,
+                    imageVector = MiuixIcons.Image,
                     contentDescription = stringResource(RStrings.switch_to_illust_mode),
                 )
             }
@@ -400,7 +393,7 @@ private fun HistoryPageOverlay(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
-                CircularWavyProgressIndicator()
+                CircularProgressIndicator()
             }
         }
 
@@ -438,7 +431,10 @@ private fun DisabledHistoryShortcut(
                 text = stringResource(RStrings.history_disabled_empty_desc),
                 textAlign = TextAlign.Center,
             )
-            Button(onClick = onOpenHistorySettings) {
+            Button(
+                onClick = onOpenHistorySettings,
+                colors = ButtonDefaults.buttonColorsPrimary(),
+            ) {
                 Text(text = stringResource(RStrings.enable_history_now))
             }
         }
@@ -452,26 +448,31 @@ private fun HistoryAppBar(
     onBack: () -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
-    TopAppBar(
-        title = {
+    SmallTopAppBar(
+        title = "",
+        navigationIcon = {
+            IconButton(
+                onClick = onBack,
+            ) {
+                Icon(
+                    imageVector = MiuixIcons.Back,
+                    contentDescription = "Back"
+                )
+            }
+        },
+        bottomContent = {
             TextField(
                 value = searchValue,
                 onValueChange = onValueChange,
-                colors = transparentIndicatorColors.copy(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent
-                ),
-                placeholder = {
-                    Text(text = stringResource(RStrings.search_by_title_author))
-                },
                 modifier = Modifier.fillMaxWidth(),
+                label = stringResource(RStrings.search_by_title_author),
+                useLabelAsPlaceholder = true,
                 trailingIcon = {
                     IconButton(
                         onClick = { onValueChange(TextFieldValue()) },
-                        shapes = IconButtonDefaults.shapes(),
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Clear,
+                            imageVector = MiuixIcons.Clear,
                             contentDescription = "Clear"
                         )
                     }
@@ -480,17 +481,6 @@ private fun HistoryAppBar(
                 keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             )
-        },
-        navigationIcon = {
-            IconButton(
-                onClick = onBack,
-                shapes = IconButtonDefaults.shapes(),
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                    contentDescription = "Back"
-                )
-            }
         }
     )
 }

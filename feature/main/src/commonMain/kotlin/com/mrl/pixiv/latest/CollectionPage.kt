@@ -12,14 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,6 +52,12 @@ import kotlinx.coroutines.flow.SharedFlow
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.PullToRefresh
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.rememberPullToRefreshState
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 private const val KEY_TOP_SPACE = "top_space"
 
@@ -129,18 +127,11 @@ private fun CollectionIllustPage(
         }
     }
 
-    PullToRefreshBox(
+    PullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = { userBookmarksIllusts.refresh() },
         modifier = modifier.fillMaxSize(),
-        state = pullRefreshState,
-        indicator = {
-            PullToRefreshDefaults.LoadingIndicator(
-                state = pullRefreshState,
-                isRefreshing = isRefreshing,
-                modifier = Modifier.align(Alignment.TopCenter),
-            )
-        }
+        pullToRefreshState = pullRefreshState,
     ) {
         Box {
             AdaptiveVerticalStaggeredGrid(
@@ -209,16 +200,13 @@ private fun CollectionIllustPage(
                             )
                         },
                         colors = FilterChipDefaults.filterChipColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            containerColor = MiuixTheme.colorScheme.surfaceVariant
                         )
                     )
                 }
                 IconButton(
                     onClick = { showFilterDialog = true },
-                    shapes = IconButtonDefaults.shapes(),
-                    colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    )
+                    backgroundColor = MiuixTheme.colorScheme.surfaceVariant,
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.FilterList,
@@ -275,18 +263,11 @@ private fun CollectionNovelPage(
         }
     }
 
-    PullToRefreshBox(
+    PullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = { userBookmarksNovels.refresh() },
         modifier = modifier.fillMaxSize(),
-        state = pullRefreshState,
-        indicator = {
-            PullToRefreshDefaults.LoadingIndicator(
-                state = pullRefreshState,
-                isRefreshing = isRefreshing,
-                modifier = Modifier.align(Alignment.TopCenter),
-            )
-        }
+        pullToRefreshState = pullRefreshState,
     ) {
         Box {
             LazyColumn(
@@ -341,7 +322,7 @@ private fun CollectionNovelPage(
                             )
                         },
                         colors = FilterChipDefaults.filterChipColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            containerColor = MiuixTheme.colorScheme.surfaceVariant
                         )
                     )
                 }

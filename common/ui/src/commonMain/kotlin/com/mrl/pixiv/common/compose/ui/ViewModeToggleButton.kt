@@ -2,9 +2,6 @@ package com.mrl.pixiv.common.compose.ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Book
-import androidx.compose.material.icons.rounded.Image
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.mrl.pixiv.common.data.AppViewMode
@@ -12,6 +9,10 @@ import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.strings.switch_to_illust_mode
 import com.mrl.pixiv.strings.switch_to_novel_mode
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.FloatingActionButton
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Image
 
 /**
  * 视图模式切换按钮
@@ -49,7 +50,7 @@ fun ViewModeToggleButton(
             AppViewMode.NOVEL -> {
                 // 当前是小说模式，显示切换到插画模式的图标
                 Icon(
-                    imageVector = Icons.Rounded.Image,
+                    imageVector = MiuixIcons.Image,
                     contentDescription = stringResource(RStrings.switch_to_illust_mode)
                 )
             }

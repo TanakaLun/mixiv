@@ -5,27 +5,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.state.ToggleableState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +41,20 @@ import com.mrl.pixiv.strings.cancel
 import com.mrl.pixiv.strings.confirm
 import com.mrl.pixiv.strings.no_blocked_items
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Checkbox
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.overlay.OverlayDialog
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun BlockIllustScreen(
@@ -68,7 +73,7 @@ fun BlockIllustScreen(
         itemContent = {
             Text(
                 text = it.title.ifBlank { it.illustId.toString() },
-                style = MaterialTheme.typography.bodyLarge,
+                style = MiuixTheme.textStyles.body1,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -92,7 +97,7 @@ fun BlockNovelScreen(
         itemContent = {
             Text(
                 text = it.title.ifBlank { it.novelId.toString() },
-                style = MaterialTheme.typography.bodyLarge,
+                style = MiuixTheme.textStyles.body1,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -116,7 +121,7 @@ fun BlockUserScreen(
         itemContent = {
             Text(
                 text = it.name.ifBlank { it.userId.toString() },
-                style = MaterialTheme.typography.bodyLarge,
+                style = MiuixTheme.textStyles.body1,
                 modifier = Modifier.weight(1f),
             )
         }
@@ -161,54 +166,67 @@ fun BlockTagScreen(
                 text = it.tag,
                 modifier = Modifier.weight(1f),
                 color = if (it.isRegex) lightBlue else Color.Unspecified,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MiuixTheme.textStyles.body1,
             )
         }
     )
 
     if (showAddDialog) {
-        AlertDialog(
+        OverlayDialog(
+            show = true,
+            title = stringResource(RStrings.add_tags),
             onDismissRequest = { showAddDialog = false },
-            title = { Text(text = stringResource(RStrings.add_tags)) },
-            text = {
+            content = {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    OutlinedTextField(
+                    TextField(
                         value = inputTag,
                         onValueChange = { inputTag = it },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        isError = normalizedTag.isNotBlank() && !regexValid,
+                        label = stringResource(RStrings.add_tags),
                     )
+                    if (!regexValid && normalizedTag.isNotBlank()) {
+                        Text(
+                            text = " ",
+                            color = MiuixTheme.colorScheme.error,
+                        )
+                    }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Checkbox(
-                            checked = isRegex,
-                            onCheckedChange = { checked -> isRegex = checked },
+                            state = ToggleableState(isRegex),
+                            onClick = { isRegex = !isRegex },
                         )
                         Text(text = stringResource(RStrings.block_tag_as_regex))
                     }
+                    Spacer(Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        TextButton(
+                            text = stringResource(RStrings.cancel),
+                            onClick = { showAddDialog = false },
+                            modifier = Modifier.weight(1f),
+                        )
+                        Spacer(Modifier.width(16.dp))
+                        TextButton(
+                            text = stringResource(RStrings.confirm),
+                            onClick = {
+                                if (!canConfirm) return@TextButton
+                                BlockingRepositoryV2.blockTag(normalizedTag, isRegex = isRegex)
+                                showAddDialog = false
+                            },
+                            modifier = Modifier.weight(1f),
+                            enabled = canConfirm,
+                            colors = ButtonDefaults.textButtonColorsPrimary(),
+                        )
+                    }
                 }
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (!canConfirm) return@TextButton
-                        BlockingRepositoryV2.blockTag(normalizedTag, isRegex = isRegex)
-                        showAddDialog = false
-                    },
-                    enabled = canConfirm,
-                ) {
-                    Text(text = stringResource(RStrings.confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showAddDialog = false }) {
-                    Text(text = stringResource(RStrings.cancel))
-                }
-            }
         )
     }
 }
@@ -229,18 +247,10 @@ private fun <T> BlockTextScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = title)
-                },
+                title = title,
                 navigationIcon = {
-                    IconButton(
-                        onClick = navigationManager::popBackStack,
-                        shapes = IconButtonDefaults.shapes(),
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = null
-                        )
+                    IconButton(onClick = navigationManager::popBackStack) {
+                        Icon(MiuixIcons.Back, contentDescription = null)
                     }
                 },
                 actions = topBarActions,
@@ -256,7 +266,7 @@ private fun <T> BlockTextScreen(
             ) {
                 Text(
                     text = stringResource(RStrings.no_blocked_items),
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MiuixTheme.textStyles.body1,
                 )
             }
             return@Scaffold

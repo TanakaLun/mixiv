@@ -16,6 +16,7 @@ kotlin {
             implementation(project(":common:datasource-local"))
             implementation(project(":common:repository"))
             implementation(project(":common:ui"))
+            implementation(libs.bundles.miuix)
             implementation(project(":common:core"))
 
             implementation(project.dependencies.platform(libs.coil3.bom))

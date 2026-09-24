@@ -5,15 +5,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,6 +20,15 @@ import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.strings.block_comments
 import com.mrl.pixiv.strings.no_blocked_items
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun BlockCommentsScreen(
@@ -42,15 +42,13 @@ fun BlockCommentsScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = stringResource(RStrings.block_comments))
-                },
+                title = stringResource(RStrings.block_comments),
                 navigationIcon = {
                     IconButton(
                         onClick = navigationManager::popBackStack
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            imageVector = MiuixIcons.Back,
                             contentDescription = null
                         )
                     }
@@ -67,7 +65,7 @@ fun BlockCommentsScreen(
             ) {
                 Text(
                     text = stringResource(RStrings.no_blocked_items),
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MiuixTheme.textStyles.main,
                 )
             }
             return@Scaffold

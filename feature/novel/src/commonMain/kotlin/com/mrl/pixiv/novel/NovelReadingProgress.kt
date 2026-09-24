@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -19,6 +17,8 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.dp
 import co.touchlab.kermit.Logger
 import com.mrl.pixiv.common.repository.NovelReadingProgress
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 import kotlin.math.roundToInt
 
 // 更新下次恢复的位置，不触发当前阅读页面跳转。
@@ -48,12 +48,12 @@ internal fun ReadingProgressIndicator(
     ) {
         Text(
             text = "$percent%",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurface,
+            style = MiuixTheme.textStyles.footnote1,
+            color = MiuixTheme.colorScheme.onSurface,
             modifier = Modifier
                 .padding(bottom = bottomPadding + 12.dp)
                 .background(
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
+                    color = MiuixTheme.colorScheme.surface.copy(alpha = 0.78f),
                     shape = RoundedCornerShape(50)
                 )
                 .padding(horizontal = 10.dp, vertical = 4.dp)

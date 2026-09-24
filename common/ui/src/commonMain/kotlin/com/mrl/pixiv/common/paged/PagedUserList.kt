@@ -5,10 +5,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +26,10 @@ import com.mrl.pixiv.strings.follow
 import com.mrl.pixiv.strings.followed
 import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
 
 private const val USER_PREVIEW_SIZE = 3
 
@@ -97,11 +97,10 @@ private fun PagedUserItem(
                 modifier = Modifier.weight(1f),
             )
             if (user.isFollowing) {
-                OutlinedButton(
+                TextButton(
+                    text = stringResource(RStrings.followed),
                     onClick = { FollowState.unFollowUser(user.id) },
-                ) {
-                    Text(text = stringResource(RStrings.followed))
-                }
+                )
             } else {
                 Button(
                     onClick = { FollowState.followUser(user.id) },

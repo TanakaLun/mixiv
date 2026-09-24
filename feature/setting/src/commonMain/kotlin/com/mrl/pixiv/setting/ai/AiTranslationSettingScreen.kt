@@ -2,6 +2,7 @@ package com.mrl.pixiv.setting.ai
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,26 +13,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Translate
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,7 +27,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -51,15 +35,12 @@ import com.mrl.pixiv.common.ai.AiEndpointError
 import com.mrl.pixiv.common.ai.AiLocalNetworkAccessGate
 import com.mrl.pixiv.common.ai.AiModelCatalogService
 import com.mrl.pixiv.common.ai.validateAiEndpoint
-import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.data.setting.AiProvider
 import com.mrl.pixiv.common.data.setting.AiTranslationConfig
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
-import com.mrl.pixiv.common.util.throttleClick
-import com.mrl.pixiv.setting.components.DropDownSelector
 import com.mrl.pixiv.strings.ai_api_key
 import com.mrl.pixiv.strings.ai_endpoint
 import com.mrl.pixiv.strings.ai_endpoint_credentials_not_allowed
@@ -103,7 +84,24 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.preference.CheckboxLocation
+import top.yukonga.miuix.kmp.preference.CheckboxPreference
+import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AiTranslationSettingScreen(
     modifier: Modifier = Modifier,
@@ -170,21 +168,18 @@ fun AiTranslationSettingScreen(
         }
     }
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = stringResource(RStrings.ai_translation_setting))
-                },
+                title = stringResource(RStrings.ai_translation_setting),
                 navigationIcon = {
-                    IconButton(
-                        onClick = navigationManager::popBackStack,
-                        shapes = IconButtonDefaults.shapes(),
-                    ) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
+                    IconButton(onClick = navigationManager::popBackStack) {
+                        Icon(MiuixIcons.Back, contentDescription = null)
                     }
                 },
                 actions = {
                     TextButton(
+                        text = stringResource(RStrings.save),
                         onClick = {
                             if (
                                 generationTimeoutSeconds == null ||
@@ -221,11 +216,9 @@ fun AiTranslationSettingScreen(
                                 AiLocalNetworkAccessGate.requestAccess(retryDenied = true)
                             }
                             navigationManager.popBackStack()
-                        }
-                    ) {
-                        Text(text = stringResource(RStrings.save))
-                    }
-                }
+                        },
+                    )
+                },
             )
         }
     ) { paddingValues ->
@@ -251,7 +244,7 @@ fun AiTranslationSettingScreen(
                 }
             )
 
-            OutlinedTextField(
+            TextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = endpoint,
                 onValueChange = {
@@ -259,129 +252,119 @@ fun AiTranslationSettingScreen(
                     endpoint = it
                     endpointError = null
                 },
-                label = { Text(text = stringResource(RStrings.ai_endpoint)) },
-                supportingText = endpointError?.let { error ->
-                    {
-                        Text(text = error.label())
-                    }
-                },
-                isError = endpointError != null,
+                label = stringResource(RStrings.ai_endpoint),
                 singleLine = true,
             )
+            endpointError?.let { error ->
+                Text(
+                    text = error.label(),
+                    color = MiuixTheme.colorScheme.error,
+                )
+            }
 
-            OutlinedTextField(
+            TextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = apiKey,
                 onValueChange = {
                     resetModelCatalog()
                     apiKey = it
                 },
-                label = { Text(text = stringResource(RStrings.ai_api_key)) },
+                label = stringResource(RStrings.ai_api_key),
                 visualTransformation = PasswordVisualTransformation(),
                 singleLine = true,
             )
 
-            OutlinedTextField(
+            TextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = model,
                 onValueChange = { model = it },
-                label = { Text(stringResource(RStrings.ai_model)) },
+                label = stringResource(RStrings.ai_model),
                 singleLine = true,
             )
 
-            OutlinedTextField(
+            TextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = generationTimeoutInput,
                 onValueChange = { generationTimeoutInput = it },
-                label = {
-                    Text(text = stringResource(RStrings.ai_generation_timeout_seconds))
-                },
-                supportingText = {
-                    Text(
-                        text = stringResource(
-                            if (generationTimeoutSeconds == null) {
-                                RStrings.ai_generation_timeout_invalid
-                            } else {
-                                RStrings.ai_generation_timeout_desc
-                            },
-                            AiTranslationConfig.GENERATION_TIMEOUT_MIN_SECONDS,
-                            AiTranslationConfig.GENERATION_TIMEOUT_MAX_SECONDS,
-                        )
-                    )
-                },
-                isError = generationTimeoutSeconds == null,
+                label = stringResource(RStrings.ai_generation_timeout_seconds),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
             )
+            Text(
+                text = stringResource(
+                    if (generationTimeoutSeconds == null) {
+                        RStrings.ai_generation_timeout_invalid
+                    } else {
+                        RStrings.ai_generation_timeout_desc
+                    },
+                    AiTranslationConfig.GENERATION_TIMEOUT_MIN_SECONDS,
+                    AiTranslationConfig.GENERATION_TIMEOUT_MAX_SECONDS,
+                ),
+                color = if (generationTimeoutSeconds == null) {
+                    MiuixTheme.colorScheme.error
+                } else {
+                    MiuixTheme.colorScheme.onSurfaceVariantSummary
+                },
+                style = MiuixTheme.textStyles.footnote1,
+            )
 
-            OutlinedTextField(
+            TextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = maxConcurrentRequestsInput,
                 onValueChange = { maxConcurrentRequestsInput = it },
-                label = {
-                    Text(text = stringResource(RStrings.ai_max_concurrent_requests))
-                },
-                supportingText = {
-                    Text(
-                        text = stringResource(
-                            if (maxConcurrentRequests == null) {
-                                RStrings.ai_max_concurrent_requests_invalid
-                            } else {
-                                RStrings.ai_max_concurrent_requests_desc
-                            },
-                            AiTranslationConfig.MAX_CONCURRENT_REQUESTS_MIN,
-                        )
-                    )
-                },
-                isError = maxConcurrentRequests == null,
+                label = stringResource(RStrings.ai_max_concurrent_requests),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
             )
+            Text(
+                text = stringResource(
+                    if (maxConcurrentRequests == null) {
+                        RStrings.ai_max_concurrent_requests_invalid
+                    } else {
+                        RStrings.ai_max_concurrent_requests_desc
+                    },
+                    AiTranslationConfig.MAX_CONCURRENT_REQUESTS_MIN,
+                ),
+                color = if (maxConcurrentRequests == null) {
+                    MiuixTheme.colorScheme.error
+                } else {
+                    MiuixTheme.colorScheme.onSurfaceVariantSummary
+                },
+                style = MiuixTheme.textStyles.footnote1,
+            )
 
             if (selectedProvider == AiProvider.OPENAI) {
-                ListItem(
-                    onClick = rememberThrottleClick {
-                        responseApi = !responseApi
-                    },
-                    shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    content = {
-                        Text(text = stringResource(RStrings.ai_openai_use_response_api))
-                    },
-                    trailingContent = {
-                        Checkbox(
-                            checked = responseApi,
-                            onCheckedChange = { checked ->
-                                responseApi = checked
-                            }
-                        )
-                    },
+                CheckboxPreference(
+                    title = stringResource(RStrings.ai_openai_use_response_api),
+                    checked = responseApi,
+                    onCheckedChange = { checked -> responseApi = checked },
+                    checkboxLocation = CheckboxLocation.End,
                 )
             }
 
-            OutlinedTextField(
+            TextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = extraBody,
                 onValueChange = {
                     extraBody = it
                     extraBodyError = false
                 },
-                label = { Text(text = stringResource(RStrings.ai_extra_body)) },
-                placeholder = { Text(text = stringResource(RStrings.ai_extra_body_hint)) },
-                supportingText = {
-                    if (extraBodyError) {
-                        Text(text = stringResource(RStrings.ai_extra_body_invalid))
-                    }
-                },
-                isError = extraBodyError,
+                label = stringResource(RStrings.ai_extra_body),
+                useLabelAsPlaceholder = true,
                 minLines = 6,
                 maxLines = 12,
             )
+            if (extraBodyError) {
+                Text(
+                    text = stringResource(RStrings.ai_extra_body_invalid),
+                    color = MiuixTheme.colorScheme.error,
+                    style = MiuixTheme.textStyles.footnote1,
+                )
+            }
 
             Text(
                 text = stringResource(RStrings.ai_extra_body_presets),
-                style = MaterialTheme.typography.labelLarge,
+                style = MiuixTheme.textStyles.subtitle,
             )
 
             FlowRow(
@@ -415,15 +398,14 @@ fun AiTranslationSettingScreen(
             ) {
                 Text(
                     text = stringResource(RStrings.ai_model_suggestions),
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MiuixTheme.textStyles.subtitle,
                 )
-                TextButton(
-                    enabled = !isRefreshingModels,
+                Button(
                     onClick = {
                         val endpointValidation = validateAiEndpoint(endpoint)
                         if (!endpointValidation.isValid) {
                             endpointError = endpointValidation.error
-                            return@TextButton
+                            return@Button
                         }
                         endpointError = null
                         modelRefreshError = null
@@ -456,6 +438,7 @@ fun AiTranslationSettingScreen(
                             }
                         }
                     },
+                    enabled = !isRefreshingModels,
                 ) {
                     if (isRefreshingModels) {
                         CircularProgressIndicator(
@@ -475,8 +458,8 @@ fun AiTranslationSettingScreen(
             modelRefreshError?.let { error ->
                 Text(
                     text = stringResource(RStrings.load_failed, error),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
+                    style = MiuixTheme.textStyles.footnote1,
+                    color = MiuixTheme.colorScheme.error,
                 )
             }
 
@@ -672,42 +655,21 @@ private fun ProviderItem(
     provider: AiProvider,
     onProviderChange: (AiProvider) -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    val providers = remember { AiProvider.entries.toList() }
+    val selectedIndex = remember(provider) {
+        providers.indexOf(provider).coerceAtLeast(0)
+    }
 
-    ListItem(
-        headlineContent = {
-            Text(text = stringResource(RStrings.ai_provider))
-        },
-        leadingContent = {
+    OverlayDropdownPreference(
+        items = providers.map { it.toDisplayName() },
+        selectedIndex = selectedIndex,
+        title = stringResource(RStrings.ai_provider),
+        startAction = {
             Icon(imageVector = Icons.Rounded.Translate, contentDescription = null)
         },
-        trailingContent = {
-            DropDownSelector(
-                modifier = Modifier.throttleClick {
-                    expanded = !expanded
-                },
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                current = provider.toDisplayName(),
-            ) {
-                AiProvider.entries.forEach { item ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = item.toDisplayName())
-                        },
-                        onClick = {
-                            onProviderChange(item)
-                            expanded = false
-                        },
-                        trailingIcon = {
-                            if (item == provider) {
-                                Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
-                            }
-                        }
-                    )
-                }
-            }
-        }
+        onSelectedIndexChange = { index ->
+            providers.getOrNull(index)?.let(onProviderChange)
+        },
     )
 }
 

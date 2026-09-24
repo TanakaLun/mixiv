@@ -8,15 +8,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +26,14 @@ import com.mrl.pixiv.strings.sign_in_with_token
 import com.mrl.pixiv.strings.sign_up
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.FloatingActionButton
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Settings
 
 @Composable
 fun LoginOptionScreen(
@@ -50,7 +49,7 @@ fun LoginOptionScreen(
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Default.Settings,
+                    imageVector = MiuixIcons.Settings,
                     contentDescription = null
                 )
             }
@@ -75,7 +74,7 @@ fun LoginOptionScreen(
                 onClick = {
                     navigationManager.navigate(Destination.Login(generateWebViewUrl(false)))
                 },
-                shapes = ButtonDefaults.shapes(),
+                colors = ButtonDefaults.buttonColorsPrimary(),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
@@ -86,29 +85,27 @@ fun LoginOptionScreen(
                 onClick = {
                     navigationManager.navigate(Destination.Login(generateWebViewUrl(true)))
                 },
-                shapes = ButtonDefaults.shapes(),
+                colors = ButtonDefaults.buttonColorsPrimary(),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
                     text = stringResource(RStrings.sign_up)
                 )
             }
-            OutlinedButton(
+            Button(
                 onClick = {
                     navigationManager.navigate(Destination.OAuthLogin)
                 },
-                shapes = ButtonDefaults.shapes(),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = stringResource(RStrings.sign_in_with_token)
                 )
             }
-            OutlinedButton(
+            Button(
                 onClick = {
                     navigationManager.navigate(Destination.WebCookieLogin)
                 },
-                shapes = ButtonDefaults.shapes(),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(

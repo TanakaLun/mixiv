@@ -11,22 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -57,6 +41,19 @@ import com.mrl.pixiv.strings.series
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.PullToRefresh
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun NovelSeriesScreen(
@@ -68,25 +65,19 @@ fun NovelSeriesScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val novels = viewModel.novels.collectAsLazyPagingItems()
     val listState = rememberLazyListState()
-    val pullRefreshState = rememberPullToRefreshState()
     val isRefreshing = novels.loadState.refresh is LoadState.Loading
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        text = state.detail?.title ?: stringResource(RStrings.series),
-                        maxLines = 1,
-                    )
-                },
+                title = state.detail?.title ?: stringResource(RStrings.series),
                 navigationIcon = {
                     IconButton(
                         onClick = navigationManager::popBackStack,
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            imageVector = MiuixIcons.Back,
                             contentDescription = stringResource(RStrings.back),
                         )
                     }
@@ -94,20 +85,12 @@ fun NovelSeriesScreen(
             )
         },
     ) { paddingValues ->
-        PullToRefreshBox(
+        PullToRefresh(
             isRefreshing = isRefreshing,
             onRefresh = novels::refresh,
-            state = pullRefreshState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            indicator = {
-                PullToRefreshDefaults.LoadingIndicator(
-                    state = pullRefreshState,
-                    isRefreshing = isRefreshing,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                )
-            },
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
@@ -142,13 +125,13 @@ fun NovelSeriesScreen(
                                 ) {
                                     Text(
                                         text = detail.title,
-                                        style = MaterialTheme.typography.headlineSmall,
+                                        style = MiuixTheme.textStyles.title3,
                                     )
                                     if (detail.caption.isNotBlank()) {
                                         Text(
                                             text = detail.caption,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            style = MiuixTheme.textStyles.body1,
+                                            color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                                         )
                                     }
                                     Row(
@@ -166,25 +149,20 @@ fun NovelSeriesScreen(
                                         )
                                         8.HSpacer
                                         TextButton(
+                                            text = detail.user.name,
                                             onClick = {
                                                 navigationManager.navigateToProfileDetailScreen(
                                                     detail.user.id,
                                                 )
                                             },
                                             modifier = Modifier.weight(1f),
-                                        ) {
-                                            Text(
-                                                text = detail.user.name,
-                                                modifier = Modifier.fillMaxWidth(),
-                                                textAlign = TextAlign.Start,
-                                            )
-                                        }
+                                        )
                                         Text(
                                             text = stringResource(
                                                 RStrings.novel_series_chapter_count,
                                                 detail.contentCount,
                                             ),
-                                            style = MaterialTheme.typography.labelLarge,
+                                            style = MiuixTheme.textStyles.footnote1,
                                         )
                                     }
                                     Button(
@@ -224,7 +202,7 @@ fun NovelSeriesScreen(
                                     .padding(48.dp),
                                 contentAlignment = Alignment.Center,
                             ) {
-                                CircularWavyProgressIndicator()
+                                CircularProgressIndicator()
                             }
                         }
                     }
@@ -248,8 +226,8 @@ fun NovelSeriesScreen(
                             Text(
                                 stringResource(RStrings.novel_series_last_read),
                                 modifier = Modifier.padding(horizontal = 16.dp),
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.labelLarge,
+                                color = MiuixTheme.colorScheme.primary,
+                                style = MiuixTheme.textStyles.footnote1,
                             )
                         }
                         NovelItem(

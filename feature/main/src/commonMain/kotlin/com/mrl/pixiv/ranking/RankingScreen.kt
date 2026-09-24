@@ -1,12 +1,10 @@
 package com.mrl.pixiv.ranking
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
@@ -15,20 +13,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.PrimaryScrollableTabRow
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SelectableDates
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -82,6 +68,15 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.PullToRefresh
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Switch
+import top.yukonga.miuix.kmp.basic.TabRow
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.basic.rememberPullToRefreshState
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
@@ -182,7 +177,7 @@ fun RankingScreen(
         topBar = {
             Column {
                 TopAppBar(
-                    title = { Text(text = stringResource(RStrings.ranking)) },
+                    title = stringResource(RStrings.ranking),
                     actions = {
                         val r18Enabled by requireUserPreferenceFlow.collectAsStateWithLifecycle { isR18Enabled }
                         LaunchedEffect(Unit) {
@@ -207,27 +202,19 @@ fun RankingScreen(
                     }
                 )
                 Row {
-                    PrimaryScrollableTabRow(
+                    TabRow(
+                        tabs = availableModes.map { stringResource(it.title) },
                         selectedTabIndex = pagerState.currentPage.coerceAtMost(
                             availableModes.lastIndex.coerceAtLeast(0)
                         ),
+                        onTabSelected = { index ->
+                            scope.launch {
+                                pagerState.scrollToPage(index)
+                            }
+                        },
                         modifier = Modifier.weight(1f),
-                        edgePadding = 0.dp
-                    ) {
-                        availableModes.forEachIndexed { index, mode ->
-                            Tab(
-                                selected = pagerState.currentPage == index,
-                                onClick = {
-                                    scope.launch {
-                                        pagerState.scrollToPage(index)
-                                    }
-                                },
-                                text = {
-                                    Text(text = stringResource(mode.title))
-                                }
-                            )
-                        }
-                    }
+                        listState = null,
+                    )
                     IconButton(
                         onClick = { showDatePicker = true }
                     ) {
@@ -268,7 +255,6 @@ fun RankingScreen(
                 )
             }
         },
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
     ) { paddingValues ->
         HorizontalPager(
             state = pagerState,
@@ -332,19 +318,13 @@ private fun IllustMode(
         }
     }
 
-    PullToRefreshBox(
+    PullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
         modifier = modifier.fillMaxSize(),
-        state = pullRefreshState,
-        indicator = {
-            PullToRefreshDefaults.LoadingIndicator(
-                state = pullRefreshState,
-                isRefreshing = isRefreshing,
-                modifier = Modifier.align(Alignment.TopCenter),
-            )
-        }
+        pullToRefreshState = pullRefreshState,
     ) {
+        Box(modifier = Modifier.fillMaxSize()) {
         val layoutParams = RecommendGridDefaults.coverLayoutParameters()
         AdaptiveVerticalStaggeredGrid(
             state = lazyStaggeredGridState,
@@ -363,6 +343,7 @@ private fun IllustMode(
             state = lazyStaggeredGridState,
             modifier = Modifier.align(Alignment.CenterEnd)
         )
+        }
     }
 }
 
@@ -399,19 +380,13 @@ private fun NovelMode(
         }
     }
 
-    PullToRefreshBox(
+    PullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
         modifier = modifier.fillMaxSize(),
-        state = pullRefreshState,
-        indicator = {
-            PullToRefreshDefaults.LoadingIndicator(
-                state = pullRefreshState,
-                isRefreshing = isRefreshing,
-                modifier = Modifier.align(Alignment.TopCenter),
-            )
-        }
+        pullToRefreshState = pullRefreshState,
     ) {
+        Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,
@@ -442,5 +417,6 @@ private fun NovelMode(
             state = lazyListState,
             modifier = Modifier.align(Alignment.CenterEnd)
         )
+        }
     }
 }

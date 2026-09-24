@@ -16,13 +16,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.TextFields
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -53,6 +49,10 @@ import com.mrl.pixiv.common.repository.viewmodel.bookmark.isBookmark
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.isPrivateBookmark
 import com.mrl.pixiv.common.util.allowRgb565
 import com.mrl.pixiv.common.util.convertUtcStringToLocalDateTime
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -89,10 +89,7 @@ fun NovelItem(
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
             .clickable { onNovelClick(novel.id) },
-        shape = MaterialTheme.shapes.medium,
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        )
+        cornerRadius = MaterialTheme.shapes.medium.topStart,
     ) {
         Row(
             modifier = Modifier
@@ -128,8 +125,8 @@ fun NovelItem(
                 if (seriesId != null && !novel.series.title.isNullOrEmpty()) {
                     Text(
                         text = novel.series.title ?: "",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
+                        style = MiuixTheme.textStyles.footnote2,
+                        color = MiuixTheme.colorScheme.primary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.clickable {
@@ -142,9 +139,9 @@ fun NovelItem(
                 Text(
                     text = novel.title,
                     style = if (compactTitle) {
-                        MaterialTheme.typography.titleSmall
+                        MiuixTheme.textStyles.subtitle
                     } else {
-                        MaterialTheme.typography.titleMedium
+                        MiuixTheme.textStyles.title3
                     },
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -160,13 +157,13 @@ fun NovelItem(
                         imageVector = Icons.Rounded.Person,
                         contentDescription = null,
                         modifier = Modifier.size(14.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MiuixTheme.colorScheme.onSurfaceVariant
                     )
                     4.HSpacer
                     Text(
                         text = novel.user.name,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MiuixTheme.textStyles.body2,
+                        color = MiuixTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
@@ -176,13 +173,13 @@ fun NovelItem(
                         imageVector = Icons.Rounded.TextFields,
                         contentDescription = null,
                         modifier = Modifier.size(14.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MiuixTheme.colorScheme.onSurfaceVariant
                     )
                     4.HSpacer
                     Text(
                         text = "${novel.textLength}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MiuixTheme.textStyles.body2,
+                        color = MiuixTheme.colorScheme.onSurfaceVariant
                     )
                     if (isAI) {
                         8.HSpacer
@@ -194,8 +191,8 @@ fun NovelItem(
                     text = remember(novel.createDate) {
                         convertUtcStringToLocalDateTime(novel.createDate)
                     },
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MiuixTheme.textStyles.footnote2,
+                    color = MiuixTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 4.dp),
                 )
 
@@ -215,8 +212,8 @@ fun NovelItem(
                         }
                         Text(
                             text = tagsText,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MiuixTheme.textStyles.footnote2,
+                            color = MiuixTheme.colorScheme.onSurfaceVariant,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -254,8 +251,8 @@ fun NovelItem(
                 }
                 Text(
                     text = "${novel.totalBookmarks}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MiuixTheme.textStyles.footnote2,
+                    color = MiuixTheme.colorScheme.onSurfaceVariant
                 )
                 if (markerPageLabel != null && onMarkerClick != null) {
                     IconButton(onClick = onMarkerClick) {
@@ -266,8 +263,8 @@ fun NovelItem(
                     }
                     Text(
                         text = markerPageLabel,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MiuixTheme.textStyles.footnote2,
+                        color = MiuixTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

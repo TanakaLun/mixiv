@@ -12,6 +12,7 @@ kotlin {
             implementation(project(":lib_strings"))
             implementation(project(":common:core"))
             implementation(project(":common:ui"))
+            implementation(libs.bundles.miuix)
 
             // Coil3
             implementation(project.dependencies.platform(libs.coil3.bom))

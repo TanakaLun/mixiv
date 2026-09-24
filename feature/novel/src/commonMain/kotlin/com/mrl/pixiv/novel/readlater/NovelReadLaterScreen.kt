@@ -12,16 +12,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -55,6 +47,15 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun NovelReadLaterScreen(
@@ -70,11 +71,11 @@ fun NovelReadLaterScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(RStrings.read_later)) },
+                title = stringResource(RStrings.read_later),
                 navigationIcon = {
                     IconButton(onClick = navigationManager::popBackStack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            imageVector = MiuixIcons.Back,
                             contentDescription = stringResource(RStrings.back),
                         )
                     }
@@ -91,7 +92,7 @@ fun NovelReadLaterScreen(
             ) {
                 Text(
                     text = stringResource(RStrings.read_later_empty),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                 )
             }
         } else {
@@ -180,47 +181,47 @@ private fun NovelReadLaterItem(
             ) {
                 Text(
                     text = item.novelTitle,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MiuixTheme.textStyles.subtitle,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = item.novelAuthorName,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MiuixTheme.textStyles.body2,
+                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 if (item.novelCaption.isNotBlank()) {
                     Text(
                         text = item.novelCaption,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MiuixTheme.textStyles.body2,
+                        color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
                 Text(
                     text = "${item.targetLanguage} · ${item.provider.name} · ${item.model}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MiuixTheme.textStyles.footnote2,
+                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = stringResource(item.state.stringResource()),
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MiuixTheme.textStyles.footnote1,
                     color = if (item.state == NovelReadLaterState.FAILED) {
-                        MaterialTheme.colorScheme.error
+                        MiuixTheme.colorScheme.error
                     } else {
-                        MaterialTheme.colorScheme.primary
+                        MiuixTheme.colorScheme.primary
                     },
                 )
                 item.lastError?.takeIf { it.isNotBlank() }?.let { message ->
                     Text(
                         text = message,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.error,
+                        style = MiuixTheme.textStyles.footnote2,
+                        color = MiuixTheme.colorScheme.error,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )

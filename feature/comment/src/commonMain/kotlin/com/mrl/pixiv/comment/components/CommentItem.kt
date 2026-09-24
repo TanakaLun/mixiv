@@ -1,23 +1,20 @@
 package com.mrl.pixiv.comment.components
 
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,6 +51,15 @@ import com.mrl.pixiv.strings.report_comment
 import com.mrl.pixiv.strings.unblock_comment
 import com.mrl.pixiv.strings.view_replies
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.ListPopupColumn
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.overlay.OverlayDialog
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.window.WindowListPopup
 
 @Composable
 fun CommentItem(
@@ -89,31 +95,31 @@ fun CommentItem(
                 Text(
                     text = comment.user.name,
                     modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MiuixTheme.textStyles.subtitle,
                     maxLines = 1
                 )
                 if (comment.user.isSelf) {
                     Text(
                         text = stringResource(RStrings.delete),
                         modifier = Modifier
-                            .throttleClick(indication = ripple()) {
+                            .throttleClick(indication = LocalIndication.current) {
                                 showDeleteConfirm = true
                             }
                             .padding(4.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.bodyMedium
+                        color = MiuixTheme.colorScheme.primary,
+                        style = MiuixTheme.textStyles.body1
                     )
                 }
                 if (!isBlockScreen) {
                     Text(
                         text = stringResource(RStrings.reply),
                         modifier = Modifier
-                            .throttleClick(indication = ripple()) {
+                            .throttleClick(indication = LocalIndication.current) {
                                 onReplyComment()
                             }
                             .padding(4.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.bodyMedium
+                        color = MiuixTheme.colorScheme.primary,
+                        style = MiuixTheme.textStyles.body1
                     )
                 }
                 if (!comment.user.isSelf) {
@@ -122,49 +128,46 @@ fun CommentItem(
                             imageVector = Icons.Default.MoreHoriz,
                             contentDescription = null,
                             modifier = Modifier
-                                .throttleClick(indication = ripple(radius = 16.dp)) {
+                                .throttleClick(indication = LocalIndication.current) {
                                     showMenu = true
                                 }
                                 .padding(4.dp)
                                 .size(24.dp)
                         )
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false }
-                        ) {
-                            if (isBlockScreen) {
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(text = stringResource(RStrings.unblock_comment))
-                                    },
-                                    onClick = {
-                                        onRemoveBlock()
-                                    }
-                                )
-                            } else {
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(text = stringResource(RStrings.block_comment))
-                                    },
-                                    onClick = {
-                                        onBlockComment()
-                                        showMenu = false
-                                    }
-                                )
-                                // 根据官方APP逻辑，纯stamp评论无法举报
-                                if (comment.stamp == null) {
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(text = stringResource(RStrings.report_comment))
-                                        },
-                                        onClick = {
-                                            onReportComment()
-                                            showMenu = false
+                        WindowListPopup(
+                            show = showMenu,
+                            onDismissRequest = { showMenu = false },
+                            content = {
+                                ListPopupColumn {
+                                    if (isBlockScreen) {
+                                        BasicComponent(
+                                            title = stringResource(RStrings.unblock_comment),
+                                            onClick = {
+                                                onRemoveBlock()
+                                            },
+                                        )
+                                    } else {
+                                        BasicComponent(
+                                            title = stringResource(RStrings.block_comment),
+                                            onClick = {
+                                                onBlockComment()
+                                                showMenu = false
+                                            },
+                                        )
+                                        // 根据官方APP逻辑，纯stamp评论无法举报
+                                        if (comment.stamp == null) {
+                                            BasicComponent(
+                                                title = stringResource(RStrings.report_comment),
+                                                onClick = {
+                                                    onReportComment()
+                                                    showMenu = false
+                                                },
+                                            )
                                         }
-                                    )
+                                    }
                                 }
-                            }
-                        }
+                            },
+                        )
                     }
                 }
             }
@@ -200,15 +203,15 @@ fun CommentItem(
                 }
                 Text(
                     text = annotatedString,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MiuixTheme.textStyles.body1,
                     inlineContent = inlineContent
                 )
             }
             if (!isBlockScreen && comment.hasReplies && onViewReplies != null) {
                 Text(
                     text = stringResource(RStrings.view_replies),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.labelMedium,
+                    color = MiuixTheme.colorScheme.primary,
+                    style = MiuixTheme.textStyles.footnote1,
                     modifier = Modifier
                         .padding(top = 8.dp)
                         .throttleClick { onViewReplies() }
@@ -217,34 +220,38 @@ fun CommentItem(
             8.VSpacer
             Text(
                 text = comment.dateString,
-                style = MaterialTheme.typography.bodySmall,
+                style = MiuixTheme.textStyles.body2,
             )
         }
     }
 
     if (showDeleteConfirm) {
-        AlertDialog(
+        OverlayDialog(
+            show = true,
+            title = stringResource(RStrings.confirm_to_delete_comment),
             onDismissRequest = { showDeleteConfirm = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDeleteComment()
-                        showDeleteConfirm = false
-                    }
+            content = {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text(text = stringResource(RStrings.confirm))
+                    TextButton(
+                        text = stringResource(RStrings.cancel),
+                        onClick = { showDeleteConfirm = false },
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    TextButton(
+                        text = stringResource(RStrings.confirm),
+                        onClick = {
+                            onDeleteComment()
+                            showDeleteConfirm = false
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.textButtonColorsPrimary(),
+                    )
                 }
             },
-            dismissButton = {
-                TextButton(
-                    onClick = { showDeleteConfirm = false }
-                ) {
-                    Text(text = stringResource(RStrings.cancel))
-                }
-            },
-            title = {
-                Text(text = stringResource(RStrings.confirm_to_delete_comment))
-            }
         )
     }
 }

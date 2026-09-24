@@ -1,6 +1,7 @@
 package com.mrl.pixiv.follow
 
 //import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,22 +19,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -81,6 +66,18 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.PullToRefresh
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TabRow
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
 
 enum class FollowingPage {
     Public,
@@ -126,18 +123,15 @@ fun FollowingScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = stringResource(RStrings.followed))
-                },
+                title = stringResource(RStrings.followed),
                 navigationIcon = {
                     IconButton(
                         onClick = rememberThrottleClick {
                             navigationManager.popBackStack()
                         },
-                        shapes = IconButtonDefaults.shapes(),
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            imageVector = MiuixIcons.Back,
                             contentDescription = "Back"
                         )
                     }
@@ -172,23 +166,19 @@ fun FollowingScreen(
                 .fillMaxSize(),
         ) {
             if (pages.size > 1) {
-                PrimaryTabRow(
+                TabRow(
+                    tabs = pages.map { page ->
+                        stringResource(if (page == FollowingPage.Public) RStrings.word_public else RStrings.word_private)
+                    },
                     selectedTabIndex = pagerState.currentPage,
+                    onTabSelected = { index ->
+                        scope.launch {
+                            if (pagerState.currentPage == index) return@launch
+                            pagerState.animateScrollToPage(index)
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(if (paneSizeClass.isWidthCompact) 1f else 0.5f),
-                ) {
-                    pages.forEachIndexed { index, page ->
-                        Tab(
-                            text = { Text(text = stringResource(if (page == FollowingPage.Public) RStrings.word_public else RStrings.word_private)) },
-                            selected = pagerState.currentPage == index,
-                            onClick = {
-                                scope.launch {
-                                    if (pagerState.currentPage == index) return@launch
-                                    pagerState.animateScrollToPage(index)
-                                }
-                            },
-                        )
-                    }
-                }
+                )
             }
             LaunchedEffect(pagerState.currentPage) {
                 logEvent("screen_view", buildMap {
@@ -223,96 +213,89 @@ fun FollowingScreenBody(
     lazyGridState: LazyGridState = rememberLazyGridState(),
     showIllusts: Boolean = true,
 ) {
-    val pullRefreshState = rememberPullToRefreshState()
     val paneSizeClass = currentPaneLayoutInfo().sizeClass
 
     val isRefreshing = followingUsers.loadState.refresh is LoadState.Loading
-    PullToRefreshBox(
+    PullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = { followingUsers.refresh() },
         modifier = modifier,
-        state = pullRefreshState,
-        indicator = {
-            PullToRefreshDefaults.LoadingIndicator(
-                state = pullRefreshState,
-                isRefreshing = isRefreshing,
-                modifier = Modifier.align(Alignment.TopCenter),
-            )
-        }
     ) {
-        if (paneSizeClass.isWidthAtLeastMedium) {
-            val layoutParams = IllustGridDefaults.userFollowingParameters()
-            LazyVerticalGrid(
-                columns = layoutParams.gridCells,
-                state = lazyGridState,
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    start = 16.dp,
-                    top = 10.dp,
-                    end = 16.dp,
-                    bottom = 20.dp
-                ),
-                horizontalArrangement = layoutParams.horizontalArrangement,
-                verticalArrangement = layoutParams.verticalArrangement,
-            ) {
-                items(
-                    followingUsers.itemCount,
-                    key = followingUsers.itemIndexKey { index, user -> "${index}_${user.user.id}" }
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (paneSizeClass.isWidthAtLeastMedium) {
+                val layoutParams = IllustGridDefaults.userFollowingParameters()
+                LazyVerticalGrid(
+                    columns = layoutParams.gridCells,
+                    state = lazyGridState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        top = 10.dp,
+                        end = 16.dp,
+                        bottom = 20.dp
+                    ),
+                    horizontalArrangement = layoutParams.horizontalArrangement,
+                    verticalArrangement = layoutParams.verticalArrangement,
                 ) {
-                    val userPreview = followingUsers[it] ?: return@items
-                    FollowingUserCard(
-                        illusts = userPreview.illusts.toImmutableList(),
-                        userName = userPreview.user.name,
-                        userId = userPreview.user.id,
-                        userAvatar = userPreview.user.profileImageUrls.medium,
-                        isFollowed = userPreview.user.isFollowing,
-                        navToPictureScreen = navToPictureScreen,
-                        navToUserProfile = {
-                            navToUserProfile(userPreview.user.id)
-                        },
-                        showIllusts = showIllusts
-                    )
+                    items(
+                        followingUsers.itemCount,
+                        key = followingUsers.itemIndexKey { index, user -> "${index}_${user.user.id}" }
+                    ) {
+                        val userPreview = followingUsers[it] ?: return@items
+                        FollowingUserCard(
+                            illusts = userPreview.illusts.toImmutableList(),
+                            userName = userPreview.user.name,
+                            userId = userPreview.user.id,
+                            userAvatar = userPreview.user.profileImageUrls.medium,
+                            isFollowed = userPreview.user.isFollowing,
+                            navToPictureScreen = navToPictureScreen,
+                            navToUserProfile = {
+                                navToUserProfile(userPreview.user.id)
+                            },
+                            showIllusts = showIllusts
+                        )
+                    }
                 }
-            }
-            VerticalScrollbar(
-                state = lazyGridState,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            )
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                state = lazyListState,
-                contentPadding = PaddingValues(
-                    start = 16.dp,
-                    top = 10.dp,
-                    end = 16.dp,
-                    bottom = 20.dp
-                ),
-                verticalArrangement = 10f.spaceBy,
-            ) {
-                items(
-                    count = followingUsers.itemCount,
-                    key = followingUsers.itemIndexKey { index, item -> "${index}_${item.user.id}" }
+                VerticalScrollbar(
+                    state = lazyGridState,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    state = lazyListState,
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        top = 10.dp,
+                        end = 16.dp,
+                        bottom = 20.dp
+                    ),
+                    verticalArrangement = 10f.spaceBy,
                 ) {
-                    val userPreview = followingUsers[it] ?: return@items
-                    FollowingUserCard(
-                        illusts = userPreview.illusts.toImmutableList(),
-                        userName = userPreview.user.name,
-                        userId = userPreview.user.id,
-                        userAvatar = userPreview.user.profileImageUrls.medium,
-                        isFollowed = userPreview.user.isFollowing,
-                        navToPictureScreen = navToPictureScreen,
-                        navToUserProfile = {
-                            navToUserProfile(userPreview.user.id)
-                        },
-                        showIllusts = showIllusts
-                    )
+                    items(
+                        count = followingUsers.itemCount,
+                        key = followingUsers.itemIndexKey { index, item -> "${index}_${item.user.id}" }
+                    ) {
+                        val userPreview = followingUsers[it] ?: return@items
+                        FollowingUserCard(
+                            illusts = userPreview.illusts.toImmutableList(),
+                            userName = userPreview.user.name,
+                            userId = userPreview.user.id,
+                            userAvatar = userPreview.user.profileImageUrls.medium,
+                            isFollowed = userPreview.user.isFollowing,
+                            navToPictureScreen = navToPictureScreen,
+                            navToUserProfile = {
+                                navToUserProfile(userPreview.user.id)
+                            },
+                            showIllusts = showIllusts
+                        )
+                    }
                 }
+                VerticalScrollbar(
+                    state = lazyListState,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
             }
-            VerticalScrollbar(
-                state = lazyListState,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            )
         }
     }
 }
@@ -378,7 +361,7 @@ fun FollowingUserCard(
                 modifier = Modifier.weight(1f)
             )
             if (isFollowed) {
-                OutlinedButton(
+                Button(
                     onClick = {
                         FollowState.unFollowUser(userId)
                     }
@@ -391,7 +374,8 @@ fun FollowingUserCard(
                 Button(
                     onClick = {
                         FollowState.followUser(userId)
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColorsPrimary(),
                 ) {
                     Text(
                         text = stringResource(RStrings.follow),

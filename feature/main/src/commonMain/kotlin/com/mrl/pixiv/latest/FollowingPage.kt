@@ -2,9 +2,6 @@ package com.mrl.pixiv.latest
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -31,6 +28,7 @@ import com.mrl.pixiv.follow.FollowingViewModel
 import kotlinx.coroutines.flow.SharedFlow
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import top.yukonga.miuix.kmp.basic.TabRow
 
 @Composable
 fun FollowingPage(
@@ -69,15 +67,13 @@ fun FollowingPage(
     }
     Column(modifier = modifier.fillMaxSize()) {
         if (viewModel.pages.size > 1) {
-            PrimaryTabRow(selectedTabIndex = pageIndex) {
-                viewModel.pages.forEachIndexed { index, _ ->
-                    Tab(
-                        selected = pageIndex == index,
-                        onClick = { selectedPage = index },
-                        text = { Text(stringResource(if (index == 0) RStrings.word_public else RStrings.word_private)) },
-                    )
-                }
-            }
+            TabRow(
+                tabs = viewModel.pages.mapIndexed { index, _ ->
+                    stringResource(if (index == 0) RStrings.word_public else RStrings.word_private)
+                },
+                selectedTabIndex = pageIndex,
+                onTabSelected = { selectedPage = it },
+            )
         }
         FollowingScreenBody(
             followingUsers = followingUsers,

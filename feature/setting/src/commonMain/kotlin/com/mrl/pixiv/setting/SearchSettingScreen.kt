@@ -6,32 +6,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.FilterAlt
 import androidx.compose.material.icons.rounded.ViewModule
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.compose.ui.SearchContentFilterControls
 import com.mrl.pixiv.common.data.search.SearchAiType
 import com.mrl.pixiv.common.data.search.SearchSort
@@ -42,8 +28,6 @@ import com.mrl.pixiv.common.repository.requireUserPreferenceFlow
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
-import com.mrl.pixiv.common.util.throttleClick
-import com.mrl.pixiv.setting.components.DropDownSelector
 import com.mrl.pixiv.strings.ai_generate
 import com.mrl.pixiv.strings.date_asc
 import com.mrl.pixiv.strings.date_desc
@@ -60,6 +44,14 @@ import com.mrl.pixiv.strings.tags_exact_match
 import com.mrl.pixiv.strings.tags_partially_match
 import com.mrl.pixiv.strings.title_and_description
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
+import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 @Composable
 fun SearchSettingScreen(
@@ -73,82 +65,61 @@ fun SearchSettingScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = stringResource(RStrings.search_setting))
-                },
+                title = stringResource(RStrings.search_setting),
                 navigationIcon = {
-                    IconButton(
-                        onClick = navigationManager::popBackStack,
-                        shapes = IconButtonDefaults.shapes(),
-                    ) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
+                    IconButton(onClick = navigationManager::popBackStack) {
+                        Icon(MiuixIcons.Back, contentDescription = null)
                     }
-                }
+                },
             )
-        }
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
                 .imePadding()
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 8.dp),
         ) {
             DefaultSearchTargetSetting(
                 selectedTarget = searchSettings.defaultSearchTarget,
                 onTargetChange = { target ->
                     SettingRepository.setSearchSettings(
-                        searchSettings.copy(defaultSearchTarget = target)
+                        searchSettings.copy(defaultSearchTarget = target),
                     )
-                }
+                },
             )
             DefaultSearchSortSetting(
                 selectedSort = searchSettings.defaultSearchSort,
                 onSortChange = { sort ->
                     SettingRepository.setSearchSettings(
-                        searchSettings.copy(defaultSearchSort = sort)
+                        searchSettings.copy(defaultSearchSort = sort),
                     )
-                }
+                },
             )
-            ListItem(
-                onClick = rememberThrottleClick {
+            SwitchPreference(
+                checked = searchSettings.defaultSearchAiType == SearchAiType.SHOW_AI,
+                onCheckedChange = { checked ->
                     SettingRepository.setSearchSettings(
                         searchSettings.copy(
-                            defaultSearchAiType = searchSettings.defaultSearchAiType.toggled()
-                        )
+                            defaultSearchAiType = if (checked) {
+                                SearchAiType.SHOW_AI
+                            } else {
+                                SearchAiType.HIDE_AI
+                            },
+                        ),
                     )
                 },
-                shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                content = {
-                    Text(text = stringResource(RStrings.ai_generate))
-                },
-                leadingContent = {
-                    Icon(Icons.Rounded.AutoAwesome, contentDescription = null)
-                },
-                trailingContent = {
-                    Switch(
-                        checked = searchSettings.defaultSearchAiType == SearchAiType.SHOW_AI,
-                        onCheckedChange = { checked ->
-                            SettingRepository.setSearchSettings(
-                                searchSettings.copy(
-                                    defaultSearchAiType = if (checked) {
-                                        SearchAiType.SHOW_AI
-                                    } else {
-                                        SearchAiType.HIDE_AI
-                                    }
-                                )
-                            )
-                        }
-                    )
-                },
+                title = stringResource(RStrings.ai_generate),
+                startAction = { Icon(Icons.Rounded.AutoAwesome, contentDescription = null) },
             )
             SearchResultDisplayModeSetting(
                 selectedMode = searchSettings.searchResultDisplayMode,
                 onModeChange = { mode ->
                     SettingRepository.setSearchSettings(
-                        searchSettings.copy(searchResultDisplayMode = mode)
+                        searchSettings.copy(searchResultDisplayMode = mode),
                     )
-                }
+                },
             )
             SearchContentFilterControls(
                 filter = searchSettings.defaultContentFilter,
@@ -168,7 +139,6 @@ private fun DefaultSearchTargetSetting(
     onTargetChange: (SearchTarget) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var expanded by remember { mutableStateOf(false) }
     val targets = remember {
         listOf(
             SearchTarget.PARTIAL_MATCH_FOR_TAGS,
@@ -176,38 +146,20 @@ private fun DefaultSearchTargetSetting(
             SearchTarget.TITLE_AND_CAPTION,
         )
     }
+    var selectedIndex by remember(selectedTarget) {
+        mutableIntStateOf(targets.indexOf(selectedTarget).coerceAtLeast(0))
+    }
 
-    ListItem(
-        headlineContent = { Text(text = stringResource(RStrings.default_search_target)) },
+    OverlayDropdownPreference(
+        items = targets.map { it.label() },
+        selectedIndex = selectedIndex,
+        title = stringResource(RStrings.default_search_target),
         modifier = modifier,
-        leadingContent = {
-            Icon(Icons.Rounded.FilterAlt, contentDescription = null)
+        startAction = { Icon(Icons.Rounded.FilterAlt, contentDescription = null) },
+        onSelectedIndexChange = { index ->
+            selectedIndex = index
+            onTargetChange(targets[index])
         },
-        trailingContent = {
-            DropDownSelector(
-                modifier = Modifier.throttleClick { expanded = !expanded },
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                current = selectedTarget.label(),
-            ) {
-                targets.forEach { target ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = target.label())
-                        },
-                        trailingIcon = {
-                            if (target == selectedTarget) {
-                                Icon(Icons.Rounded.Check, contentDescription = null)
-                            }
-                        },
-                        onClick = {
-                            onTargetChange(target)
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
     )
 }
 
@@ -217,7 +169,6 @@ private fun DefaultSearchSortSetting(
     onSortChange: (SearchSort) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var expanded by remember { mutableStateOf(false) }
     val sorts = remember {
         listOf(
             SearchSort.DATE_DESC,
@@ -227,38 +178,20 @@ private fun DefaultSearchSortSetting(
             SearchSort.POPULAR_FEMALE_DESC,
         )
     }
+    var selectedIndex by remember(selectedSort) {
+        mutableIntStateOf(sorts.indexOf(selectedSort).coerceAtLeast(0))
+    }
 
-    ListItem(
-        headlineContent = { Text(text = stringResource(RStrings.default_search_sort)) },
+    OverlayDropdownPreference(
+        items = sorts.map { it.label() },
+        selectedIndex = selectedIndex,
+        title = stringResource(RStrings.default_search_sort),
         modifier = modifier,
-        leadingContent = {
-            Icon(Icons.AutoMirrored.Rounded.Sort, contentDescription = null)
+        startAction = { Icon(Icons.AutoMirrored.Rounded.Sort, contentDescription = null) },
+        onSelectedIndexChange = { index ->
+            selectedIndex = index
+            onSortChange(sorts[index])
         },
-        trailingContent = {
-            DropDownSelector(
-                modifier = Modifier.throttleClick { expanded = !expanded },
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                current = selectedSort.label(),
-            ) {
-                sorts.forEach { sort ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = sort.label())
-                        },
-                        trailingIcon = {
-                            if (sort == selectedSort) {
-                                Icon(Icons.Rounded.Check, contentDescription = null)
-                            }
-                        },
-                        onClick = {
-                            onSortChange(sort)
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
     )
 }
 
@@ -288,51 +221,27 @@ private fun SearchTarget.label(): String {
     }
 }
 
-private fun SearchAiType.toggled(): SearchAiType {
-    return when (this) {
-        SearchAiType.SHOW_AI -> SearchAiType.HIDE_AI
-        SearchAiType.HIDE_AI -> SearchAiType.SHOW_AI
-    }
-}
-
 @Composable
 private fun SearchResultDisplayModeSetting(
     selectedMode: SearchResultDisplayMode,
     onModeChange: (SearchResultDisplayMode) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var expanded by remember { mutableStateOf(false) }
     val modes = remember { SearchResultDisplayMode.entries }
+    var selectedIndex by remember(selectedMode) {
+        mutableIntStateOf(modes.indexOf(selectedMode).coerceAtLeast(0))
+    }
 
-    ListItem(
-        headlineContent = { Text(text = stringResource(RStrings.search_result_display_mode)) },
+    OverlayDropdownPreference(
+        items = modes.map { it.label() },
+        selectedIndex = selectedIndex,
+        title = stringResource(RStrings.search_result_display_mode),
         modifier = modifier,
-        leadingContent = { Icon(Icons.Rounded.ViewModule, contentDescription = null) },
-        trailingContent = {
-            DropDownSelector(
-                modifier = Modifier.throttleClick { expanded = !expanded },
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                current = selectedMode.label(),
-            ) {
-                modes.forEach { mode ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = mode.label())
-                        },
-                        trailingIcon = {
-                            if (mode == selectedMode) {
-                                Icon(Icons.Rounded.Check, contentDescription = null)
-                            }
-                        },
-                        onClick = {
-                            onModeChange(mode)
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
+        startAction = { Icon(Icons.Rounded.ViewModule, contentDescription = null) },
+        onSelectedIndexChange = { index ->
+            selectedIndex = index
+            onModeChange(modes[index])
+        },
     )
 }
 

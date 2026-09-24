@@ -1,11 +1,11 @@
 package com.mrl.pixiv.search.preview
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,19 +15,12 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +45,12 @@ import com.mrl.pixiv.strings.popular_tags
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.PullToRefresh
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.basic.rememberPullToRefreshState
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun SearchPreviewScreen(
@@ -70,7 +69,7 @@ fun SearchPreviewScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = {},
+                title = "",
                 actions = {
                     TextField(
                         value = textState,
@@ -87,7 +86,7 @@ fun SearchPreviewScreen(
                             disabledIndicatorColor = Color.Transparent,
                         ),
                         singleLine = true,
-                        shape = MaterialTheme.shapes.extraLarge,
+                        shape = RoundedCornerShape(28.dp),
                         enabled = false,
                         leadingIcon = {
                             Icon(
@@ -110,21 +109,14 @@ fun SearchPreviewScreen(
                 )
             }
         },
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
     ) {
-        PullToRefreshBox(
+        PullToRefresh(
             isRefreshing = state.refreshing,
             onRefresh = { viewModel.dispatch(SearchPreviewAction.LoadTrendingTags) },
-            modifier = Modifier.padding(it),
-            state = pullRefreshState,
-            indicator = {
-                PullToRefreshDefaults.LoadingIndicator(
-                    state = pullRefreshState,
-                    isRefreshing = state.refreshing,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                )
-            }
+            modifier = Modifier.padding(it).fillMaxSize(),
+            pullToRefreshState = pullRefreshState,
         ) {
+            Box(modifier = Modifier.fillMaxSize()) {
             LazyVerticalGrid(
                 modifier = Modifier.fillMaxSize(),
                 state = lazyGridState,
@@ -143,7 +135,7 @@ fun SearchPreviewScreen(
                 ) {
                     Text(
                         text = stringResource(RStrings.popular_tags),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MiuixTheme.textStyles.title2,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -162,6 +154,7 @@ fun SearchPreviewScreen(
                         }
                     )
                 }
+            }
             }
         }
     }

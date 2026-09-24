@@ -7,55 +7,23 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.BookmarkBorder
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
-import androidx.compose.material.icons.rounded.FileDownload
 import androidx.compose.material.icons.rounded.HideImage
-import androidx.compose.material.icons.rounded.Image
-import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material.icons.rounded.Visibility
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -99,10 +67,8 @@ import com.mrl.pixiv.common.repository.viewmodel.bookmark.isPrivateBookmark
 import com.mrl.pixiv.common.router.CommentType
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
-import com.mrl.pixiv.common.util.Platform
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.StatusBarVisibilityEffect
-import com.mrl.pixiv.common.util.platform
 import com.mrl.pixiv.common.viewmodel.asState
 import com.mrl.pixiv.strings.ai_translation_setting
 import com.mrl.pixiv.strings.back
@@ -135,6 +101,31 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.FloatingActionButton
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Slider
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Close
+import top.yukonga.miuix.kmp.icon.extended.Delete
+import top.yukonga.miuix.kmp.icon.extended.Download
+import top.yukonga.miuix.kmp.icon.extended.Info
+import top.yukonga.miuix.kmp.icon.extended.Image
+import top.yukonga.miuix.kmp.icon.extended.More
+import top.yukonga.miuix.kmp.icon.extended.Refresh
+import top.yukonga.miuix.kmp.icon.extended.Settings
+import top.yukonga.miuix.kmp.icon.extended.Share
+import top.yukonga.miuix.kmp.icon.extended.Translate
+import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
+import top.yukonga.miuix.kmp.theme.LocalContentColor
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -534,12 +525,6 @@ fun NovelScreen(
                 }
             }
         },
-        contentWindowInsets = if (platform is Platform.Apple.IPhoneOS) {
-            // 适配横屏灵动岛
-            ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Horizontal)
-        } else {
-            ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.systemBars)
-        }
     ) { paddingValues ->
         when {
             state.loading -> {
@@ -549,7 +534,7 @@ fun NovelScreen(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularWavyProgressIndicator()
+                    CircularProgressIndicator()
                 }
             }
 
@@ -570,7 +555,7 @@ fun NovelScreen(
                             title = {
                                 Text(
                                     text = stringResource(RStrings.novel_hidden),
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    style = MiuixTheme.textStyles.main,
                                 )
                             },
                             button = {
@@ -661,9 +646,9 @@ fun NovelScreen(
                         enter = slideInVertically(initialOffsetY = { -it }),
                         exit = slideOutVertically(targetOffsetY = { -it })
                     ) {
-                        val topBarColor = MaterialTheme.colorScheme.surface
+                        val topBarColor = MiuixTheme.colorScheme.surface
                         TopAppBar(
-                            title = {},
+                            title = "",
                             modifier = Modifier.dropShadow(RectangleShape) {
                                 radius = 2f
                                 color = topBarColor
@@ -674,7 +659,7 @@ fun NovelScreen(
                             navigationIcon = {
                                 IconButton(onClick = navigationManager::popBackStack) {
                                     Icon(
-                                        Icons.AutoMirrored.Rounded.ArrowBack,
+                                        MiuixIcons.Back,
                                         contentDescription = stringResource(RStrings.back)
                                     )
                                 }
@@ -688,21 +673,21 @@ fun NovelScreen(
                                             }
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Rounded.Close,
+                                                imageVector = MiuixIcons.Close,
                                                 contentDescription = stringResource(RStrings.cancel)
                                             )
                                         }
                                     } else if (!state.isTranslated) {
                                         IconButton(onClick = requestTranslation) {
                                             Icon(
-                                                imageVector = Icons.Rounded.Translate,
+                                                imageVector = MiuixIcons.Translate,
                                                 contentDescription = stringResource(
                                                     RStrings.translate_novel
                                                 )
                                             )
                                         }
                                     }
-                                    IconButton(
+                                    androidx.compose.material3.IconButton(
                                         onClick = { viewModel.dispatch(NovelIntent.ToggleBookmark) },
                                         onLongClick = { showBookmarkBottomSheet = true }
                                     ) {
@@ -753,7 +738,7 @@ fun NovelScreen(
                                         onClick = { showMetadataBottomSheet = true }
                                     ) {
                                         Icon(
-                                            Icons.Outlined.Info,
+                                            MiuixIcons.Info,
                                             contentDescription = stringResource(
                                                 RStrings.novel_work_information
                                             )
@@ -763,14 +748,13 @@ fun NovelScreen(
                                         onClick = { viewModel.dispatch(NovelIntent.ToggleBottomSheet) }
                                     ) {
                                         Icon(
-                                            Icons.Rounded.MoreVert,
+                                            MiuixIcons.More,
                                             contentDescription = stringResource(RStrings.more)
                                         )
                                     }
                                 }
                             },
-                            windowInsets = TopAppBarDefaults.windowInsets.only(WindowInsetsSides.Top),
-                            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                            color = Color.Transparent,
                         )
                     }
                 }
@@ -847,14 +831,10 @@ fun NovelScreen(
     }
 
     // BottomSheet
-    if (state.showBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { viewModel.dispatch(NovelIntent.ToggleBottomSheet) },
-            sheetState = rememberBottomSheetState(
-                initialValue = SheetValue.Hidden,
-                enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-            )
-        ) {
+    OverlayBottomSheet(
+        show = state.showBottomSheet,
+        onDismissRequest = { viewModel.dispatch(NovelIntent.ToggleBottomSheet) },
+    ) {
             NovelBottomSheetContent(
                 state = state,
                 onFontSizeChange = {
@@ -915,18 +895,10 @@ private fun NovelBottomSheetContent(
             .fillMaxWidth()
             .verticalScroll(rememberScrollState()),
     ) {
-        val colors =
-            ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
-
         // 字号调整
-        ListItem(
-            headlineContent = {
-                Text(
-                    text = stringResource(RStrings.font_size_value, state.fontSize),
-                    style = MaterialTheme.typography.titleMedium
-                )
-            },
-            supportingContent = {
+        BasicComponent(
+            title = stringResource(RStrings.font_size_value, state.fontSize),
+            bottomAction = {
                 Slider(
                     value = state.fontSize.toFloat(),
                     onValueChange = { onFontSizeChange(it.roundToInt()) },
@@ -934,21 +906,15 @@ private fun NovelBottomSheetContent(
                     steps = 21
                 )
             },
-            colors = colors
         )
 
         // 行间距调整
-        ListItem(
-            headlineContent = {
-                Text(
-                    text = stringResource(
-                        RStrings.line_spacing_value,
-                        (if (state.lineSpacingSp >= 0) "+" else "") + state.lineSpacingSp.toString()
-                    ),
-                    style = MaterialTheme.typography.titleMedium
-                )
-            },
-            supportingContent = {
+        BasicComponent(
+            title = stringResource(
+                RStrings.line_spacing_value,
+                (if (state.lineSpacingSp >= 0) "+" else "") + state.lineSpacingSp.toString()
+            ),
+            bottomAction = {
                 Slider(
                     value = state.lineSpacingSp.toFloat(),
                     onValueChange = { onLineSpacingChange(it.roundToInt()) },
@@ -956,92 +922,68 @@ private fun NovelBottomSheetContent(
                     steps = 19
                 )
             },
-            colors = colors
         )
 
         // 导出按钮
-        ListItem(
-            onClick = rememberThrottleClick(onClick = onExport),
-            shapes = ListItemDefaults.shapes(shape = RectangleShape),
-            content = { Text(text = stringResource(RStrings.export_txt_button)) },
-            modifier = Modifier
-                .fillMaxWidth(),
-            leadingContent = {
+        BasicComponent(
+            title = stringResource(RStrings.export_txt_button),
+            startAction = {
                 Icon(
-                    imageVector = Icons.Rounded.FileDownload,
+                    imageVector = MiuixIcons.Download,
                     contentDescription = stringResource(RStrings.export_txt_button)
                 )
             },
-            colors = colors,
+            onClick = rememberThrottleClick(onClick = onExport),
         )
 
         // 分享按钮
-        ListItem(
-            onClick = rememberThrottleClick(onClick = onShare),
-            shapes = ListItemDefaults.shapes(shape = RectangleShape),
-            content = { Text(text = stringResource(RStrings.share_link)) },
-            modifier = Modifier
-                .fillMaxWidth(),
-            leadingContent = {
+        BasicComponent(
+            title = stringResource(RStrings.share_link),
+            startAction = {
                 Icon(
-                    imageVector = Icons.Rounded.Share,
+                    imageVector = MiuixIcons.Share,
                     contentDescription = stringResource(RStrings.share_link)
                 )
             },
-            colors = colors,
+            onClick = rememberThrottleClick(onClick = onShare),
         )
 
         state.novel?.let { novel ->
-            ListItem(
-                headlineContent = { Text(text = stringResource(RStrings.read_later)) },
-                trailingContent = {
+            BasicComponent(
+                title = stringResource(RStrings.read_later),
+                endActions = {
                     NovelReadLaterButton(
                         novel = novel,
                         tint = LocalContentColor.current,
                     )
                 },
-                colors = colors
             )
         }
 
         if (state.isTranslated && !state.isTranslating) {
-            ListItem(
-                onClick = rememberThrottleClick(onClick = onRegenerateTranslation),
-                shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                content = {
-                    Text(text = stringResource(RStrings.regenerate_translation))
-                },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                leadingContent = {
+            BasicComponent(
+                title = stringResource(RStrings.regenerate_translation),
+                startAction = {
                     Icon(
-                        imageVector = Icons.Rounded.Refresh,
+                        imageVector = MiuixIcons.Refresh,
                         contentDescription = stringResource(RStrings.regenerate_translation)
                     )
                 },
-                colors = colors,
+                onClick = rememberThrottleClick(onClick = onRegenerateTranslation),
             )
 
-            ListItem(
-                onClick = rememberThrottleClick(onClick = onToggleDisplayedText),
-                shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                content = {
-                    Text(
-                        text = stringResource(
-                            if (state.isShowingOriginalText) {
-                                RStrings.show_translated_text
-                            } else {
-                                RStrings.show_original_text
-                            }
-                        )
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                leadingContent = {
+            BasicComponent(
+                title = stringResource(
+                    if (state.isShowingOriginalText) {
+                        RStrings.show_translated_text
+                    } else {
+                        RStrings.show_original_text
+                    }
+                ),
+                startAction = {
                     Icon(
                         imageVector = if (state.isShowingOriginalText) {
-                            Icons.Rounded.Translate
+                            MiuixIcons.Translate
                         } else {
                             Icons.Rounded.Visibility
                         },
@@ -1054,63 +996,45 @@ private fun NovelBottomSheetContent(
                         )
                     )
                 },
-                colors = colors,
+                onClick = rememberThrottleClick(onClick = onToggleDisplayedText),
             )
 
-            ListItem(
-                onClick = rememberThrottleClick(onClick = onDeleteTranslation),
-                shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                content = {
-                    Text(text = stringResource(RStrings.delete_translation))
-                },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                leadingContent = {
+            BasicComponent(
+                title = stringResource(RStrings.delete_translation),
+                startAction = {
                     Icon(
-                        imageVector = Icons.Rounded.Delete,
+                        imageVector = MiuixIcons.Delete,
                         contentDescription = stringResource(RStrings.delete_translation)
                     )
                 },
-                colors = colors,
+                onClick = rememberThrottleClick(onClick = onDeleteTranslation),
             )
         }
 
-        ListItem(
-            onClick = rememberThrottleClick(onClick = onBlockNovel),
-            shapes = ListItemDefaults.shapes(shape = RectangleShape),
-            content = {
-                Text(
-                    text = stringResource(
-                        if (isNovelBlocked) RStrings.show_novel else RStrings.hide_novel
-                    )
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth(),
-            leadingContent = {
+        BasicComponent(
+            title = stringResource(
+                if (isNovelBlocked) RStrings.show_novel else RStrings.hide_novel
+            ),
+            startAction = {
                 Icon(
-                    imageVector = if (isNovelBlocked) Icons.Rounded.Image else Icons.Rounded.HideImage,
+                    imageVector = if (isNovelBlocked) MiuixIcons.Image else Icons.Rounded.HideImage,
                     contentDescription = stringResource(
                         if (isNovelBlocked) RStrings.show_novel else RStrings.hide_novel
                     )
                 )
             },
-            colors = colors,
+            onClick = rememberThrottleClick(onClick = onBlockNovel),
         )
 
-        ListItem(
-            onClick = rememberThrottleClick(onClick = onAiSetting),
-            shapes = ListItemDefaults.shapes(shape = RectangleShape),
-            content = { Text(text = stringResource(RStrings.ai_translation_setting)) },
-            modifier = Modifier
-                .fillMaxWidth(),
-            leadingContent = {
+        BasicComponent(
+            title = stringResource(RStrings.ai_translation_setting),
+            startAction = {
                 Icon(
-                    imageVector = Icons.Rounded.Settings,
+                    imageVector = MiuixIcons.Settings,
                     contentDescription = stringResource(RStrings.ai_translation_setting)
                 )
             },
-            colors = colors,
+            onClick = rememberThrottleClick(onClick = onAiSetting),
         )
     }
 }

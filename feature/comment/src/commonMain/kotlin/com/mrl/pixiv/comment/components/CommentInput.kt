@@ -1,9 +1,8 @@
 package com.mrl.pixiv.comment.components
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,8 +12,11 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -29,22 +31,9 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.EmojiEmotions
-import androidx.compose.material3.BottomAppBarDefaults
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -88,10 +77,21 @@ import com.mrl.pixiv.strings.comment_stamp
 import com.mrl.pixiv.strings.reply
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Close
+import top.yukonga.miuix.kmp.icon.extended.Send
+import top.yukonga.miuix.kmp.theme.LocalContentColor
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 import kotlin.math.roundToInt
 
 private val EMOJI_REGEX = Regex("\\([a-zA-Z0-9_]+\\)")
-private const val REPLACEMENT_STRING = "\u3000"
+private const val REPLACEMENT_STRING = "　"
 
 @Composable
 fun CommentInputPlaceholder(
@@ -99,8 +99,7 @@ fun CommentInputPlaceholder(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        color = BottomAppBarDefaults.containerColor,
-        tonalElevation = BottomAppBarDefaults.ContainerElevation,
+        color = MiuixTheme.colorScheme.surfaceContainer,
         modifier = modifier.clickable(onClick = onClick)
     ) {
         Column {
@@ -114,25 +113,25 @@ fun CommentInputPlaceholder(
             ) {
                 Text(
                     text = stringResource(RStrings.add_comment),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MiuixTheme.textStyles.body1,
+                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                     modifier = Modifier
                         .weight(1f)
                         .background(
-                            MaterialTheme.colorScheme.surfaceVariant,
-                            MaterialTheme.shapes.small
+                            MiuixTheme.colorScheme.surfaceContainerHigh,
+                            4.round
                         )
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                 )
                 Icon(
                     imageVector = Icons.Default.EmojiEmotions,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MiuixTheme.colorScheme.onSurfaceVariantSummary
                 )
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    imageVector = MiuixIcons.Send,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MiuixTheme.colorScheme.onSurfaceVariantSummary
                 )
             }
         }
@@ -168,7 +167,7 @@ fun CommentInput(
 
             for (i in matches.indices.reversed()) {
                 val (start, end) = matches[i]
-                replace(start, end, "\u200B$REPLACEMENT_STRING")
+                replace(start, end, "​$REPLACEMENT_STRING")
             }
         }
     }
@@ -179,7 +178,6 @@ fun CommentInput(
     var showEmojiPicker by rememberSaveable { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
     val imeVisibility = WindowInsets.isImeVisible
-    val colors = TextFieldDefaults.colors()
 
     LaunchedEffect(imeVisibility) {
         if (imeVisibility) {
@@ -188,16 +186,15 @@ fun CommentInput(
     }
 
     Surface(
-        color = BottomAppBarDefaults.containerColor,
-        tonalElevation = BottomAppBarDefaults.ContainerElevation,
+        color = MiuixTheme.colorScheme.surfaceContainer,
     ) {
-        Column(modifier = modifier.windowInsetsPadding(BottomAppBarDefaults.windowInsets)) {
+        Column(modifier = modifier.windowInsetsPadding(WindowInsets.systemBars.union(WindowInsets.ime))) {
             if (replyTarget != null) {
                 HorizontalDivider()
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .background(MiuixTheme.colorScheme.surfaceContainerHigh)
                         .padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -208,27 +205,28 @@ fun CommentInput(
                         modifier = Modifier
                             .weight(1f)
                             .padding(horizontal = 8.dp),
-                        style = MaterialTheme.typography.bodySmall
+                        style = MiuixTheme.textStyles.body2
                     )
                     IconButton(
                         modifier = Modifier.size(24.dp),
                         onClick = onClearReplyTarget
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Close,
+                            imageVector = MiuixIcons.Close,
                             contentDescription = null
                         )
                     }
                 }
                 HorizontalDivider()
             }
-            CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
-                val interactionSource = remember { MutableInteractionSource() }
-                val textStyle = LocalTextStyle.current
-                val textColor = textStyle.color.takeOrElse {
-                    val focused = interactionSource.collectIsFocusedAsState().value
-                    colors.textColor(enabled = true, isError = false, focused = focused)
-                }
+            CompositionLocalProvider(
+                LocalTextSelectionColors provides TextSelectionColors(
+                    handleColor = MiuixTheme.colorScheme.primary,
+                    backgroundColor = MiuixTheme.colorScheme.primary.copy(alpha = 0.4f),
+                )
+            ) {
+                val textStyle = MiuixTheme.textStyles.main
+                val textColor = textStyle.color.takeOrElse { MiuixTheme.colorScheme.onSurface }
                 val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
                 BasicTextField(
                     state = state,
@@ -267,7 +265,7 @@ fun CommentInput(
                     inputTransformation = maxLengthTransformation,
                     textStyle = mergedTextStyle,
                     onTextLayout = { textLayoutResult = it() },
-                    cursorBrush = SolidColor(colors.cursorColor(false)),
+                    cursorBrush = SolidColor(MiuixTheme.colorScheme.primary),
                     outputTransformation = outputTransformation,
                     decorator = { innerTextField ->
                         val layout = textLayoutResult
@@ -346,16 +344,16 @@ fun CommentInput(
                     Icon(
                         imageVector = Icons.Default.EmojiEmotions,
                         contentDescription = null,
-                        tint = if (showEmojiPicker) MaterialTheme.colorScheme.primary else LocalContentColor.current
+                        tint = if (showEmojiPicker) MiuixTheme.colorScheme.primary else LocalContentColor.current
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = "${state.text.length}/$MAX_COMMENT_LENGTH",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MiuixTheme.textStyles.body1
                 )
                 if (isSending) {
-                    CircularWavyProgressIndicator(
+                    CircularProgressIndicator(
                         modifier = Modifier
                             .padding(12.dp)
                             .size(24.dp)
@@ -369,7 +367,7 @@ fun CommentInput(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Send,
+                            imageVector = MiuixIcons.Send,
                             contentDescription = null
                         )
                     }
@@ -415,7 +413,7 @@ private fun EmojiPalette(
                     text = stringResource(resId),
                     modifier = Modifier
                         .conditionally(pagerState.currentPage == index) {
-                            background(MaterialTheme.colorScheme.background, 8.round)
+                            background(MiuixTheme.colorScheme.background, 8.round)
                         }
                         .padding(vertical = 4.dp)
                         .weight(1f)
@@ -423,7 +421,7 @@ private fun EmojiPalette(
                             pagerState.requestScrollToPage(index)
                         },
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MiuixTheme.textStyles.title1,
                 )
             }
         }
@@ -463,7 +461,7 @@ private fun EmojiPalette(
                                 .aspectRatio(1f)
                                 .fillMaxSize()
                                 .clip(4.round)
-                                .throttleClick(indication = ripple()) {
+                                .throttleClick(indication = LocalIndication.current) {
                                     onSendStamp(it)
                                 }
                         )

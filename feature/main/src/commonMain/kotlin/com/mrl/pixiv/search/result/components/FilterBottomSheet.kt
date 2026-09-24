@@ -11,18 +11,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,12 +42,16 @@ import com.mrl.pixiv.strings.popular_male
 import com.mrl.pixiv.strings.tags_exact_match
 import com.mrl.pixiv.strings.tags_partially_match
 import com.mrl.pixiv.strings.title_and_description
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Switch
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 internal fun FilterBottomSheet(
-    bottomSheetState: SheetState,
+    show: Boolean,
     searchFilter: SearchFilter,
     onDismissRequest: () -> Unit,
     onUpdateFilter: (SearchFilter) -> Unit,
@@ -62,12 +59,11 @@ internal fun FilterBottomSheet(
     isNovelMode: Boolean = false,
 ) {
     var innerSearchFilter by remember { mutableStateOf(searchFilter) }
-    val scope = rememberCoroutineScope()
-    ModalBottomSheet(
+    OverlayBottomSheet(
+        show = show,
         onDismissRequest = onDismissRequest,
         modifier = modifier,
-        sheetState = bottomSheetState,
-        containerColor = MaterialTheme.colorScheme.background,
+        backgroundColor = MiuixTheme.colorScheme.background,
     ) {
         val searchTargetMap = remember(isNovelMode) {
             if (isNovelMode) {
@@ -112,18 +108,13 @@ internal fun FilterBottomSheet(
             Text(
                 text = stringResource(RStrings.apply),
                 modifier = Modifier.throttleClick {
-                    scope.launch { bottomSheetState.hide() }
-                        .invokeOnCompletion {
-                            if (!bottomSheetState.isVisible) {
-                                onDismissRequest()
-                            }
-                        }
                     onUpdateFilter(innerSearchFilter)
+                    onDismissRequest()
                 }
             )
         }
 
-        Column(modifier = Modifier.fillMaxWidth().weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+        Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
             searchTargetMap.forEach { (key, value) ->
                 FilterItem(
                     text = stringResource(value),
@@ -161,9 +152,7 @@ internal fun FilterBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 4.dp)
-                    .throttleClick(
-                        indication = ripple()
-                    ) {
+                    .throttleClick {
                         innerSearchFilter = innerSearchFilter.copy(
                             searchAiType = if (innerSearchFilter.searchAiType == SearchAiType.SHOW_AI) {
                                 SearchAiType.HIDE_AI
@@ -178,8 +167,8 @@ internal fun FilterBottomSheet(
             ) {
                 Text(
                     text = stringResource(RStrings.ai_generate),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                    style = MiuixTheme.textStyles.body1,
+                    color = MiuixTheme.colorScheme.onSurface
                 )
                 Switch(
                     checked = innerSearchFilter.searchAiType == SearchAiType.SHOW_AI,
@@ -205,16 +194,16 @@ private fun FilterItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(MaterialTheme.shapes.medium)
-            .background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (selected) MiuixTheme.colorScheme.primaryContainer else Color.Transparent)
             .clickable(onClick = onClick)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = text,
-            color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.bodyLarge
+            color = if (selected) MiuixTheme.colorScheme.onPrimaryContainer else MiuixTheme.colorScheme.onSurface,
+            style = MiuixTheme.textStyles.body1
         )
     }
 }

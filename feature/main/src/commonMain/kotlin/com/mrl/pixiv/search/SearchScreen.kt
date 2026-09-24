@@ -2,6 +2,7 @@ package com.mrl.pixiv.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,28 +18,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,7 +38,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextRange
@@ -90,6 +77,16 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.FloatingActionButton
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.overlay.OverlayDialog
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun SearchScreen(
@@ -229,7 +226,7 @@ fun SearchScreen(
                         text = stringResource(RStrings.id_search),
                         modifier = Modifier.padding(horizontal = 8.dp),
                         textDecoration = if (state.isIdSearch) null else TextDecoration.LineThrough,
-                        style = MaterialTheme.typography.labelLarge,
+                        style = MiuixTheme.textStyles.footnote1,
                     )
                 }
                 8.VSpacer
@@ -256,14 +253,14 @@ fun SearchScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.background),
+                        .background(MiuixTheme.colorScheme.background),
                 ) {
                     Text(
                         text = if (textState.text.isEmpty())
                             stringResource(RStrings.search_history)
                         else
                             stringResource(RStrings.find_for),
-                        style = MaterialTheme.typography.labelMedium,
+                        style = MiuixTheme.textStyles.footnote1,
                         modifier = Modifier.padding(start = 8.dp, bottom = 8.dp),
                     )
                 }
@@ -274,7 +271,11 @@ fun SearchScreen(
                         items = searchIdHistory,
                         key = { it }
                     ) {
-                        ListItem(
+                        BasicComponent(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .animateItem(),
+                            title = it,
                             onClick = rememberThrottleClick {
                                 viewModel.addSearchIdHistory(it)
                                 focusRequester.freeFocus()
@@ -284,16 +285,11 @@ fun SearchScreen(
                                     searchMode = appViewMode
                                 )
                             },
-                            shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                            content = { Text(text = it) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .animateItem(),
-                            trailingContent = {
+                            endActions = {
                                 Icon(
                                     modifier = Modifier
                                         .size(24.dp)
-                                        .throttleClick(indication = ripple()) {
+                                        .throttleClick {
                                             viewModel.deleteSearchIdHistory(it)
                                         },
                                     imageVector = Icons.Rounded.Close,
@@ -307,7 +303,11 @@ fun SearchScreen(
                         items = searchHistory,
                         key = { it.keyword }
                     ) { item ->
-                        ListItem(
+                        BasicComponent(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .animateItem(),
+                            title = item.keyword,
                             onClick = rememberThrottleClick {
                                 dispatch(SearchAction.AddSearchHistory(item.keyword))
                                 focusRequester.freeFocus()
@@ -317,19 +317,11 @@ fun SearchScreen(
                                     searchMode = appViewMode
                                 )
                             },
-                            shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                            content = {
-                                Text(
-                                    text = item.keyword,
-                                )
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                                .animateItem(),
-                            trailingContent = {
+                            endActions = {
                                 Icon(
                                     modifier = Modifier
                                         .size(24.dp)
-                                        .throttleClick(indication = ripple()) {
+                                        .throttleClick {
                                             dispatch(SearchAction.DeleteSearchHistory(item.keyword))
                                         },
                                     imageVector = Icons.Rounded.Close,
@@ -344,7 +336,18 @@ fun SearchScreen(
                     items = state.autoCompleteSearchWords,
                     key = { it.name }
                 ) { word ->
-                    ListItem(
+                    BasicComponent(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .pointerInput(word.name) {
+                                detectTapGestures(onLongPress = {
+                                    coroutineScope.launch {
+                                        com.mrl.pixiv.common.util.copyToClipboard(word.name)
+                                    }
+                                })
+                            },
+                        title = word.name,
+                        summary = if (word.translatedName.isNotBlank()) word.translatedName else null,
                         onClick = rememberThrottleClick {
                             val query = textState.completionToken().replaceIn(textState.text, word.name)
                             dispatch(SearchAction.AddSearchHistory(query))
@@ -354,26 +357,6 @@ fun SearchScreen(
                                 isIdSearch = state.isIdSearch,
                                 searchMode = appViewMode
                             )
-                        },
-                        onLongClick = {
-                            coroutineScope.launch {
-                                com.mrl.pixiv.common.util.copyToClipboard(word.name)
-                            }
-                        },
-                        shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                        content = {
-                            Text(
-                                text = word.name,
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        supportingContent = {
-                            if (word.translatedName.isNotBlank()) {
-                                Text(
-                                    text = word.translatedName,
-//                                    style = MaterialTheme.typography.bodySmall,
-                                )
-                            }
                         },
                     )
                 }
@@ -388,10 +371,11 @@ private fun PixivLinkSelectionDialog(
     onSelect: (PixivLinkTarget) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    AlertDialog(
+    OverlayDialog(
+        show = true,
+        title = stringResource(RStrings.select_pixiv_link),
         onDismissRequest = onDismiss,
-        title = { Text(text = stringResource(RStrings.select_pixiv_link)) },
-        text = {
+        content = {
             Column(
                 modifier = Modifier
                     .heightIn(max = 400.dp)
@@ -403,21 +387,19 @@ private fun PixivLinkSelectionDialog(
                         is PixivLinkTarget.Novel -> stringResource(RStrings.novel)
                         is PixivLinkTarget.User -> stringResource(RStrings.users)
                     }
-                    ListItem(
+                    BasicComponent(
+                        title = "$type #${link.id}",
+                        summary = link.url,
                         onClick = rememberThrottleClick {
                             onSelect(link)
                         },
-                        shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                        content = { Text(text = "$type #${link.id}") },
-                        supportingContent = { Text(text = link.url) },
                     )
                 }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(RStrings.cancel))
-            }
+            top.yukonga.miuix.kmp.basic.TextButton(
+                text = stringResource(RStrings.cancel),
+                onClick = onDismiss,
+            )
         },
     )
 }
@@ -432,7 +414,7 @@ private fun SearchScreenAppBar(
     modifier: Modifier = Modifier,
 ) {
     TopAppBar(
-        title = {},
+        title = "",
         modifier = modifier,
         actions = {
             Row(
@@ -444,19 +426,18 @@ private fun SearchScreenAppBar(
             ) {
                 IconButton(
                     onClick = onBack,
-                    shapes = IconButtonDefaults.shapes(),
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                         contentDescription = "Back"
                     )
                 }
-                Surface(
+                androidx.compose.material3.Surface(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight()
                         .padding(horizontal = 8.dp),
-                    shape = MaterialTheme.shapes.extraLarge
+                    shape = RoundedCornerShape(28.dp)
                 ) {
                     TextField(
                         value = textState,
@@ -473,7 +454,7 @@ private fun SearchScreenAppBar(
                             focusedIndicatorColor = Color.Transparent,
                         ),
                         singleLine = true,
-                        shape = MaterialTheme.shapes.extraLarge,
+                        shape = RoundedCornerShape(28.dp),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                         keyboardActions = KeyboardActions(
                             onSearch = { onSearch() }
@@ -482,7 +463,6 @@ private fun SearchScreenAppBar(
                             {
                                 IconButton(
                                     onClick = { onValueChange(TextFieldValue()) },
-                                    shapes = IconButtonDefaults.shapes(),
                                 ) {
                                     Icon(
                                         imageVector = Icons.Rounded.Close,

@@ -1,33 +1,21 @@
 package com.mrl.pixiv.collection
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.FilterList
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
@@ -72,6 +60,15 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.PullToRefresh
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TabRow
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
 
 @Composable
 fun CollectionScreen(
@@ -125,18 +122,16 @@ fun CollectionScreen(
                     onBack = { navigationManager.popBackStack() }
                 )
                 if (!useViewModeFab) {
-                    PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
-                        Tab(
-                            selected = isIllustPage,
-                            onClick = { scope.launch { pagerState.animateScrollToPage(0) } },
-                            text = { Text(text = stringResource(RStrings.illusts)) }
-                        )
-                        Tab(
-                            selected = !isIllustPage,
-                            onClick = { scope.launch { pagerState.animateScrollToPage(1) } },
-                            text = { Text(text = stringResource(RStrings.novels)) }
-                        )
-                    }
+                    TabRow(
+                        tabs = listOf(
+                            stringResource(RStrings.illusts),
+                            stringResource(RStrings.novels),
+                        ),
+                        selectedTabIndex = pagerState.currentPage,
+                        onTabSelected = { index ->
+                            scope.launch { pagerState.animateScrollToPage(index) }
+                        },
+                    )
                 }
             }
         },
@@ -173,7 +168,7 @@ fun CollectionScreen(
                 }
             }
         },
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
+        contentWindowInsets = WindowInsets.statusBars,
     ) { paddingValues ->
         HorizontalPager(
             state = pagerState,
@@ -182,103 +177,89 @@ fun CollectionScreen(
             when (page) {
                 0 -> {
                     val layoutParams = IllustGridDefaults.relatedLayoutParameters()
-                    val pullRefreshState = rememberPullToRefreshState()
                     val isRefreshing = userBookmarksIllusts.loadState.refresh is LoadState.Loading
-                    PullToRefreshBox(
+                    PullToRefresh(
                         isRefreshing = isRefreshing,
                         onRefresh = { userBookmarksIllusts.refresh() },
-                        state = pullRefreshState,
-                        indicator = {
-                            PullToRefreshDefaults.LoadingIndicator(
-                                state = pullRefreshState,
-                                isRefreshing = isRefreshing,
-                                modifier = Modifier.align(Alignment.TopCenter),
-                            )
-                        }
                     ) {
-                        LazyVerticalGrid(
-                            state = lazyGridState,
-                            modifier = Modifier.fillMaxSize(),
-                            columns = layoutParams.gridCells,
-                            verticalArrangement = layoutParams.verticalArrangement,
-                            horizontalArrangement = layoutParams.horizontalArrangement,
-                            contentPadding = PaddingValues(
-                                start = 8.dp,
-                                top = 8.dp,
-                                end = 8.dp,
-                                bottom = WindowInsets.navigationBars.asPaddingValues()
-                                    .calculateBottomPadding()
-                            ),
-                        ) {
-                            illustGrid(
-                                illusts = userBookmarksIllusts,
-                                navToPictureScreen = navigationManager::navigateToPictureScreen,
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            LazyVerticalGrid(
+                                state = lazyGridState,
+                                modifier = Modifier.fillMaxSize(),
+                                columns = layoutParams.gridCells,
+                                verticalArrangement = layoutParams.verticalArrangement,
+                                horizontalArrangement = layoutParams.horizontalArrangement,
+                                contentPadding = PaddingValues(
+                                    start = 8.dp,
+                                    top = 8.dp,
+                                    end = 8.dp,
+                                    bottom = WindowInsets.navigationBars.asPaddingValues()
+                                        .calculateBottomPadding()
+                                ),
+                            ) {
+                                illustGrid(
+                                    illusts = userBookmarksIllusts,
+                                    navToPictureScreen = navigationManager::navigateToPictureScreen,
+                                )
+                            }
+                            VerticalScrollbar(
+                                state = lazyGridState,
+                                modifier = Modifier.align(Alignment.CenterEnd)
                             )
                         }
-                        VerticalScrollbar(
-                            state = lazyGridState,
-                            modifier = Modifier.align(Alignment.CenterEnd)
-                        )
                     }
                 }
 
                 1 -> {
-                    val novelPullRefreshState = rememberPullToRefreshState()
                     val isNovelRefreshing =
                         userBookmarksNovels.loadState.refresh is LoadState.Loading
-                    PullToRefreshBox(
+                    PullToRefresh(
                         isRefreshing = isNovelRefreshing,
                         onRefresh = { userBookmarksNovels.refresh() },
-                        state = novelPullRefreshState,
-                        indicator = {
-                            PullToRefreshDefaults.LoadingIndicator(
-                                state = novelPullRefreshState,
-                                isRefreshing = isNovelRefreshing,
-                                modifier = Modifier.align(Alignment.TopCenter),
-                            )
-                        }
                     ) {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            state = lazyListState,
-                            contentPadding = PaddingValues(
-                                top = 8.dp,
-                                bottom = WindowInsets.navigationBars.asPaddingValues()
-                                    .calculateBottomPadding()
-                            ),
-                        ) {
-                            items(
-                                count = userBookmarksNovels.itemCount,
-                                key = userBookmarksNovels.itemIndexKey { index, item ->
-                                    "${index}_${item.id}"
-                                }
-                            ) { index ->
-                                userBookmarksNovels[index]?.let { novel ->
-                                    NovelItem(
-                                        novel = novel,
-                                        onNovelClick = { novelId ->
-                                            navigationManager.navigateToNovelDetailScreen(novelId)
-                                        },
-                                        onSeriesClick = navigationManager::navigateToNovelSeriesScreen,
-                                        onBookmarkClick = { isBookmarked, restrict, tags ->
-                                            if (isBookmarked) {
-                                                BookmarkState.deleteBookmarkNovel(novel.id)
-                                            } else {
-                                                BookmarkState.bookmarkNovel(
-                                                    novel.id,
-                                                    restrict,
-                                                    tags
-                                                )
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                state = lazyListState,
+                                contentPadding = PaddingValues(
+                                    top = 8.dp,
+                                    bottom = WindowInsets.navigationBars.asPaddingValues()
+                                        .calculateBottomPadding()
+                                ),
+                            ) {
+                                items(
+                                    count = userBookmarksNovels.itemCount,
+                                    key = userBookmarksNovels.itemIndexKey { index, item ->
+                                        "${index}_${item.id}"
+                                    }
+                                ) { index ->
+                                    userBookmarksNovels[index]?.let { novel ->
+                                        NovelItem(
+                                            novel = novel,
+                                            onNovelClick = { novelId ->
+                                                navigationManager.navigateToNovelDetailScreen(novelId)
+                                            },
+                                            onSeriesClick = navigationManager::navigateToNovelSeriesScreen,
+                                            onBookmarkClick = { isBookmarked, restrict, tags ->
+                                                if (isBookmarked) {
+                                                    BookmarkState.deleteBookmarkNovel(novel.id)
+                                                } else {
+                                                    BookmarkState.bookmarkNovel(
+                                                        novel.id,
+                                                        restrict,
+                                                        tags
+                                                    )
+                                                }
                                             }
-                                        }
-                                    )
+                                        )
+                                    }
                                 }
                             }
+                            VerticalScrollbar(
+                                state = lazyListState,
+                                modifier = Modifier.align(Alignment.CenterEnd)
+                            )
                         }
-                        VerticalScrollbar(
-                            state = lazyListState,
-                            modifier = Modifier.align(Alignment.CenterEnd)
-                        )
                     }
                 }
             }
@@ -328,22 +309,18 @@ private fun CollectionTopAppBar(
 ) {
     TopAppBar(
         modifier = Modifier.shadow(4.dp),
-        title = {
-            Text(text = stringResource(RStrings.collection))
-        },
+        title = stringResource(RStrings.collection),
         navigationIcon = {
             IconButton(
                 onClick = onBack,
-                shapes = IconButtonDefaults.shapes(),
             ) {
-                Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
+                Icon(MiuixIcons.Back, contentDescription = null)
             }
         },
         actions = {
             if (uid.isSelf) {
                 IconButton(
                     onClick = showFilterDialog,
-                    shapes = IconButtonDefaults.shapes(),
                 ) {
                     Icon(Icons.Rounded.FilterList, contentDescription = null)
                 }

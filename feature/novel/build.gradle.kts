@@ -14,6 +14,7 @@ kotlin {
             implementation(project(":common:data"))
             implementation(project(":common:repository"))
             implementation(project(":common:ui"))
+            implementation(libs.bundles.miuix)
             implementation(project(":common:core"))
 
             // Paging

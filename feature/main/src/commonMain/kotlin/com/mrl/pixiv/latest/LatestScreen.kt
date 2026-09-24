@@ -1,20 +1,12 @@
 package com.mrl.pixiv.latest
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.material3.PrimaryScrollableTabRow
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,6 +36,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TabRow
 
 @Composable
 fun LatestScreen(
@@ -123,44 +117,31 @@ fun LatestScreen(
                 )
             }
         },
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
     ) {
         Column(modifier = Modifier.padding(it)) {
             key(appViewMode) {
-                PrimaryScrollableTabRow(
+                TabRow(
+                    tabs = pages.map { page ->
+                        stringResource(
+                            when (page) {
+                                LatestPage.Trend -> RStrings.latest_tab_trend
+                                LatestPage.Collection -> RStrings.collection
+                                LatestPage.Following -> RStrings.latest_tab_following
+                                LatestPage.NovelNew -> RStrings.novel_new
+                                LatestPage.NovelWatchlist -> RStrings.novel_watchlist
+                            }
+                        )
+                    },
                     selectedTabIndex = pagerState.currentPage,
+                    onTabSelected = { index ->
+                        scope.launch {
+                            pagerState.animateScrollToPage(index)
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    edgePadding = 0.dp,
-                    minTabWidth = 48.dp,
-                ) {
-                    pages.forEachIndexed { index, page ->
-                        Tab(
-                            selected = pagerState.currentPage == index,
-                            onClick = {
-                                scope.launch {
-                                    pagerState.animateScrollToPage(index)
-                                }
-                            },
-                            text = {
-                                Text(
-                                    text = stringResource(
-                                        when (page) {
-                                            LatestPage.Trend -> RStrings.latest_tab_trend
-                                            LatestPage.Collection -> RStrings.collection
-                                            LatestPage.Following -> RStrings.latest_tab_following
-                                            LatestPage.NovelNew -> RStrings.novel_new
-                                            LatestPage.NovelWatchlist -> RStrings.novel_watchlist
-                                        }
-                                    ),
-                                    maxLines = 1,
-                                    softWrap = false,
-                                )
-                            },
-                        )
-                    }
-                }
+                )
             }
             HorizontalPager(
                 state = pagerState,

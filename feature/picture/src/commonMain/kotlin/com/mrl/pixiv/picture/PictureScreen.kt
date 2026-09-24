@@ -5,6 +5,7 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,46 +17,20 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Comment
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.HideImage
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.Image
-import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PersonOff
-import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetState
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -81,7 +56,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
@@ -132,7 +106,6 @@ import com.mrl.pixiv.common.util.adaptiveFileSize1
 import com.mrl.pixiv.common.util.conditionally
 import com.mrl.pixiv.common.util.convertUtcStringToLocalDateTime
 import com.mrl.pixiv.common.util.copyToClipboard
-import com.mrl.pixiv.common.util.getScreenHeight
 import com.mrl.pixiv.common.util.isDesktop
 import com.mrl.pixiv.common.util.platform
 import com.mrl.pixiv.common.util.selectSaveFile
@@ -164,6 +137,30 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.ListPopupColumn
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Download
+import top.yukonga.miuix.kmp.icon.extended.Hide
+import top.yukonga.miuix.kmp.icon.extended.Home
+import top.yukonga.miuix.kmp.icon.extended.Image
+import top.yukonga.miuix.kmp.icon.extended.Messages
+import top.yukonga.miuix.kmp.icon.extended.More
+import top.yukonga.miuix.kmp.icon.extended.Share
+import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
+import top.yukonga.miuix.kmp.theme.LocalContentColor
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.window.WindowListPopup
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
 
@@ -188,7 +185,7 @@ fun PictureDeeplinkScreen(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            CircularWavyProgressIndicator()
+            CircularProgressIndicator()
         }
     }
     DisposableEffect(Unit) {
@@ -579,13 +576,9 @@ internal fun PictureScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
-                shape = MaterialTheme.shapes.large,
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                ),
+                insideMargin = PaddingValues(16.dp),
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     SelectionContainer {
@@ -595,27 +588,27 @@ internal fun PictureScreen(
                         ) {
                             Text(
                                 text = convertUtcStringToLocalDateTime(illust.createDate),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MiuixTheme.textStyles.footnote1,
+                                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                             )
                             Text(
                                 text = "${illust.totalView} ${stringResource(RStrings.viewed)}",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MiuixTheme.textStyles.footnote1,
+                                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                             )
                             Text(
                                 text = "${illust.totalBookmarks} ${stringResource(RStrings.liked)}",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MiuixTheme.textStyles.footnote1,
+                                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                             )
                         }
                     }
                     if (caption != null) {
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        HorizontalDivider(color = MiuixTheme.colorScheme.dividerLine)
                         SelectionContainer {
                             Text(
                                 text = caption,
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MiuixTheme.textStyles.body1,
                             )
                         }
                     }
@@ -705,7 +698,7 @@ internal fun PictureScreen(
                 modifier = Modifier
                     .padding(top = 20.dp)
                     .fillMaxWidth()
-                    .throttleClick(indication = ripple()) {
+                    .throttleClick(indication = LocalIndication.current) {
                         navigationManager.navigateToCommentScreen(
                             illust.id,
                             CommentType.ILLUST
@@ -715,7 +708,7 @@ internal fun PictureScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Comment,
+                    imageVector = MiuixIcons.Messages,
                     contentDescription = stringResource(RStrings.view_comments)
                 )
                 5.HSpacer
@@ -728,7 +721,7 @@ internal fun PictureScreen(
                     } else {
                         stringResource(RStrings.view_comments)
                     },
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MiuixTheme.textStyles.main
                 )
             }
         }
@@ -834,7 +827,7 @@ internal fun PictureScreen(
             },
             floatingActionButton = {
                 if (!isAnyBlocked && showPreviewControls) {
-                    IconButton(
+                    androidx.compose.material3.IconButton(
                         onClick = throttleClick {
                             val restrict =
                                 if (requireUserPreferenceValue.defaultPrivateBookmark) Restrict.PRIVATE else Restrict.PUBLIC
@@ -842,8 +835,8 @@ internal fun PictureScreen(
                         },
                         onLongClick = { showAdvancedBookmark = true },
                         modifier = Modifier.size(50.dp),
-                        colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        colors = androidx.compose.material3.IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MiuixTheme.colorScheme.surfaceContainer,
                         )
                     ) {
                         BookmarkIcon(
@@ -869,7 +862,7 @@ internal fun PictureScreen(
                     title = {
                         Text(
                             text = stringResource(if (isIllustBlocked) RStrings.illust_hidden else RStrings.user_blocked),
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MiuixTheme.textStyles.main,
                         )
                     },
                     button = {
@@ -1023,13 +1016,13 @@ internal fun PictureScreen(
                     }
                 )
             }
-            if (state.loading) {
+                    if (state.loading) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .throttleClick {},
                 ) {
-                    CircularWavyProgressIndicator(
+                    CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -1077,36 +1070,35 @@ private fun ImageContextMenuDropdown(
     onSaveAs: (url: String) -> Unit,
     onCopyLink: (url: String) -> Unit,
 ) {
-    val density = LocalDensity.current
-    DropdownMenu(
-        expanded = expanded,
+    WindowListPopup(
+        show = expanded,
         onDismissRequest = onDismiss,
-        offset = with(density) {
-            DpOffset(offset.x.toDp(), offset.y.toDp())
+        content = {
+            ListPopupColumn {
+                BasicComponent(
+                    title = stringResource(RStrings.download),
+                    onClick = {
+                        onDismiss()
+                        originalUrl?.let { onDownload(it) }
+                    }
+                )
+                BasicComponent(
+                    title = stringResource(RStrings.save_as),
+                    onClick = {
+                        onDismiss()
+                        originalUrl?.let { url -> onSaveAs(url) }
+                    }
+                )
+                BasicComponent(
+                    title = stringResource(RStrings.copy_link),
+                    onClick = {
+                        onDismiss()
+                        originalUrl?.let { onCopyLink(it) }
+                    }
+                )
+            }
         }
-    ) {
-        DropdownMenuItem(
-            text = { Text(stringResource(RStrings.download)) },
-            onClick = {
-                onDismiss()
-                originalUrl?.let { onDownload(it) }
-            }
-        )
-        DropdownMenuItem(
-            text = { Text(stringResource(RStrings.save_as)) },
-            onClick = {
-                onDismiss()
-                originalUrl?.let { url -> onSaveAs(url) }
-            }
-        )
-        DropdownMenuItem(
-            text = { Text(stringResource(RStrings.copy_link)) },
-            onClick = {
-                onDismiss()
-                originalUrl?.let { onCopyLink(it) }
-            }
-        )
-    }
+    )
 }
 
 private fun extractFileNameAndExtension(url: String): Pair<String, String> {
@@ -1134,51 +1126,38 @@ private fun BottomMenu(
     onDownload: () -> Unit = {},
     onShare: () -> Unit = {}
 ) {
-    val bottomSheetState = rememberBottomSheetState(
-        initialValue = SheetValue.Hidden,
-        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-    )
-
-    ModalBottomSheet(
+    OverlayBottomSheet(
+        show = true,
         onDismissRequest = onDismissRequest,
-        modifier = modifier.heightIn(getScreenHeight() / 2),
-        sheetState = bottomSheetState,
-        containerColor = MaterialTheme.colorScheme.background,
+        modifier = modifier,
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .throttleClick(onClick = onDownload)
-                    .padding(vertical = 10.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Download,
-                    contentDescription = null
-                )
-                Text(
-                    text = stringResource(RStrings.download_with_size, downloadSize),
-                    modifier = Modifier.padding(start = 10.dp)
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickWithPermission {
-                        onShare()
-                    }
-                    .padding(vertical = 10.dp)
-            ) {
-                Icon(imageVector = Icons.Rounded.Share, contentDescription = null)
-                Text(
-                    text = stringResource(RStrings.share),
-                    modifier = Modifier.padding(start = 10.dp)
-                )
-            }
+            BasicComponent(
+                title = stringResource(RStrings.download_with_size, downloadSize),
+                onClick = onDownload,
+                startAction = {
+                    Icon(
+                        imageVector = MiuixIcons.Download,
+                        contentDescription = null
+                    )
+                }
+            )
+            BasicComponent(
+                title = stringResource(RStrings.share),
+                modifier = Modifier.clickWithPermission {
+                    onShare()
+                },
+                startAction = {
+                    Icon(
+                        imageVector = MiuixIcons.Share,
+                        contentDescription = null
+                    )
+                }
+            )
         }
     }
 }
@@ -1226,15 +1205,12 @@ private fun UserFollowInfo(
         }
         Spacer(modifier = Modifier.weight(1f))
         if (isFollowed) {
-            OutlinedButton(
+            TextButton(
+                text = stringResource(RStrings.followed),
                 onClick = {
                     FollowState.unFollowUser(illust.user.id)
                 }
-            ) {
-                Text(
-                    text = stringResource(RStrings.followed),
-                )
-            }
+            )
         } else {
             Button(
                 onClick = {
@@ -1266,8 +1242,9 @@ private fun PictureTopBar(
     var showBottomMenu by rememberSaveable { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     TopAppBar(
-        title = {},
+        title = "",
         modifier = modifier,
+        color = Color.Transparent,
         actions = {
             Box(
                 modifier = Modifier
@@ -1279,12 +1256,12 @@ private fun PictureTopBar(
                         .align(Alignment.CenterStart),
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                        imageVector = MiuixIcons.Back,
                         contentDescription = null,
                         modifier = Modifier.throttleClick { onBack() },
                     )
                     Icon(
-                        imageVector = Icons.Rounded.Home,
+                        imageVector = MiuixIcons.Home,
                         contentDescription = null,
                         modifier = Modifier
                             .padding(start = 15.dp)
@@ -1294,7 +1271,7 @@ private fun PictureTopBar(
                 if (!isIllustBlocked && !isUserBlocked) {
                     // 分享按钮
                     Icon(
-                        imageVector = Icons.Rounded.MoreVert,
+                        imageVector = MiuixIcons.More,
                         contentDescription = null,
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
@@ -1302,7 +1279,7 @@ private fun PictureTopBar(
                                 showBottomMenu = true
                             },
                     )
-                    this@TopAppBar.AnimatedVisibility(
+                    AnimatedVisibility(
                         modifier = Modifier.align(Alignment.Center),
                         visible = isBarVisible,
                         enter = fadeIn(),
@@ -1315,12 +1292,10 @@ private fun PictureTopBar(
                 }
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent,
-        )
     )
     if (showBottomMenu) {
-        ModalBottomSheet(
+        OverlayBottomSheet(
+            show = true,
             onDismissRequest = { showBottomMenu = false }
         ) {
             Column(
@@ -1346,7 +1321,7 @@ private fun PictureTopBar(
                     modifier = Modifier.padding(vertical = 15.dp),
                     icon = {
                         Icon(
-                            imageVector = Icons.Rounded.Share,
+                            imageVector = MiuixIcons.Share,
                             contentDescription = null,
                         )
                     }
@@ -1360,7 +1335,7 @@ private fun PictureTopBar(
                     modifier = Modifier.padding(vertical = 15.dp),
                     icon = {
                         Icon(
-                            imageVector = if (isIllustBlocked) Icons.Rounded.Image else Icons.Rounded.HideImage,
+                            imageVector = if (isIllustBlocked) MiuixIcons.Image else MiuixIcons.Hide,
                             contentDescription = null,
                         )
                     }
@@ -1380,7 +1355,7 @@ private fun BottomMenuItem(
     Row(
         modifier = Modifier
             .throttleClick(
-                indication = ripple(),
+                indication = LocalIndication.current,
                 onClick = onClick
             )
             .fillMaxWidth()
@@ -1405,7 +1380,7 @@ private fun UserInfo(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MiuixTheme.colorScheme.background)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -1427,13 +1402,13 @@ private fun UserInfo(
             ) {
                 Text(
                     text = illust.title,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MiuixTheme.textStyles.subtitle,
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
                     text = illust.user.name,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MiuixTheme.textStyles.body2,
+                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                 )
             }
         }

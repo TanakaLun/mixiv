@@ -3,7 +3,6 @@ package com.mrl.pixiv.common.compose.ui.image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 
 internal enum class ImageLoadState {
     LOADING,
@@ -34,7 +34,7 @@ fun LoadingImage(
     contentScale: ContentScale = ContentScale.Fit,
     errorContent: @Composable BoxScope.() -> Unit = {},
     loadingContent: @Composable BoxScope.() -> Unit = {
-        CircularWavyProgressIndicator(modifier = Modifier.matchParentSize())
+        CircularProgressIndicator(modifier = Modifier.matchParentSize())
     }
 ) {
     var imageLoadState by remember { mutableStateOf(ImageLoadState.LOADING) }

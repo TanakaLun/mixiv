@@ -10,9 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +24,9 @@ import com.mrl.pixiv.common.repository.viewmodel.bookmark.BookmarkState
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.isBookmark
 import com.mrl.pixiv.common.router.NavigateToHorizontalPictureScreen
 import com.mrl.pixiv.common.util.throttleClick
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.Text
 
 private const val SPAN_COUNT = 3
 private const val MAX_SHOW_ILLUST_COUNT = 6

@@ -8,9 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
+import androidx.compose.material3.Text as MaterialText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +27,9 @@ import com.mrl.pixiv.strings.search_series_only
 import com.mrl.pixiv.strings.search_show_r18
 import com.mrl.pixiv.strings.search_r18_only
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.Switch
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun SearchContentFilterControls(
@@ -40,14 +41,14 @@ fun SearchContentFilterControls(
 ) {
     Column(modifier) {
         if (mode != AppViewMode.NOVEL) {
-            Text(stringResource(RStrings.search_content_type), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(RStrings.search_content_type), style = MiuixTheme.textStyles.subtitle)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 SearchArtworkType.entries.forEach { type ->
                     FilterChip(
                         selected = filter.artworkType == type,
                         onClick = { onChange(filter.copy(artworkType = type)) },
                         label = {
-                            Text(stringResource(when (type) {
+                            MaterialText(stringResource(when (type) {
                                 SearchArtworkType.ALL -> RStrings.search_type_all
                                 SearchArtworkType.GIF_ONLY -> RStrings.search_gif_only
                                 SearchArtworkType.EXCLUDE_GIF -> RStrings.search_exclude_gif

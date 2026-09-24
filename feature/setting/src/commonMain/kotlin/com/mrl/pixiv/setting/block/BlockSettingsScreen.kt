@@ -1,24 +1,10 @@
 package com.mrl.pixiv.setting.block
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.router.Destination
 import com.mrl.pixiv.common.router.currentNavigationManager
@@ -31,6 +17,13 @@ import com.mrl.pixiv.strings.block_tags
 import com.mrl.pixiv.strings.block_user
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.preference.ArrowPreference
 
 private const val KEY_BLOCK_ILLUST = "block_illust"
 private const val KEY_BLOCK_NOVEL = "block_novel"
@@ -48,20 +41,12 @@ fun BlockSettingsScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = stringResource(RStrings.block_settings))
-                },
+                title = stringResource(RStrings.block_settings),
                 navigationIcon = {
-                    IconButton(
-                        onClick = navigationManager::popBackStack,
-                        shapes = IconButtonDefaults.shapes(),
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = null
-                        )
+                    IconButton(onClick = navigationManager::popBackStack) {
+                        Icon(MiuixIcons.Back, contentDescription = null)
                     }
-                }
+                },
             )
         }
     ) { innerPadding ->
@@ -109,22 +94,8 @@ private fun BlockEntry(
     title: StringResource,
     onClick: () -> Unit,
 ) {
-    ListItem(
+    ArrowPreference(
+        title = stringResource(title),
         onClick = rememberThrottleClick(onClick = onClick),
-        shapes = ListItemDefaults.shapes(shape = RectangleShape),
-        content = {
-            Text(
-                text = stringResource(title),
-                style = MaterialTheme.typography.titleMedium,
-            )
-        },
-        trailingContent = {
-            Icon(
-                imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-                contentDescription = null
-            )
-        },
-        modifier = Modifier
-            .fillMaxWidth(),
     )
 }

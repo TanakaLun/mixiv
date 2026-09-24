@@ -7,16 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LinearWavyProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -38,6 +28,15 @@ import dev.nucleusframework.webview.web.WebViewNavigator
 import dev.nucleusframework.webview.web.rememberWebViewNavigator
 import dev.nucleusframework.webview.web.rememberWebViewState
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.LinearProgressIndicator
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SmallTopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun LoginScreen(
@@ -82,16 +81,15 @@ fun LoginScreen(
             .imePadding(),
         topBar = {
             Box {
-                TopAppBar(
-                    title = {},
+                SmallTopAppBar(
+                    title = "",
                     navigationIcon = {
                         IconButton(
                             onClick = { navigationManager.popBackStack() },
                             enabled = !state.loading,
-                            shapes = IconButtonDefaults.shapes(),
                         ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                imageVector = MiuixIcons.Back,
                                 contentDescription = null,
                             )
                         }
@@ -111,10 +109,10 @@ fun LoginScreen(
             when (loadingState) {
                 LoadingState.Finished -> {}
 
-                LoadingState.Initializing -> LinearWavyProgressIndicator(modifier = Modifier.fillMaxWidth())
-                is LoadingState.Loading -> LinearWavyProgressIndicator(
+                LoadingState.Initializing -> LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                is LoadingState.Loading -> LinearProgressIndicator(
                     modifier = Modifier.fillMaxWidth(),
-                    progress = { loadingState.progress }
+                    progress = loadingState.progress
                 )
             }
             WebView(
@@ -143,11 +141,11 @@ private fun LoginLoadingOverlay(
 ) {
     Box(
         modifier = modifier
-            .background(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f))
+            .background(color = MiuixTheme.colorScheme.onBackground.copy(alpha = 0.5f))
             .throttleClick(),
     ) {
         if (showIndicator) {
-            CircularWavyProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
     }
 }

@@ -12,18 +12,11 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DateRangePickerDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.repository.requireUserInfoFlow
@@ -47,6 +39,14 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.ListPopupColumn
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.theme.LocalContentColor
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.window.WindowListPopup
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
@@ -72,80 +72,54 @@ internal fun SearchResultAppBar(
 
     TopAppBar(
         modifier = modifier,
-        title = {
-            Text(
-                text = searchWords,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .throttleClick { popBack() },
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        },
+        title = searchWords,
         navigationIcon = {
-            IconButton(
-                onClick = popBack,
-                shapes = IconButtonDefaults.shapes(),
-            ) {
+            IconButton(onClick = popBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                    contentDescription = "Back"
+                    contentDescription = "Back",
                 )
             }
         },
         actions = {
             if (showFilterAction) {
-                // Date Range Picker
-                IconButton(
-                    onClick = { showDateRangePicker = true },
-                    shapes = IconButtonDefaults.shapes(),
-                ) {
+                IconButton(onClick = { showDateRangePicker = true }) {
                     Icon(
                         imageVector = Icons.Rounded.CalendarMonth,
                         contentDescription = "Date Range",
-                        tint = if (searchDateRange != null) MaterialTheme.colorScheme.primary else LocalContentColor.current
+                        tint = if (searchDateRange != null) MiuixTheme.colorScheme.primary else LocalContentColor.current,
                     )
                 }
-                // Bookmark Range
-                IconButton(
-                    onClick = {
-                        showBookmarkMenu = true
-                    },
-                    shapes = IconButtonDefaults.shapes(),
-                ) {
+                IconButton(onClick = { showBookmarkMenu = true }) {
                     Icon(
                         imageVector = Icons.Rounded.CollectionsBookmark,
                         contentDescription = "Bookmark Range",
-                        tint = if (bookmarkNumRange != null) MaterialTheme.colorScheme.primary else LocalContentColor.current
+                        tint = if (bookmarkNumRange != null) MiuixTheme.colorScheme.primary else LocalContentColor.current,
                     )
-                    if (isPremium) {
-                        PremiumBookmarkRangeSelector(
-                            expanded = showBookmarkMenu,
-                            onDismissRequest = { showBookmarkMenu = false },
-                            bookmarkNumRange = bookmarkNumRange,
-                            onBookmarkNumRangeChanged = onBookmarkNumRangeChanged
-                        )
-                    } else {
-                        NonPremiumBookmarkRangeSelector(
-                            expanded = showBookmarkMenu,
-                            onDismissRequest = { showBookmarkMenu = false },
-                            selectedRange = bookmarkStringRange,
-                            onBookmarkStringRangeChanged = onBookmarkStringRangeChanged
-                        )
-                    }
                 }
-                //筛选按钮
-                IconButton(
-                    onClick = showBottomSheet,
-                    shapes = IconButtonDefaults.shapes(),
-                ) {
+                if (isPremium) {
+                    PremiumBookmarkRangeSelector(
+                        expanded = showBookmarkMenu,
+                        onDismissRequest = { showBookmarkMenu = false },
+                        bookmarkNumRange = bookmarkNumRange,
+                        onBookmarkNumRangeChanged = onBookmarkNumRangeChanged,
+                    )
+                } else {
+                    NonPremiumBookmarkRangeSelector(
+                        expanded = showBookmarkMenu,
+                        onDismissRequest = { showBookmarkMenu = false },
+                        selectedRange = bookmarkStringRange,
+                        onBookmarkStringRangeChanged = onBookmarkStringRangeChanged,
+                    )
+                }
+                IconButton(onClick = showBottomSheet) {
                     Icon(
                         imageVector = Icons.Rounded.FilterAlt,
-                        contentDescription = "Filter"
+                        contentDescription = "Filter",
                     )
                 }
             }
-        }
+        },
     )
     if (showDateRangePicker) {
         val selectableDates = remember {
@@ -165,7 +139,7 @@ internal fun SearchResultAppBar(
                 ?.toEpochMilliseconds(),
             initialSelectedEndDateMillis = searchDateRange?.endInclusive?.atStartOfDayIn(TimeZone.UTC)
                 ?.toEpochMilliseconds(),
-            selectableDates = selectableDates
+            selectableDates = selectableDates,
         )
         DatePickerDialog(
             onDismissRequest = { showDateRangePicker = false },
@@ -184,7 +158,7 @@ internal fun SearchResultAppBar(
                             onSearchDateRangeChanged(null)
                         }
                         showDateRangePicker = false
-                    }
+                    },
                 ) {
                     Text(text = stringResource(RStrings.confirm))
                 }
@@ -193,7 +167,7 @@ internal fun SearchResultAppBar(
                 TextButton(onClick = { showDateRangePicker = false }) {
                     Text(text = stringResource(RStrings.cancel))
                 }
-            }
+            },
         ) {
             val datePickerFormatter = remember { DatePickerDefaults.dateFormatter() }
             val colors = DatePickerDefaults.colors()
@@ -220,7 +194,7 @@ internal fun SearchResultAppBar(
                             contentColor = colors.headlineContentColor,
                         )
                     }
-                }
+                },
             )
         }
     }
@@ -231,43 +205,47 @@ private fun PremiumBookmarkRangeSelector(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     bookmarkNumRange: IntRange?,
-    onBookmarkNumRangeChanged: (IntRange?) -> Unit
+    onBookmarkNumRangeChanged: (IntRange?) -> Unit,
 ) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest
+    WindowListPopup(
+        show = expanded,
+        onDismissRequest = onDismissRequest,
     ) {
-        val ranges = listOf(
-            stringResource(RStrings.label_default) to null,
-            "10~29" to (10..29),
-            "30~49" to (30..49),
-            "50~99" to (50..99),
-            "100~299" to (100..299),
-            "300~499" to (300..499),
-            "500~999" to (500..999),
-            "1000~4999" to (1000..4999),
-            "5000~9999" to (5000..9999),
-            "10000~49999" to (10000..49999),
-            ">50000" to (50000..Int.MAX_VALUE)
-        )
-
-        ranges.forEach { (label, range) ->
-            val isSelected = range == bookmarkNumRange
-            DropdownMenuItem(
-                text = { Text(text = label) },
-                trailingIcon = if (isSelected) {
-                    {
-                        Icon(
-                            imageVector = Icons.Rounded.Check,
-                            contentDescription = null
-                        )
-                    }
-                } else null,
-                onClick = {
-                    onBookmarkNumRangeChanged(range)
-                    onDismissRequest()
-                }
+        ListPopupColumn {
+            val ranges = listOf(
+                stringResource(RStrings.label_default) to null,
+                "10~29" to (10..29),
+                "30~49" to (30..49),
+                "50~99" to (50..99),
+                "100~299" to (100..299),
+                "300~499" to (300..499),
+                "500~999" to (500..999),
+                "1000~4999" to (1000..4999),
+                "5000~9999" to (5000..9999),
+                "10000~49999" to (10000..49999),
+                ">50000" to (50000..Int.MAX_VALUE),
             )
+
+            ranges.forEach { (label, range) ->
+                val isSelected = range == bookmarkNumRange
+                BasicComponent(
+                    title = label,
+                    onClick = {
+                        onBookmarkNumRangeChanged(range)
+                        onDismissRequest()
+                    },
+                    endActions = if (isSelected) {
+                        {
+                            Icon(
+                                imageVector = Icons.Rounded.Check,
+                                contentDescription = null,
+                            )
+                        }
+                    } else {
+                        null
+                    },
+                )
+            }
         }
     }
 }
@@ -277,43 +255,47 @@ private fun NonPremiumBookmarkRangeSelector(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     selectedRange: String?,
-    onBookmarkStringRangeChanged: (String?) -> Unit
+    onBookmarkStringRangeChanged: (String?) -> Unit,
 ) {
-    DropdownMenu(
-        expanded = expanded,
+    WindowListPopup(
+        show = expanded,
         onDismissRequest = onDismissRequest,
     ) {
-        val ranges = listOf(
-            stringResource(RStrings.label_default) to null,
-            "100 users入り" to "100 users入り",
-            "250 users入り" to "250 users入り",
-            "500 users入り" to "500 users入り",
-            "1000 users入り" to "1000 users入り",
-            "5000 users入り" to "5000 users入り",
-            "7500 users入り" to "7500 users入り",
-            "10000 users入り" to "10000 users入り",
-            "20000 users入り" to "20000 users入り",
-            "30000 users入り" to "30000 users入り",
-            "50000 users入り" to "50000 users入り",
-        )
-
-        ranges.forEach { (label, range) ->
-            val isSelected = range == selectedRange
-            DropdownMenuItem(
-                text = { Text(text = label) },
-                trailingIcon = if (isSelected) {
-                    {
-                        Icon(
-                            imageVector = Icons.Rounded.Check,
-                            contentDescription = null
-                        )
-                    }
-                } else null,
-                onClick = {
-                    onBookmarkStringRangeChanged(range)
-                    onDismissRequest()
-                }
+        ListPopupColumn {
+            val ranges = listOf(
+                stringResource(RStrings.label_default) to null,
+                "100 users入り" to "100 users入り",
+                "250 users入り" to "250 users入り",
+                "500 users入り" to "500 users入り",
+                "1000 users入り" to "1000 users入り",
+                "5000 users入り" to "5000 users入り",
+                "7500 users入り" to "7500 users入り",
+                "10000 users入り" to "10000 users入り",
+                "20000 users入り" to "20000 users入り",
+                "30000 users入り" to "30000 users入り",
+                "50000 users入り" to "50000 users入り",
             )
+
+            ranges.forEach { (label, range) ->
+                val isSelected = range == selectedRange
+                BasicComponent(
+                    title = label,
+                    onClick = {
+                        onBookmarkStringRangeChanged(range)
+                        onDismissRequest()
+                    },
+                    endActions = if (isSelected) {
+                        {
+                            Icon(
+                                imageVector = Icons.Rounded.Check,
+                                contentDescription = null,
+                            )
+                        }
+                    } else {
+                        null
+                    },
+                )
+            }
         }
     }
 }

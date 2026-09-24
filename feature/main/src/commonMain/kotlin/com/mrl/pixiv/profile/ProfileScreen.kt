@@ -6,10 +6,7 @@ import com.mrl.pixiv.common.repository.requireUserPreferenceValue
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,20 +25,6 @@ import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material.icons.rounded.Style
-import androidx.compose.material3.Badge
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -81,6 +63,16 @@ import com.mrl.pixiv.strings.theme_light
 import com.mrl.pixiv.strings.theme_system
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.Badge
+import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.ListPopupColumn
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.window.WindowListPopup
 
 private val options =
     mapOf(
@@ -121,10 +113,9 @@ fun ProfileScreen(
             ProfileAppBar(
                 onChangeAppTheme = { theme ->
                     viewModel.changeAppTheme(theme)
-                }
+                },
             )
         },
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
     ) {
         LazyColumn(
             modifier = modifier
@@ -133,11 +124,10 @@ fun ProfileScreen(
                 .padding(top = 16.dp),
         ) {
             item(key = KEY_USER_INFO) {
-                // 头像和昵称
                 Row(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     with(LocalSharedTransitionScope.current) {
                         UserAvatar(
@@ -145,314 +135,177 @@ fun ProfileScreen(
                             modifier = Modifier.size(80.dp),
                             onClick = {
                                 navigationManager.navigateToProfileDetailScreen(userInfo.user.id)
-                            }
+                            },
                         )
                         Column {
-                            // 昵称
-                            Text(
-                                text = userInfo.user.name,
-                            )
-                            // ID
-                            Text(
-                                text = "ID: ${userInfo.user.id}",
-                            )
+                            Text(text = userInfo.user.name)
+                            Text(text = "ID: ${userInfo.user.id}")
                         }
                     }
                 }
             }
             item(key = KEY_DIVIDER) {
                 HorizontalDivider(
-                    modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)
+                    modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp),
                 )
             }
-            // 偏好设置
             item(key = KEY_PREFERENCE) {
-                ListItem(
+                BasicComponent(
+                    title = stringResource(RStrings.preference),
+                    startAction = {
+                        Icon(imageVector = Icons.Rounded.Settings, contentDescription = null)
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = rememberThrottleClick {
                         navigationManager.navigateToSettingScreen()
                     },
-                    shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                    content = {
-                        Text(
-                            text = stringResource(RStrings.preference),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp),
-                    leadingContent = {
-                        Icon(imageVector = Icons.Rounded.Settings, contentDescription = null)
-                    },
                 )
             }
-            // 历史记录
             item(key = KEY_HISTORY) {
-                ListItem(
+                BasicComponent(
+                    title = stringResource(RStrings.history),
+                    startAction = {
+                        Icon(imageVector = Icons.Rounded.History, contentDescription = null)
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = rememberThrottleClick {
                         navigationManager.navigateToHistoryScreen()
-                    },
-                    shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                    content = {
-                        Text(
-                            text = stringResource(RStrings.history),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp),
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Rounded.History,
-                            contentDescription = null
-                        )
                     },
                 )
             }
             item(key = KEY_READ_LATER) {
-                ListItem(
+                BasicComponent(
+                    title = stringResource(RStrings.read_later),
+                    startAction = {
+                        Icon(imageVector = Icons.Rounded.Schedule, contentDescription = null)
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = rememberThrottleClick {
                         navigationManager.navigateToNovelReadLaterScreen()
                     },
-                    shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                    content = {
-                        Text(
-                            text = stringResource(RStrings.read_later),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp),
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Rounded.Schedule,
-                            contentDescription = null,
-                        )
-                    },
                 )
             }
-            // 收藏
             item(key = KEY_COLLECTION) {
-                ListItem(
+                BasicComponent(
+                    title = stringResource(RStrings.collection),
+                    startAction = {
+                        Icon(imageVector = Icons.Rounded.Bookmarks, contentDescription = null)
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = rememberThrottleClick {
                         navigationManager.navigateToCollectionScreen(
                             userInfo.user.id,
                             isNovel = requireUserPreferenceValue.collectionViewMode == AppViewMode.NOVEL,
                         )
                     },
-                    shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                    content = {
-                        Text(
-                            text = stringResource(RStrings.collection),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp),
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Rounded.Bookmarks,
-                            contentDescription = null
-                        )
-                    },
                 )
             }
-            // 小说阅读书签
             item(key = KEY_NOVEL_MARKERS) {
-                ListItem(
+                BasicComponent(
+                    title = stringResource(RStrings.novel_markers),
+                    startAction = {
+                        Icon(imageVector = Icons.Rounded.Bookmark, contentDescription = null)
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = rememberThrottleClick {
                         navigationManager.navigateToNovelMarkersScreen()
                     },
-                    shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                    content = {
-                        Text(
-                            text = stringResource(RStrings.novel_markers),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp),
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Rounded.Bookmark,
-                            contentDescription = null
-                        )
-                    },
                 )
             }
-            // 收藏标签
             item(key = KEY_BOOKMARK_TAGS) {
-                ListItem(
+                BasicComponent(
+                    title = stringResource(RStrings.bookmark_tags),
+                    startAction = {
+                        Icon(imageVector = Icons.Rounded.Style, contentDescription = null)
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = rememberThrottleClick {
                         navigationManager.navigateToBookmarkedTagsScreen()
                     },
-                    shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                    content = {
-                        Text(
-                            text = stringResource(RStrings.bookmark_tags),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp),
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Rounded.Style,
-                            contentDescription = null
-                        )
-                    },
                 )
             }
-            // 屏蔽设定
             item(key = KEY_BLOCK_SETTINGS) {
-                ListItem(
+                BasicComponent(
+                    title = stringResource(RStrings.block_settings),
+                    startAction = {
+                        Icon(imageVector = Icons.Rounded.Block, contentDescription = null)
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = rememberThrottleClick {
                         navigationManager.navigateToBlockSettings()
                     },
-                    shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                    content = {
-                        Text(
-                            text = stringResource(RStrings.block_settings),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp),
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Rounded.Block,
-                            contentDescription = null
-                        )
-                    },
                 )
             }
-            // 下载管理
             item(key = KEY_DOWNLOAD_MANAGER) {
-                ListItem(
+                BasicComponent(
+                    title = stringResource(RStrings.download_manager),
+                    startAction = {
+                        Icon(imageVector = Icons.Rounded.Download, contentDescription = null)
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = rememberThrottleClick {
                         navigationManager.navigateToDownloadScreen()
                     },
-                    shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                    content = {
-                        Text(
-                            text = stringResource(RStrings.download_manager),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp),
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Rounded.Download,
-                            contentDescription = null
-                        )
-                    },
                 )
             }
-            // 应用数据
             item(key = KEY_APP_DATA) {
-                ListItem(
+                BasicComponent(
+                    title = stringResource(RStrings.app_data),
+                    startAction = {
+                        Icon(imageVector = Icons.Rounded.Storage, contentDescription = null)
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = rememberThrottleClick {
                         navigationManager.navigateToAppDataScreen()
                     },
-                    shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                    content = {
-                        Text(
-                            text = stringResource(RStrings.app_data),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp),
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Rounded.Storage,
-                            contentDescription = null
-                        )
-                    },
                 )
             }
-            // 导出Token
             item(key = KEY_EXPORT_TOKEN) {
                 Column {
                     HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     )
-                    ListItem(
+                    BasicComponent(
+                        title = stringResource(RStrings.export_token),
+                        startAction = {
+                            Icon(imageVector = Icons.Rounded.ImportExport, contentDescription = null)
+                        },
+                        modifier = Modifier.padding(horizontal = 8.dp),
                         onClick = rememberThrottleClick {
                             viewModel.dispatch(ProfileAction.ExportToken)
-                        },
-                        shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                        content = {
-                            Text(
-                                text = stringResource(RStrings.export_token),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        },
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp),
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Rounded.ImportExport,
-                                contentDescription = null
-                            )
                         },
                     )
                 }
             }
-            // 关于
             item(key = KEY_ABOUT) {
-                ListItem(
-                    onClick = rememberThrottleClick {
-                        navigationManager.navigateToAboutScreen()
+                BasicComponent(
+                    title = stringResource(RStrings.about),
+                    startAction = {
+                        Icon(imageVector = Icons.Rounded.Info, contentDescription = null)
                     },
-                    shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                    content = {
-                        Text(
-                            text = stringResource(RStrings.about),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp),
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Rounded.Info,
-                            contentDescription = null
-                        )
-                    },
-                    trailingContent = {
+                    endActions = {
                         if (hasNewVersion) {
                             Badge {
-                                Text(
-                                    text = stringResource(RStrings.new_version_available),
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                )
+                                Text(text = stringResource(RStrings.new_version_available))
                             }
                         }
                     },
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    onClick = rememberThrottleClick {
+                        navigationManager.navigateToAboutScreen()
+                    },
                 )
             }
-            // 退出登录
             item(key = KEY_LOGOUT) {
-                ListItem(
+                BasicComponent(
+                    title = stringResource(RStrings.sign_out),
+                    startAction = {
+                        Icon(imageVector = Icons.AutoMirrored.Rounded.Logout, contentDescription = null)
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = rememberThrottleClick {
                         viewModel.logout()
                         navigationManager.navigateToLoginOptionScreen()
-                    },
-                    shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                    content = {
-                        Text(
-                            text = stringResource(RStrings.sign_out),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp),
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.Logout,
-                            contentDescription = null
-                        )
                     },
                 )
             }
@@ -467,46 +320,34 @@ private fun ProfileAppBar(
     val userPreference by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle()
     var expanded by remember { mutableStateOf(false) }
     TopAppBar(
-        title = {},
+        title = "",
         actions = {
-            IconButton(
-                onClick = { expanded = true },
-                shapes = IconButtonDefaults.shapes(),
-            ) {
+            IconButton(onClick = { expanded = true }) {
                 Icon(imageVector = Icons.Rounded.Palette, contentDescription = null)
             }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = {
-                    expanded = false
-                }
+            WindowListPopup(
+                show = expanded,
+                onDismissRequest = { expanded = false },
             ) {
-                options.forEach { (theme, resId) ->
-                    DropdownMenuItem(
-                        text = {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(resId),
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                if (userPreference.theme == theme.name) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Check,
-                                        contentDescription = null
-                                    )
+                ListPopupColumn {
+                    options.forEach { (theme, resId) ->
+                        BasicComponent(
+                            title = stringResource(resId),
+                            onClick = {
+                                onChangeAppTheme(theme)
+                                expanded = false
+                            },
+                            endActions = if (userPreference.theme == theme.name) {
+                                {
+                                    Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
                                 }
-                            }
-                        },
-                        onClick = {
-                            onChangeAppTheme(theme)
-                            expanded = false
-                        }
-                    )
+                            } else {
+                                null
+                            },
+                        )
+                    }
                 }
             }
-        }
+        },
     )
 }

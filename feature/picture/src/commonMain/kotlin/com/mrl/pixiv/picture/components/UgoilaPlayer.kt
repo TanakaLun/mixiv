@@ -10,12 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.PlayCircle
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -28,6 +22,11 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.mrl.pixiv.common.util.throttleClick
 import kotlinx.collections.immutable.ImmutableList
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Play
 
 @Composable
 fun UgoiraPlayer(
@@ -88,11 +87,10 @@ fun UgoiraPlayer(
                 )
                 IconButton(
                     onClick = onToggleUgoira,
-                    shapes = IconButtonDefaults.shapes(),
                     modifier = Modifier.align(Alignment.Center),
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.PlayCircle,
+                        imageVector = MiuixIcons.Play,
                         contentDescription = null,
                         tint = Color.Gray,
                         modifier = Modifier
@@ -115,17 +113,16 @@ fun UgoiraPlayer(
                 contentScale = ContentScale.FillWidth
             )
             if (loading) {
-                CircularWavyProgressIndicator(
+                CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center)
                 )
             } else {
                 IconButton(
                     onClick = loadingUgoira,
-                    shapes = IconButtonDefaults.shapes(),
                     modifier = Modifier.align(Alignment.Center),
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.PlayCircle,
+                        imageVector = MiuixIcons.Play,
                         contentDescription = null,
                         tint = Color.Gray,
                         modifier = Modifier

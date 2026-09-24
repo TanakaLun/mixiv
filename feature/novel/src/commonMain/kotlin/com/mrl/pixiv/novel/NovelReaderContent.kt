@@ -1,5 +1,6 @@
 package com.mrl.pixiv.novel
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRow
@@ -26,13 +27,6 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.TextFields
 import androidx.compose.material.icons.rounded.Visibility
-import androidx.compose.material3.Card
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallFloatingActionButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -72,6 +66,12 @@ import com.mrl.pixiv.strings.word_count
 import com.mrl.pixiv.strings.back_to_top
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.FloatingActionButton
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 private const val KEY_COVER = "cover"
 private const val KEY_TITLE = "title"
@@ -171,7 +171,7 @@ internal fun NovelReaderContent(
                 SelectionContainer {
                     Text(
                         text = displayedTitle,
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = MiuixTheme.textStyles.headline2,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)
@@ -197,7 +197,7 @@ internal fun NovelReaderContent(
                     SelectionContainer {
                         Text(
                             text = novel.user.name,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MiuixTheme.textStyles.subtitle,
                             maxLines = 1,
                         )
                     }
@@ -211,8 +211,8 @@ internal fun NovelReaderContent(
                     SelectionContainer {
                         Text(
                             text = seriesTitle,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary,
+                            style = MiuixTheme.textStyles.subtitle,
+                            color = MiuixTheme.colorScheme.primary,
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -242,12 +242,12 @@ internal fun NovelReaderContent(
                             imageVector = Icons.Rounded.Favorite,
                             contentDescription = stringResource(RStrings.bookmarked),
                             modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = MiuixTheme.colorScheme.onSurfaceVariantActions,
                         )
                         4.HSpacer
                         Text(
                             text = totalBookmarks.toString(),
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MiuixTheme.textStyles.body1
                         )
 
                         16.HSpacer
@@ -256,24 +256,24 @@ internal fun NovelReaderContent(
                             Icons.Rounded.Visibility,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = MiuixTheme.colorScheme.onSurfaceVariantSummary
                         )
                         4.HSpacer
                         Text(
                             text = novel.totalView.toString(),
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MiuixTheme.textStyles.body1
                         )
                         16.HSpacer
                         Icon(
                             Icons.Rounded.TextFields,
                             contentDescription = stringResource(RStrings.word_count),
                             modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = MiuixTheme.colorScheme.onSurfaceVariantActions,
                         )
                         4.HSpacer
                         Text(
                             text = novel.textLength.toString(),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MiuixTheme.textStyles.body1,
                         )
                     }
                 }
@@ -285,8 +285,8 @@ internal fun NovelReaderContent(
                     Text(
                         text = convertUtcStringToLocalDateTime(novel.createDate),
                         modifier = Modifier.padding(top = 8.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MiuixTheme.textStyles.body1,
+                        color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -315,7 +315,7 @@ internal fun NovelReaderContent(
             // Caption卡片(如果有内容)
             if (displayedCaption.isNotEmpty()) {
                 item(key = KEY_CAPTION) {
-                    val linkColor = MaterialTheme.colorScheme.primary
+                    val linkColor = MiuixTheme.colorScheme.primary
                     val caption = remember(displayedCaption, linkColor, onCaptionLinkClick) {
                         novelCaptionToAnnotatedString(
                             html = displayedCaption,
@@ -328,10 +328,10 @@ internal fun NovelReaderContent(
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
-                        SelectionContainer {
+                            SelectionContainer {
                             Text(
                                 text = caption,
-                                style = MaterialTheme.typography.bodyMedium.copy(
+                                style = MiuixTheme.textStyles.body1.copy(
                                     fontSize = state.fontSize.sp,
                                     lineHeight = (state.fontSize + state.lineSpacingSp + 8).sp
                                 ),
@@ -347,7 +347,7 @@ internal fun NovelReaderContent(
                     modifier = Modifier
                         .padding(vertical = 10.dp)
                         .fillMaxWidth()
-                        .throttleClick(indication = ripple()) {
+                        .throttleClick(indication = LocalIndication.current) {
                             onCommentClick()
                         },
                     horizontalArrangement = Arrangement.Center,
@@ -367,7 +367,7 @@ internal fun NovelReaderContent(
                         } else {
                             stringResource(RStrings.view_comments)
                         },
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MiuixTheme.textStyles.main
                     )
                 }
             }
@@ -447,8 +447,10 @@ internal fun NovelReaderContent(
                     .padding(WindowInsets.systemBars.only(WindowInsetsSides.Vertical).asPaddingValues()),
             )
             if (canScrollBack) {
-                SmallFloatingActionButton(
+                FloatingActionButton(
                     onClick = { scrollScope.launch { listState.animateScrollToItem(0) } },
+                    minWidth = 48.dp,
+                    minHeight = 48.dp,
                     modifier = Modifier.align(Alignment.BottomEnd)
                         .padding(WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues())
                         .padding(end = 16.dp, bottom = 24.dp),

@@ -5,9 +5,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.Lock
@@ -15,32 +12,19 @@ import androidx.compose.material.icons.rounded.NetworkWifi
 import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Translate
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
-import com.mrl.pixiv.common.util.throttleClick
-import com.mrl.pixiv.setting.components.DropDownSelector
 import com.mrl.pixiv.strings.ai_translation_setting
 import com.mrl.pixiv.strings.app_language
 import com.mrl.pixiv.strings.browsing_setting
@@ -52,6 +36,14 @@ import com.mrl.pixiv.strings.privacy_setting
 import com.mrl.pixiv.strings.search_setting
 import com.mrl.pixiv.strings.setting
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.preference.ArrowPreference
+import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
 
 const val KEY_LANGUAGE = "language"
 const val KEY_NETWORK_SETTING = "network_setting"
@@ -71,72 +63,42 @@ fun SettingScreen(
     val labelDefault = stringResource(RStrings.label_default)
     val languages = remember { getLanguages() }
     var currentLanguage by remember(labelDefault) {
-        mutableStateOf(getInitialLanguages() ?: labelDefault)
+        mutableIntStateOf(
+            languages.indexOfFirst { it.langTag == (getInitialLanguages() ?: labelDefault) }
+                .coerceAtLeast(0)
+        )
+    }
+
+    LaunchedEffect(currentLanguage, labelDefault) {
+        val language = languages.getOrNull(currentLanguage) ?: return@LaunchedEffect
+        triggerLocaleChange(language.langTag, labelDefault)
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(RStrings.setting)) },
+                title = stringResource(RStrings.setting),
                 navigationIcon = {
-                    IconButton(
-                        onClick = navigationManager::popBackStack,
-                        shapes = IconButtonDefaults.shapes(),
-                    ) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
+                    IconButton(onClick = navigationManager::popBackStack) {
+                        Icon(MiuixIcons.Back, contentDescription = null)
                     }
                 },
             )
         },
     ) { innerPadding ->
         LazyColumn(
-            modifier = modifier
+            modifier = Modifier
                 .padding(innerPadding)
                 .padding(horizontal = 8.dp),
         ) {
             item(key = KEY_LANGUAGE) {
-                var expanded by remember { mutableStateOf(false) }
-                ListItem(
-                    headlineContent = {
-                        LaunchedEffect(currentLanguage, labelDefault) {
-                            triggerLocaleChange(currentLanguage, labelDefault)
-                        }
-                        Text(text = stringResource(RStrings.app_language))
-                    },
-                    leadingContent = {
-                        Icon(Icons.Rounded.Translate, contentDescription = null)
-                    },
-                    trailingContent = {
-                        DropDownSelector(
-                            modifier = Modifier.throttleClick { expanded = !expanded },
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                            current = currentLanguage,
-                        ) {
-                            languages.forEach { language ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text(
-                                                text = language.displayName,
-                                                modifier = Modifier.padding(16.dp),
-                                            )
-                                            if (currentLanguage == language.langTag) {
-                                                Icon(
-                                                    imageVector = Icons.Rounded.Check,
-                                                    contentDescription = null,
-                                                )
-                                            }
-                                        }
-                                    },
-                                    onClick = {
-                                        currentLanguage = language.langTag
-                                        expanded = false
-                                    },
-                                )
-                            }
-                        }
-                    },
+                OverlayDropdownPreference(
+                    items = languages.map { it.displayName },
+                    selectedIndex = currentLanguage,
+                    title = stringResource(RStrings.app_language),
+                    startAction = { Icon(Icons.Rounded.Translate, contentDescription = null) },
+                    onSelectedIndexChange = { currentLanguage = it },
                 )
             }
             item(key = KEY_NETWORK_SETTING) {
@@ -199,17 +161,10 @@ private fun SettingDestinationItem(
     icon: ImageVector,
     onClick: () -> Unit,
 ) {
-    ListItem(
+    ArrowPreference(
+        title = title,
+        startAction = { Icon(imageVector = icon, contentDescription = null) },
         onClick = rememberThrottleClick(onClick = onClick),
-        shapes = ListItemDefaults.shapes(shape = RectangleShape),
-        content = { Text(text = title) },
-        leadingContent = { Icon(imageVector = icon, contentDescription = null) },
-        trailingContent = {
-            Icon(
-                imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos,
-                contentDescription = null,
-            )
-        },
     )
 }
 

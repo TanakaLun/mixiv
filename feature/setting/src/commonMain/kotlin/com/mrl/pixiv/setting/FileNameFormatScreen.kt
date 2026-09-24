@@ -4,10 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,30 +13,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.data.setting.UserPreference
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.router.NavigationManager
@@ -55,29 +39,35 @@ import com.mrl.pixiv.strings.legend_title
 import com.mrl.pixiv.strings.legend_user_id
 import com.mrl.pixiv.strings.legend_user_name
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun FileNameFormatScreen(
     modifier: Modifier = Modifier,
-    navigationManager: NavigationManager = currentNavigationManager()
+    navigationManager: NavigationManager = currentNavigationManager(),
 ) {
     val userPreference by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle()
     val format = rememberTextFieldState(userPreference.fileNameFormat)
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(RStrings.file_name_format_title)) },
+                title = stringResource(RStrings.file_name_format_title),
                 navigationIcon = {
-                    IconButton(
-                        onClick = navigationManager::popBackStack,
-                        shapes = IconButtonDefaults.shapes(),
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = null
-                        )
+                    IconButton(onClick = navigationManager::popBackStack) {
+                        Icon(MiuixIcons.Back, contentDescription = null)
                     }
                 },
                 actions = {
@@ -86,7 +76,7 @@ fun FileNameFormatScreen(
                             format.edit {
                                 replace(0, length, UserPreference.DEFAULT_FILE_NAME_FORMAT)
                             }
-                        }
+                        },
                     ) {
                         Icon(imageVector = Icons.Rounded.Refresh, contentDescription = null)
                     }
@@ -94,69 +84,41 @@ fun FileNameFormatScreen(
                         onClick = {
                             SettingRepository.setFileNameFormat(format.text.toString())
                             navigationManager.popBackStack()
-                        }
+                        },
                     ) {
                         Icon(imageVector = Icons.Rounded.Save, contentDescription = null)
                     }
-                }
+                },
             )
-        }
+        },
     ) { innerPadding ->
         Column(
             modifier = modifier
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
         ) {
-            ListItem(
-                onClick = rememberThrottleClick {
-                    SettingRepository.setDownloadSubFolderByUser(
-                        !userPreference.downloadSubFolderByUser
-                    )
-                },
-                shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                content = {
-                    Text(text = stringResource(RStrings.download_single_folder_by_user_title))
-                },
-                supportingContent = {
-                    Text(text = stringResource(RStrings.download_single_folder_by_user_desc))
-                },
-                modifier = Modifier
-                    .height(IntrinsicSize.Min),
-                leadingContent = {
-                    Column(
-                        modifier = Modifier.fillMaxHeight(),
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Icon(imageVector = Icons.Rounded.Folder, contentDescription = null)
-                    }
-                },
-                trailingContent = {
-                    Column(
-                        modifier = Modifier.fillMaxHeight(),
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Switch(
-                            checked = userPreference.downloadSubFolderByUser,
-                            onCheckedChange = SettingRepository::setDownloadSubFolderByUser,
-                        )
-                    }
-                },
+            SwitchPreference(
+                checked = userPreference.downloadSubFolderByUser,
+                onCheckedChange = SettingRepository::setDownloadSubFolderByUser,
+                title = stringResource(RStrings.download_single_folder_by_user_title),
+                summary = stringResource(RStrings.download_single_folder_by_user_desc),
+                startAction = { Icon(imageVector = Icons.Rounded.Folder, contentDescription = null) },
             )
-            OutlinedTextField(
+            TextField(
                 state = format,
-                label = { Text(text = stringResource(RStrings.file_name_format_title)) },
+                label = stringResource(RStrings.file_name_format_title),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(16.dp),
             )
 
             val chips = listOf(
-                "title", "_", "index", "illust_id", "user_id", "user_name"
+                "title", "_", "index", "illust_id", "user_id", "user_name",
             )
 
             FlowRow(
                 modifier = Modifier.padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 chips.forEach { key ->
                     FilterChip(
@@ -168,7 +130,7 @@ fun FileNameFormatScreen(
                                 replace(cursor, selection.end, tag)
                             }
                         },
-                        label = { Text(text = key) }
+                        label = { Text(text = key) },
                     )
                 }
             }
@@ -178,7 +140,7 @@ fun FileNameFormatScreen(
             Row(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = stringResource(RStrings.legend_template),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 Text(text = stringResource(RStrings.legend_meaning), modifier = Modifier.weight(1f))
             }
@@ -192,13 +154,9 @@ fun FileNameFormatScreen(
 
             legends.forEach { (key, res) ->
                 HorizontalDivider()
-                ListItem(
-                    headlineContent = {
-                        Row {
-                            Text(text = key, modifier = Modifier.weight(1f))
-                            Text(text = stringResource(res), modifier = Modifier.weight(1f))
-                        }
-                    }
+                BasicComponent(
+                    title = key,
+                    summary = stringResource(res),
                 )
             }
         }

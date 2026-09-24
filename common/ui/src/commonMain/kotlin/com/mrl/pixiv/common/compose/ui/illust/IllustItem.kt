@@ -14,16 +14,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.FileCopy
-import androidx.compose.material3.Badge
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.Text
+import androidx.compose.material3.Text as MaterialText
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
@@ -80,6 +76,12 @@ import com.mrl.pixiv.strings.series
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.Badge
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Copy
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
@@ -119,7 +121,7 @@ fun SquareIllustItem(
 //                    renderInOverlayDuringTransition = false
                 )
                 .shadow(elevation, shape)
-                .background(MaterialTheme.colorScheme.background)
+                .background(MiuixTheme.colorScheme.background)
                 .throttleClick { onClick() }
         ) {
             val imageKey = illust.imageUrls.squareMedium
@@ -248,7 +250,7 @@ fun RectangleIllustItem(
                     navToPictureScreen(prefix, enableTransition)
                 }
                 .shadow(4.dp, shape, clip = false)
-                .background(color = MaterialTheme.colorScheme.surface, shape = shape)
+                .background(color = MiuixTheme.colorScheme.surface, shape = shape)
                 .clip(shape),
         ) {
             Column {
@@ -289,13 +291,13 @@ fun RectangleIllustItem(
                     ) {
                         Text(
                             text = illust.title,
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MiuixTheme.textStyles.main,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
                         Text(
                             text = illust.user.name,
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MiuixTheme.textStyles.body1,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -391,7 +393,7 @@ private fun BookmarkTooltipBox(
             ),
             tooltip = {
                 PlainTooltip {
-                    Text(text = stringResource(RStrings.long_click_to_edit_favorite))
+                    MaterialText(text = stringResource(RStrings.long_click_to_edit_favorite))
                 }
             },
             state = tooltipState,
@@ -408,12 +410,12 @@ private fun TextBadge(
 ) {
     Badge(
         modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        containerColor = MiuixTheme.colorScheme.primaryContainer,
+        contentColor = MiuixTheme.colorScheme.onPrimaryContainer,
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.labelSmall,
+            style = MiuixTheme.textStyles.footnote2,
             modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
         )
     }
@@ -425,12 +427,12 @@ internal fun AIBadge(
 ) {
     Badge(
         modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        containerColor = MiuixTheme.colorScheme.primaryContainer,
+        contentColor = MiuixTheme.colorScheme.onPrimaryContainer,
     ) {
         Text(
             text = "AI",
-            style = MaterialTheme.typography.labelSmall,
+            style = MiuixTheme.textStyles.footnote2,
             modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
         )
     }
@@ -442,12 +444,12 @@ private fun GifBadge(
 ) {
     Badge(
         modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        containerColor = MiuixTheme.colorScheme.primaryContainer,
+        contentColor = MiuixTheme.colorScheme.onPrimaryContainer,
     ) {
         Text(
             text = "GIF",
-            style = MaterialTheme.typography.labelSmall,
+            style = MiuixTheme.textStyles.footnote2,
             modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
         )
     }
@@ -465,7 +467,7 @@ private fun PageBadge(
     ) {
         5f.HSpacer
         Icon(
-            imageVector = Icons.Rounded.FileCopy,
+            imageVector = MiuixIcons.Copy,
             contentDescription = null,
             modifier = Modifier.size(10.dp)
         )
@@ -473,7 +475,7 @@ private fun PageBadge(
         Text(
             text = "$pageCount",
             modifier = Modifier.padding(vertical = 2.dp),
-            style = MaterialTheme.typography.labelSmall,
+            style = MiuixTheme.textStyles.footnote2,
         )
         5f.HSpacer
     }

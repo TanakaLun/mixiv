@@ -6,10 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +33,9 @@ import com.mrl.pixiv.strings.collection
 import com.mrl.pixiv.strings.copy_to_clipboard
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.window.WindowDialog
 
 @Composable
 fun TagItem(
@@ -48,11 +47,11 @@ fun TagItem(
     Row(
         modifier = Modifier
             .background(
-                MaterialTheme.colorScheme.primaryContainer,
+                MiuixTheme.colorScheme.primaryContainer,
                 10f.round
             )
             .throttleClick(
-                indication = ripple(),
+                indication = LocalIndication.current,
                 onLongClick = {
                     showCollectionDialog = true
                 },
@@ -64,7 +63,7 @@ fun TagItem(
         Text(
             text = "#" + tag.name,
             modifier = Modifier,
-            color = MaterialTheme.colorScheme.primary,
+            color = MiuixTheme.colorScheme.primary,
             style = TextStyle(fontSize = 13.sp, color = deepBlue),
         )
         Text(
@@ -78,13 +77,11 @@ fun TagItem(
     if (showCollectionDialog) {
         val indication = LocalIndication.current
         val itemModifier = Modifier.padding(vertical = 8.dp)
-        AlertDialog(
+        WindowDialog(
+            show = true,
+            title = tag.name,
             onDismissRequest = { showCollectionDialog = false },
-            confirmButton = {},
-            title = {
-                Text(text = tag.name)
-            },
-            text = {
+            content = {
                 Column {
                     Text(
                         text = stringResource(RStrings.block_tags),

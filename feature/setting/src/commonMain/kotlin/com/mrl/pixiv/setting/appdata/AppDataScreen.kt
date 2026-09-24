@@ -1,25 +1,20 @@
 package com.mrl.pixiv.setting.appdata
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Upload
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,7 +22,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.router.NavigationManager
@@ -52,6 +46,17 @@ import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.overlay.OverlayDialog
 import kotlin.time.Clock
 
 private data class HistoryImportDialogData(
@@ -98,17 +103,12 @@ fun AppDataScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = {
-                    Text(text = stringResource(RStrings.app_data))
-                },
+                title = stringResource(RStrings.app_data),
                 navigationIcon = {
-                    IconButton(
-                        onClick = navigationManager::popBackStack,
-                        shapes = IconButtonDefaults.shapes(),
-                    ) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
+                    IconButton(onClick = navigationManager::popBackStack) {
+                        Icon(MiuixIcons.Back, contentDescription = null)
                     }
-                }
+                },
             )
         }
     ) { paddingValues ->
@@ -125,7 +125,14 @@ fun AppDataScreen(
                 viewModel = viewModel
             )
 
-            ListItem(
+            BasicComponent(
+                title = stringResource(RStrings.export_data),
+                startAction = {
+                    Icon(
+                        imageVector = Icons.Rounded.Upload,
+                        contentDescription = null
+                    )
+                },
                 onClick = {
                     val fileName = "pixiv_data_backup_${
                         Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
@@ -133,90 +140,77 @@ fun AppDataScreen(
                     }"
                     exportLauncher.launch(suggestedName = fileName, defaultExtension = "zip")
                 },
-                shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                content = {
-                    Text(text = stringResource(RStrings.export_data))
-                },
-                leadingContent = {
-                    Icon(
-                        imageVector = Icons.Rounded.Upload,
-                        contentDescription = null
-                    )
-                },
             )
 
-            ListItem(
-                onClick = {
-                    importLauncher.launch()
-                },
-                shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                content = {
-                    Text(text = stringResource(RStrings.import_data))
-                },
-                leadingContent = {
+            BasicComponent(
+                title = stringResource(RStrings.import_data),
+                startAction = {
                     Icon(
                         imageVector = Icons.Rounded.Download,
                         contentDescription = null
                     )
                 },
+                onClick = { importLauncher.launch() },
             )
 
-            ListItem(
-                onClick = rememberThrottleClick {
-                    viewModel.clearCache()
-                },
-                shapes = ListItemDefaults.shapes(shape = RectangleShape),
-                content = {
-                    Text(text = stringResource(RStrings.clear_cache, viewModel.cacheDirSize))
-                },
-                leadingContent = {
+            BasicComponent(
+                title = stringResource(RStrings.clear_cache, viewModel.cacheDirSize),
+                startAction = {
                     Icon(
                         imageVector = Icons.Rounded.Delete,
                         contentDescription = null
                     )
+                },
+                onClick = rememberThrottleClick {
+                    viewModel.clearCache()
                 },
             )
         }
     }
 
     dialogData?.let { data ->
-        AlertDialog(
+        OverlayDialog(
+            show = true,
+            title = stringResource(RStrings.history_import_user_mismatch_title),
             onDismissRequest = {
                 viewModel.onHistoryImportConfirm(data.requestId, false)
                 dialogData = null
             },
-            title = {
-                Text(text = stringResource(RStrings.history_import_user_mismatch_title))
-            },
-            text = {
-                Text(
-                    text = stringResource(
-                        RStrings.history_import_user_mismatch_desc,
-                        data.currentUserId,
-                        data.importUserId
+            content = {
+                Column {
+                    Text(
+                        text = stringResource(
+                            RStrings.history_import_user_mismatch_desc,
+                            data.currentUserId,
+                            data.importUserId
+                        )
                     )
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.onHistoryImportConfirm(data.requestId, true)
-                        dialogData = null
+                    Spacer(Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        TextButton(
+                            text = stringResource(RStrings.cancel),
+                            onClick = {
+                                viewModel.onHistoryImportConfirm(data.requestId, false)
+                                dialogData = null
+                            },
+                            modifier = Modifier.weight(1f),
+                        )
+                        Spacer(Modifier.width(16.dp))
+                        TextButton(
+                            text = stringResource(RStrings.confirm),
+                            onClick = {
+                                viewModel.onHistoryImportConfirm(data.requestId, true)
+                                dialogData = null
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.textButtonColorsPrimary(),
+                        )
                     }
-                ) {
-                    Text(stringResource(RStrings.confirm))
                 }
             },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.onHistoryImportConfirm(data.requestId, false)
-                        dialogData = null
-                    }
-                ) {
-                    Text(stringResource(RStrings.cancel))
-                }
-            }
         )
     }
 

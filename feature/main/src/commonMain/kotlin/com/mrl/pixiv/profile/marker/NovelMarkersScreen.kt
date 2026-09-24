@@ -11,16 +11,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.BookmarkBorder
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +32,15 @@ import com.mrl.pixiv.strings.novel_markers_empty
 import com.mrl.pixiv.strings.retry
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.PullToRefresh
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.basic.rememberPullToRefreshState
 
 @Composable
 fun NovelMarkersScreen(
@@ -59,7 +58,7 @@ fun NovelMarkersScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(RStrings.novel_markers)) },
+                title = stringResource(RStrings.novel_markers),
                 navigationIcon = {
                     IconButton(onClick = navigationManager::popBackStack) {
                         Icon(
@@ -71,29 +70,20 @@ fun NovelMarkersScreen(
             )
         },
     ) { paddingValues ->
-        PullToRefreshBox(
+        PullToRefresh(
             isRefreshing = isRefreshing,
             onRefresh = markers::refresh,
-            state = pullToRefreshState,
+            pullToRefreshState = pullToRefreshState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            indicator = {
-                PullToRefreshDefaults.LoadingIndicator(
-                    state = pullToRefreshState,
-                    isRefreshing = isRefreshing,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                )
-            },
         ) {
             when {
                 refreshState is LoadState.Error && markers.itemCount == 0 -> {
                     MarkerMessage(
                         text = stringResource(RStrings.load_failed),
                         action = {
-                            Button(onClick = markers::retry) {
-                                Text(stringResource(RStrings.retry))
-                            }
+                            Button(onClick = markers::retry, text = stringResource(RStrings.retry))
                         },
                     )
                 }
@@ -166,7 +156,7 @@ fun NovelMarkersScreen(
                                             .padding(16.dp),
                                         contentAlignment = Alignment.Center,
                                     ) {
-                                        CircularWavyProgressIndicator()
+                                        CircularProgressIndicator()
                                     }
                                 }
                             }
