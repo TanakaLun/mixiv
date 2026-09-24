@@ -13,14 +13,14 @@
 一个完全由 [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform/) 编写的跨平台第三方
 Pixiv 应用
 
-[![Kotlin](https://img.shields.io/badge/kotlin-2.4.20--RC3-blue.svg?logo=kotlin)](https://kotlinlang.org)
-![Compose Multiplatform](https://img.shields.io/badge/Compose_Multiplatform-1.12.0-blue)
+[![Kotlin](https://img.shields.io/badge/kotlin-2.4.20-blue.svg?logo=kotlin)](https://kotlinlang.org)
+![Compose Multiplatform](https://img.shields.io/badge/Compose_Multiplatform-1.12.1-blue)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/darriousliu/PiPixiv/release.yml)](https://github.com/darriousliu/PiPixiv/actions/workflows/release.yml)
 [![License: Apache-2.0](https://img.shields.io/github/license/darriousliu/PiPixiv?labelColor=27303D&color=0877d2)](/LICENSE)
 
 ## 📥 下载
 
-当前源码版本：**2.4.0**。
+当前源码版本：**2.5.0**。
 
 [![GitHub Release](https://img.shields.io/github/v/release/darriousliu/PiPixiv?label=稳定版)](https://github.com/darriousliu/PiPixiv/releases)
 [![GitHub downloads](https://img.shields.io/github/downloads/darriousliu/PiPixiv/total?label=下载量&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/darriousliu/PiPixiv/releases)
@@ -118,7 +118,7 @@ Pixiv 应用
 
 <div align="left">
 
-* Kotlin **2.4.20-RC3**、Compose Multiplatform **1.12.0**、Android Gradle Plugin **9.4.0**。
+* Kotlin **2.4.20**、Compose Multiplatform **1.12.1**、Android Gradle Plugin **9.4.1**。
 * Gradle Wrapper **9.6.1**、JDK 工具链 **25**；Android 编译/目标 SDK **37**，最低 SDK **26**。
 * iOS 使用 Swift Export，部署目标为 **iOS 18.0**。
 
