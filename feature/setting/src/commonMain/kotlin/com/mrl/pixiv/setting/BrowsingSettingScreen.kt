@@ -218,12 +218,13 @@ private fun SpanCountSetting(
     onSpanCountChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val options = remember {
+    val adaptiveLabel = stringResource(RStrings.span_count_adaptive)
+    val options = remember(adaptiveLabel) {
         listOf(
             2 to "2",
             3 to "3",
             4 to "4",
-            -1 to stringResource(RStrings.span_count_adaptive),
+            -1 to adaptiveLabel,
         )
     }
     val selectedIndex = options.indexOfFirst { it.first == currentSpanCount }

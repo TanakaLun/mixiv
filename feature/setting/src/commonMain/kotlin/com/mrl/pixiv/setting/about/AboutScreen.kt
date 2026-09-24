@@ -47,6 +47,7 @@ import com.mrl.pixiv.strings.current_version
 import com.mrl.pixiv.strings.download
 import com.mrl.pixiv.strings.feedback
 import com.mrl.pixiv.strings.feedback_content
+import com.mrl.pixiv.strings.ic_launcher
 import com.mrl.pixiv.strings.new_version_available
 import com.mrl.pixiv.strings.project_url
 import com.mrl.pixiv.strings.recommend_content
