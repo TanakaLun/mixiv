@@ -79,7 +79,6 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import top.yukonga.miuix.kmp.nav.core.NavDisplay
-import top.yukonga.miuix.kmp.nav.core.entry
 import top.yukonga.miuix.kmp.nav.transition.NavTransitions
 
 @Composable
