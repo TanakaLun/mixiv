@@ -32,7 +32,6 @@ import com.mrl.pixiv.common.router.Destination
 import com.mrl.pixiv.common.router.LocalNavigationManager
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.NavigationRecord
-import com.mrl.pixiv.common.router.paneSpec
 import com.mrl.pixiv.common.router.rememberNavigationState
 import com.mrl.pixiv.common.toast.ToastMessage
 import com.mrl.pixiv.common.util.ToastUtil
@@ -93,8 +92,6 @@ fun Navigation3MainGraph(
     rememberNavigationState(navigationManager)
     val inputState = remember { PaneInputState() }
     val topRecord = navigationManager.backStack.last()
-    val showMainNavigation = topRecord.destination == Destination.Main &&
-        !topRecord.destination.paneSpec.preferredFullWidth
     LaunchedEffect(topRecord.entryId) {
         inputState.activeEntryId = topRecord.entryId
         inputState.dividerFocused = false
@@ -108,7 +105,7 @@ fun Navigation3MainGraph(
         LocalResultEventBus provides resultBus,
     ) {
         ToastMessage(toastState = toastState)
-        MainNavigationScaffold(showMainNavigation, navigationManager) {
+        MainNavigationScaffold(navigationManager) {
             BoxWithConstraints(modifier.fillMaxSize()) {
                 NavDisplay(
                     backStack = navigationManager.navBackStack,

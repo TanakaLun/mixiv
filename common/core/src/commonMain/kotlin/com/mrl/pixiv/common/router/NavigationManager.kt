@@ -152,7 +152,9 @@ class NavigationManager(
     fun popBackToMainScreen() {
         val records = backStack
         val mainIndex = records.indexOfLast { it.destination == Destination.Main }
-        if (mainIndex >= 0) replaceRecords(records.take(mainIndex + 1))
+        // Only trim when details sit above Main; a no-op when Main is already top
+        // avoids churning the snapshot list (tab swipe calls this on every settle).
+        if (mainIndex in 0 until records.lastIndex) replaceRecords(records.take(mainIndex + 1))
     }
 
     private fun activeSource(records: List<NavigationRecord>): NavigationRecord? {
