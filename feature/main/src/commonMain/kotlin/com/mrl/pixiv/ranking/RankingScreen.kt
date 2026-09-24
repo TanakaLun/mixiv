@@ -41,6 +41,7 @@ import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.HSpacer
 import com.mrl.pixiv.common.kts.VSpacer
@@ -70,6 +71,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.PullToRefresh
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Switch
@@ -172,12 +174,15 @@ fun RankingScreen(
         }
     }
 
+    val scrollBehavior = MiuixScrollBehavior()
+
     Scaffold(
         modifier = modifier,
         topBar = {
             Column {
                 TopAppBar(
                     title = stringResource(RStrings.ranking),
+                    scrollBehavior = scrollBehavior,
                     actions = {
                         val r18Enabled by requireUserPreferenceFlow.collectAsStateWithLifecycle { isR18Enabled }
                         LaunchedEffect(Unit) {
@@ -261,6 +266,7 @@ fun RankingScreen(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
+                .pageScrollModifiers(scrollBehavior)
         ) { page ->
             val mode = availableModes.getOrNull(page) ?: return@HorizontalPager
 

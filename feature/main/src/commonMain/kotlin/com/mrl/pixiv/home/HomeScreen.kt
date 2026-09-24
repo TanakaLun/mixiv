@@ -26,6 +26,7 @@ import com.mrl.pixiv.common.compose.ui.BackToTopButton
 import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.VSpacer
 import com.mrl.pixiv.common.kts.itemIndexKey
@@ -45,6 +46,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.PullToRefresh
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.TabRow
@@ -77,11 +79,14 @@ fun HomeScreen(
         }
     }
 
+    val scrollBehavior = MiuixScrollBehavior()
+
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.app_name),
+                scrollBehavior = scrollBehavior,
                 actions = {
                     IconButton(
                         onClick = {
@@ -123,7 +128,9 @@ fun HomeScreen(
             AppViewMode.ILLUST -> {
                 IllustMode(
                     navigateToPictureScreen = navigationManager::navigateToPictureScreen,
-                    modifier = Modifier.padding(paddingValues),
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .pageScrollModifiers(scrollBehavior),
                     viewModel = viewModel,
                     imageFeedMode = imageFeedMode,
                 )
@@ -133,7 +140,9 @@ fun HomeScreen(
                 NovelMode(
                     navigateToNovelDetailScreen = navigationManager::navigateToNovelDetailScreen,
                     navigateToNovelSeriesScreen = navigationManager::navigateToNovelSeriesScreen,
-                    modifier = Modifier.padding(paddingValues),
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .pageScrollModifiers(scrollBehavior),
                     viewModel = viewModel,
                 )
             }

@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.router.NavigationManager
@@ -45,6 +46,7 @@ import com.mrl.pixiv.strings.popular_tags
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.PullToRefresh
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Text
@@ -64,12 +66,14 @@ fun SearchPreviewScreen(
     val pullRefreshState = rememberPullToRefreshState()
     val scope = rememberCoroutineScope()
     val appViewMode by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle { appViewMode }
+    val scrollBehavior = MiuixScrollBehavior()
 
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
                 title = "",
+                scrollBehavior = scrollBehavior,
                 actions = {
                     TextField(
                         value = textState,
@@ -113,7 +117,10 @@ fun SearchPreviewScreen(
         PullToRefresh(
             isRefreshing = state.refreshing,
             onRefresh = { viewModel.dispatch(SearchPreviewAction.LoadTrendingTags) },
-            modifier = Modifier.padding(it).fillMaxSize(),
+            modifier = Modifier
+                .padding(it)
+                .fillMaxSize()
+                .pageScrollModifiers(scrollBehavior),
             pullToRefreshState = pullRefreshState,
         ) {
             Box(modifier = Modifier.fillMaxSize()) {

@@ -22,6 +22,7 @@ import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
 import com.mrl.pixiv.common.compose.layout.isWidthAtLeastMedium
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
 import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.Restrict
 import com.mrl.pixiv.common.kts.VSpacer
@@ -44,6 +45,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import top.yukonga.miuix.kmp.basic.DropdownEntry
 import top.yukonga.miuix.kmp.basic.DropdownItem
 import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.TopAppBar
@@ -103,6 +105,8 @@ fun LatestScreen(
         })
     }
 
+    val scrollBehavior = MiuixScrollBehavior()
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -117,6 +121,7 @@ fun LatestScreen(
                             LatestPage.NovelWatchlist -> RStrings.novel_watchlist
                         }
                     ),
+                    scrollBehavior = scrollBehavior,
                     actions = {
                         if (page == LatestPage.Trend) {
                             val restrictLabels = listOf(
@@ -219,6 +224,7 @@ fun LatestScreen(
             modifier = Modifier
                 .padding(it)
                 .fillMaxSize()
+                .pageScrollModifiers(scrollBehavior)
         ) { index ->
             val page = pages[index]
             when (page) {

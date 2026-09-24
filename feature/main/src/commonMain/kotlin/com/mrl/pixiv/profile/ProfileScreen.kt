@@ -39,6 +39,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.compose.ui.image.UserAvatar
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.setting.SettingTheme
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.VersionManager
@@ -70,7 +71,9 @@ import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.ListPopupColumn
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.window.WindowListPopup
@@ -98,9 +101,11 @@ fun ProfileScreen(
         viewModel.dispatch(ProfileAction.GetUserInfo)
         onPauseOrDispose {}
     }
+    val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
         topBar = {
             ProfileAppBar(
+                scrollBehavior = scrollBehavior,
                 onChangeAppTheme = { theme ->
                     viewModel.changeAppTheme(theme)
                 },
@@ -111,7 +116,8 @@ fun ProfileScreen(
             modifier = modifier
                 .padding(it)
                 .fillMaxSize()
-                .padding(top = 16.dp),
+                .padding(top = 16.dp)
+                .pageScrollModifiers(scrollBehavior),
         ) {
             item(key = KEY_USER_INFO) {
                 Row(
@@ -266,12 +272,14 @@ fun ProfileScreen(
 
 @Composable
 private fun ProfileAppBar(
+    scrollBehavior: ScrollBehavior,
     onChangeAppTheme: (SettingTheme) -> Unit = {},
 ) {
     val userPreference by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle()
     var expanded by remember { mutableStateOf(false) }
     TopAppBar(
         title = "",
+        scrollBehavior = scrollBehavior,
         actions = {
             IconButton(onClick = { expanded = true }) {
                 Icon(imageVector = Icons.Rounded.Palette, contentDescription = null)
