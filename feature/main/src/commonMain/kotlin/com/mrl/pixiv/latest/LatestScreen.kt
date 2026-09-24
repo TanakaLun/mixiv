@@ -1,6 +1,7 @@
 package com.mrl.pixiv.latest
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
@@ -22,22 +23,34 @@ import com.mrl.pixiv.common.compose.layout.isWidthAtLeastMedium
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
 import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
 import com.mrl.pixiv.common.data.AppViewMode
+import com.mrl.pixiv.common.data.Restrict
 import com.mrl.pixiv.common.kts.VSpacer
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.repository.requireUserInfoFlow
 import com.mrl.pixiv.common.util.RStrings
+import com.mrl.pixiv.strings.all
 import com.mrl.pixiv.strings.collection
 import com.mrl.pixiv.strings.latest_tab_following
 import com.mrl.pixiv.strings.latest_tab_trend
 import com.mrl.pixiv.strings.novel_new
 import com.mrl.pixiv.strings.novel_watchlist
+import com.mrl.pixiv.strings.word_private
+import com.mrl.pixiv.strings.word_public
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
+import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.TabRow
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Filter
+import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun LatestScreen(
@@ -53,6 +66,7 @@ fun LatestScreen(
     val pages = remember(appViewMode) { LatestPage.pagesFor(appViewMode) }
     val pagerState = viewModel.pagerStateFor(appViewMode)
     val page = pages[pagerState.currentPage.coerceIn(pages.indices)]
+    val trendingFilter by viewModel.trendingFilter.collectAsStateWithLifecycle()
     val scrollState = when (page) {
         LatestPage.Trend -> when (appViewMode) {
             AppViewMode.ILLUST -> viewModel.trendingLazyGirdState
@@ -82,7 +96,6 @@ fun LatestScreen(
         LatestPage.NovelWatchlist -> viewModel.watchlistNovelLazyListState
     }
 
-
     LaunchedEffect(pagerState.currentPage, pages) {
         logEvent("screen_view", buildMap {
             put("screen_name", "Latest")
@@ -92,6 +105,89 @@ fun LatestScreen(
 
     Scaffold(
         modifier = modifier,
+        topBar = {
+            Column {
+                TopAppBar(
+                    title = stringResource(
+                        when (page) {
+                            LatestPage.Trend -> RStrings.latest_tab_trend
+                            LatestPage.Collection -> RStrings.collection
+                            LatestPage.Following -> RStrings.latest_tab_following
+                            LatestPage.NovelNew -> RStrings.novel_new
+                            LatestPage.NovelWatchlist -> RStrings.novel_watchlist
+                        }
+                    ),
+                    actions = {
+                        if (page == LatestPage.Trend) {
+                            val restrictLabels = listOf(
+                                stringResource(RStrings.all),
+                                stringResource(RStrings.word_public),
+                                stringResource(RStrings.word_private),
+                            )
+                            val restrictValues = listOf(
+                                Restrict.ALL,
+                                Restrict.PUBLIC,
+                                Restrict.PRIVATE,
+                            )
+                            val selectedRestrictIndex = restrictValues
+                                .indexOf(trendingFilter)
+                                .coerceAtLeast(0)
+                            val restrictEntry = remember(trendingFilter, restrictLabels) {
+                                DropdownEntry(
+                                    restrictLabels.mapIndexed { index, label ->
+                                        DropdownItem(
+                                            text = label,
+                                            selected = index == selectedRestrictIndex,
+                                            onClick = {
+                                                restrictValues.getOrNull(index)?.let { restrict ->
+                                                    viewModel.updateRestrict(restrict)
+                                                    scope.launch {
+                                                        refreshFlow.emit(LatestPage.Trend)
+                                                    }
+                                                }
+                                            },
+                                        )
+                                    }
+                                )
+                            }
+                            OverlayIconDropdownMenu(entry = restrictEntry) {
+                                Icon(
+                                    imageVector = MiuixIcons.Filter,
+                                    contentDescription = restrictLabels[selectedRestrictIndex],
+                                    tint = MiuixTheme.colorScheme.onBackground,
+                                )
+                            }
+                        }
+                    },
+                )
+                key(appViewMode) {
+                    TabRow(
+                        tabs = pages.map { page ->
+                            stringResource(
+                                when (page) {
+                                    LatestPage.Trend -> RStrings.latest_tab_trend
+                                    LatestPage.Collection -> RStrings.collection
+                                    LatestPage.Following -> RStrings.latest_tab_following
+                                    LatestPage.NovelNew -> RStrings.novel_new
+                                    LatestPage.NovelWatchlist -> RStrings.novel_watchlist
+                                }
+                            )
+                        },
+                        selectedTabIndex = pagerState.currentPage,
+                        onTabSelected = { index ->
+                            scope.launch {
+                                pagerState.animateScrollToPage(index)
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                        minWidth = 64.dp,
+                        maxWidth = 160.dp,
+                    )
+                }
+            }
+        },
         floatingActionButton = {
             Column {
                 BackToTopButton(
@@ -118,64 +214,38 @@ fun LatestScreen(
             }
         },
     ) {
-        Column(modifier = Modifier.padding(it)) {
-            key(appViewMode) {
-                TabRow(
-                    tabs = pages.map { page ->
-                        stringResource(
-                            when (page) {
-                                LatestPage.Trend -> RStrings.latest_tab_trend
-                                LatestPage.Collection -> RStrings.collection
-                                LatestPage.Following -> RStrings.latest_tab_following
-                                LatestPage.NovelNew -> RStrings.novel_new
-                                LatestPage.NovelWatchlist -> RStrings.novel_watchlist
-                            }
-                        )
-                    },
-                    selectedTabIndex = pagerState.currentPage,
-                    onTabSelected = { index ->
-                        scope.launch {
-                            pagerState.animateScrollToPage(index)
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp),
-                    minWidth = 64.dp,
-                    maxWidth = 160.dp,
-                )
-            }
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.weight(1f)
-            ) { index ->
-                val page = pages[index]
-                when (page) {
-                    LatestPage.Trend -> {
-                        TrendingPage(refreshFlow = refreshFlow)
-                    }
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .padding(it)
+                .fillMaxSize()
+        ) { index ->
+            val page = pages[index]
+            when (page) {
+                LatestPage.Trend -> {
+                    TrendingPage(refreshFlow = refreshFlow)
+                }
 
-                    LatestPage.Collection -> {
-                        CollectionPage(
-                            uid = userInfo.user.id,
-                            refreshFlow = refreshFlow
-                        )
-                    }
+                LatestPage.Collection -> {
+                    CollectionPage(
+                        uid = userInfo.user.id,
+                        refreshFlow = refreshFlow
+                    )
+                }
 
-                    LatestPage.Following -> {
-                        FollowingPage(
-                            uid = userInfo.user.id,
-                            refreshFlow = refreshFlow
-                        )
-                    }
+                LatestPage.Following -> {
+                    FollowingPage(
+                        uid = userInfo.user.id,
+                        refreshFlow = refreshFlow
+                    )
+                }
 
-                    LatestPage.NovelNew -> {
-                        NewNovelPage(refreshFlow = refreshFlow)
-                    }
+                LatestPage.NovelNew -> {
+                    NewNovelPage(refreshFlow = refreshFlow)
+                }
 
-                    LatestPage.NovelWatchlist -> {
-                        NovelWatchlistPage(refreshFlow = refreshFlow)
-                    }
+                LatestPage.NovelWatchlist -> {
+                    NovelWatchlistPage(refreshFlow = refreshFlow)
                 }
             }
         }

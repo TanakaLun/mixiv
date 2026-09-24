@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.runtime.Composable
@@ -26,7 +25,6 @@ import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.RectangleIllustItem
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.data.AppViewMode
-import com.mrl.pixiv.common.data.Restrict
 import com.mrl.pixiv.common.kts.itemIndexKey
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
@@ -34,15 +32,9 @@ import com.mrl.pixiv.common.repository.viewmodel.bookmark.BookmarkState
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.isBookmark
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
-import com.mrl.pixiv.common.util.RStrings
-import com.mrl.pixiv.strings.all
-import com.mrl.pixiv.strings.word_private
-import com.mrl.pixiv.strings.word_public
 import kotlinx.coroutines.flow.SharedFlow
-import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import top.yukonga.miuix.kmp.basic.PullToRefresh
-import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.rememberPullToRefreshState
 
 private const val KEY_TOP_SPACE = "top_space"
@@ -104,6 +96,10 @@ private fun TrendingIllustPage(
         }
     }
 
+    LaunchedEffect(trendingFilter) {
+        illustsFollowing.refresh()
+    }
+
     PullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = { illustsFollowing.refresh() },
@@ -156,27 +152,6 @@ private fun TrendingIllustPage(
                 state = lazyGridState,
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
-            val options = listOf(
-                RStrings.all to Restrict.ALL,
-                RStrings.word_public to Restrict.PUBLIC,
-                RStrings.word_private to Restrict.PRIVATE,
-            )
-            TabRow(
-                tabs = options.map { stringResource(it.first) },
-                selectedTabIndex = options.indexOfFirst { it.second == trendingFilter }
-                    .coerceAtLeast(0),
-                onTabSelected = { index ->
-                    val restrict = options.getOrNull(index)?.second ?: return@TabRow
-                    viewModel.updateRestrict(restrict)
-                    illustsFollowing.refresh()
-                },
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                minWidth = 64.dp,
-                maxWidth = 160.dp,
-                listState = null,
-            )
         }
     }
 }
@@ -205,6 +180,10 @@ private fun TrendingNovelPage(
         refreshFlow.collect {
             novelsFollowing.refresh()
         }
+    }
+
+    LaunchedEffect(trendingFilter) {
+        novelsFollowing.refresh()
     }
 
     PullToRefresh(
@@ -244,27 +223,6 @@ private fun TrendingNovelPage(
             VerticalScrollbar(
                 state = lazyListState,
                 modifier = Modifier.align(Alignment.CenterEnd)
-            )
-            val options = listOf(
-                RStrings.all to Restrict.ALL,
-                RStrings.word_public to Restrict.PUBLIC,
-                RStrings.word_private to Restrict.PRIVATE,
-            )
-            TabRow(
-                tabs = options.map { stringResource(it.first) },
-                selectedTabIndex = options.indexOfFirst { it.second == trendingFilter }
-                    .coerceAtLeast(0),
-                onTabSelected = { index ->
-                    val restrict = options.getOrNull(index)?.second ?: return@TabRow
-                    viewModel.updateRestrict(restrict)
-                    novelsFollowing.refresh()
-                },
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                minWidth = 64.dp,
-                maxWidth = 160.dp,
-                listState = null,
             )
         }
     }
