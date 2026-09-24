@@ -1,62 +1,8 @@
-
 import com.mrl.pixiv.buildsrc.configureRemoveKoinMeta
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.compose.desktop.application.tasks.AbstractProguardTask
 
 plugins {
     id("pixiv.multiplatform.compose")
-    alias(libs.plugins.composeHotReload)
 }
-
-val desktopOsName = System.getProperty("os.name").toString()
-val (desktopOsResourceDirectory, mmkvNativeLibraryName, mmkvNativeLibraryDependency) = when {
-    desktopOsName == "Mac OS X" ->
-        Triple("macos", "libmmkvc.dylib", libs.mmkv.kotlin.nativelib.macos)
-
-    desktopOsName.startsWith("Windows") ->
-        Triple("windows", "mmkvc.dll", libs.mmkv.kotlin.nativelib.windows)
-
-    desktopOsName.startsWith("Linux") ->
-        Triple("linux", "libmmkvc.so", libs.mmkv.kotlin.nativelib.linux)
-
-    else -> error("Unsupported desktop OS: $desktopOsName")
-}
-
-val mmkvNativeLibrary = configurations.create("mmkvNativeLibrary") {
-    description = "MMKV native library used only as an input to the Compose app resources task"
-    isCanBeConsumed = false
-    isCanBeResolved = true
-    isTransitive = false
-}
-
-dependencies {
-    add(mmkvNativeLibrary.name, mmkvNativeLibraryDependency)
-}
-
-val composeResourcesDirectory =
-    layout.projectDirectory.dir("src/commonMain/composeResources/files")
-val mmkvComposeResourcesDirectory = composeResourcesDirectory.dir("mmkv")
-
-val copyMMKVNativeLibraryToComposeResources =
-    tasks.register("copyMMKVNativeLibraryToComposeResources", Copy::class) {
-        group = "build"
-        description = "Copies the current platform's MMKV native library into Compose app resources"
-
-        val nativeLibraryArchives = mmkvNativeLibrary.incoming.files.elements.map { artifacts ->
-            artifacts.map { zipTree(it.asFile) }
-        }
-        from(nativeLibraryArchives) {
-            include(mmkvNativeLibraryName)
-        }
-        into(mmkvComposeResourcesDirectory)
-
-        doLast {
-            val copiedLibrary = destinationDir.resolve(mmkvNativeLibraryName)
-            check(copiedLibrary.isFile) {
-                "MMKV native library $mmkvNativeLibraryName was not found in ${mmkvNativeLibrary.files}"
-            }
-        }
-    }
 
 if (findProperty("applyFirebasePlugins") == "true") {
     pluginManager.apply(libs.plugins.sentry.kmp.get().pluginId)
@@ -102,125 +48,21 @@ kotlin {
                 implementation(libs.bundles.compose.navigation3.android)
             }
         }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
+        jvmTest.dependencies {
+            implementation("org.jetbrains.compose.ui:ui-test:${libs.versions.composeMultiplatform.get()}")
+            implementation(compose.desktop.currentOs)
+        }
         iosMain {
             dependencies {
 
             }
         }
-        jvmMain {
-            dependencies {
-                implementation(compose.desktop.currentOs)
-            }
-        }
     }
 
     configureRemoveKoinMeta()
-}
-
-compose.desktop {
-    application {
-        mainClass = "com.mrl.pixiv.MainKt"
-
-        nativeDistributions {
-            includeAllModules = true
-            targetFormats(
-                *listOfNotNull(
-                    TargetFormat.Dmg,
-                    TargetFormat.Msi,
-                    if ("Mac" !in System.getProperty("os.name")) TargetFormat.AppImage else null
-                ).toTypedArray()
-            )
-            packageName = rootProject.name
-            packageVersion = findProperty("versionName")?.toString()
-            windows {
-                iconFile.set(file("icons/pipixiv.ico"))
-                shortcut = true
-                perUserInstall = true
-                msiPackageVersion = findProperty("versionName")?.toString()
-                upgradeUuid = "650ae9c7-32ad-400e-93f3-6b0874eccc1c"
-                menuGroup = rootProject.name
-            }
-            linux {
-                iconFile.set(file("icons/pipixiv.png"))
-                shortcut = true
-            }
-            macOS { iconFile.set(file("icons/pipixiv.icns")) }
-        }
-
-        buildTypes.release.proguard {
-            version = "7.9.1"
-        }
-
-        jvmArgs("--enable-native-access", "ALL-UNNAMED")
-    }
-}
-
-tasks.matching { it.name == "copyNonXmlValueResourcesForCommonMain" }.configureEach {
-    dependsOn(copyMMKVNativeLibraryToComposeResources)
-}
-
-val directJvmRunTasks = setOf("jvmRun", "hotRunJvm", "hotDevJvm")
-tasks.withType(JavaExec::class.java).configureEach {
-    if (name in directJvmRunTasks) {
-        dependsOn(copyMMKVNativeLibraryToComposeResources)
-        systemProperty(
-            "compose.application.resources.dir",
-            composeResourcesDirectory.asFile.absolutePath,
-        )
-    }
-}
-
-tasks.matching { it.name == "hotRunJvmAsync" || it.name == "hotDevJvmAsync" }.configureEach {
-    dependsOn(copyMMKVNativeLibraryToComposeResources)
-}
-
-logger.quiet("debug: ${findProperty("debug")}")
-
-if (findProperty("debug") != "true") {
-    gradle.projectsEvaluated {
-        tasks.named("proguardReleaseJars").configure {
-            doFirst {
-                layout.buildDirectory.file("compose/binaries/main-release/proguard")
-                    .get().asFile.mkdirs()
-            }
-        }
-    }
-
-    tasks.withType(AbstractProguardTask::class.java) {
-        val proguardFile = File.createTempFile("tmp", ".pro", temporaryDir)
-        proguardFile.deleteOnExit()
-
-        compose.desktop.application.buildTypes.release.proguard {
-            configurationFiles.from(proguardFile, file("compose-desktop.pro"))
-            optimize = false // fixme(tarsin): proguard internal error
-            obfuscate = true
-            joinOutputJars = true
-        }
-
-        doFirst {
-            proguardFile.bufferedWriter().use { proguardFileWriter ->
-                sourceSets["jvmMain"].runtimeClasspath
-                    .filter { it.extension == "jar" }
-                    .forEach { jar ->
-                        val zip = zipTree(jar)
-                        zip.matching { include("META-INF/**/proguard/*.pro") }.forEach {
-                            proguardFileWriter.appendLine("########   ${jar.name} ${it.name}")
-                            proguardFileWriter.appendLine(it.readText())
-                        }
-                        zip.matching { include("META-INF/services/*") }.forEach {
-                            it.readLines().forEach { cls ->
-                                val rule = "-keep class $cls"
-                                proguardFileWriter.appendLine(rule)
-                            }
-                        }
-                    }
-            }
-        }
-    }
-} else {
-    compose.desktop.application.buildTypes.release.proguard {
-        isEnabled = false
-    }
 }
 
 fun ipaArguments(

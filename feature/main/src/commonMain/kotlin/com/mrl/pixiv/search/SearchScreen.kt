@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -42,12 +43,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextRange
@@ -57,6 +60,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mrl.pixiv.common.compose.rememberThrottleClick
+import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.VSpacer
 import com.mrl.pixiv.common.kts.spaceBy
@@ -66,12 +71,11 @@ import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifec
 import com.mrl.pixiv.common.router.DestinationsDeepLink
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.PixivLinkTarget
-import com.mrl.pixiv.common.util.DebounceUtil
+import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.readTextFromClipboard
 import com.mrl.pixiv.common.util.throttleClick
 import com.mrl.pixiv.common.viewmodel.asState
-import com.mrl.pixiv.main.components.ViewModeToggleButton
 import com.mrl.pixiv.strings.cancel
 import com.mrl.pixiv.strings.clear
 import com.mrl.pixiv.strings.enter_keywords
@@ -83,15 +87,15 @@ import com.mrl.pixiv.strings.search_history
 import com.mrl.pixiv.strings.select_pixiv_link
 import com.mrl.pixiv.strings.users
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SearchScreen(
     modifier: Modifier = Modifier,
     viewModel: SearchViewModel = koinViewModel(),
-    navigationManager: NavigationManager = koinInject(),
+    navigationManager: NavigationManager = currentNavigationManager(),
 ) {
     val dispatch = viewModel::dispatch
     val state = viewModel.asState()
@@ -136,24 +140,27 @@ fun SearchScreen(
     }
 
     val focusRequester = remember { FocusRequester() }
+    val coroutineScope = rememberCoroutineScope()
     LifecycleResumeEffect(readClipboardOnSearch) {
-        val handledClipboardLink = if (readClipboardOnSearch) {
-            val clipboardText = readTextFromClipboard().orEmpty()
-            viewModel.isClipboardTextChanged(clipboardText) && handlePixivLinks(
-                text = clipboardText,
-                alwaysShowSelection = true,
-            )
-        } else {
-            false
-        }
-        if (!handledClipboardLink) {
-            try {
-                focusRequester.requestFocus()
-            } catch (_: Exception) {
+        val clipboardJob = coroutineScope.launch {
+            val handledClipboardLink = if (readClipboardOnSearch) {
+                val clipboardText = readTextFromClipboard().orEmpty()
+                viewModel.isClipboardTextChanged(clipboardText) && handlePixivLinks(
+                    text = clipboardText,
+                    alwaysShowSelection = true,
+                )
+            } else {
+                false
             }
-            textState = textState.copy(selection = TextRange(textState.text.length))
+            if (!handledClipboardLink) {
+                try {
+                    focusRequester.requestFocus()
+                } catch (_: Exception) {
+                }
+                textState = textState.copy(selection = TextRange(textState.text.length))
+            }
         }
-        onPauseOrDispose { }
+        onPauseOrDispose { clipboardJob.cancel() }
     }
     val softwareKeyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -184,10 +191,9 @@ fun SearchScreen(
                 onValueChange = {
                     textState = it
                     dispatch(SearchAction.UpdateSearchWords(it.text))
-                    if (it.text.isNotBlank()) {
-                        DebounceUtil.debounce {
-                            dispatch(SearchAction.SearchAutoComplete(it.text))
-                        }
+                    val token = it.completionToken()
+                    if (token.text.isNotBlank()) {
+                        dispatch(SearchAction.SearchAutoComplete(token.text))
                     } else {
                         dispatch(SearchAction.ClearAutoCompleteSearchWords)
                     }
@@ -269,18 +275,19 @@ fun SearchScreen(
                         key = { it }
                     ) {
                         ListItem(
-                            headlineContent = { Text(text = it) },
+                            onClick = rememberThrottleClick {
+                                viewModel.addSearchIdHistory(it)
+                                focusRequester.freeFocus()
+                                navigationManager.navigateToSearchResultScreen(
+                                    searchWord = it,
+                                    isIdSearch = true,
+                                    searchMode = appViewMode
+                                )
+                            },
+                            shapes = ListItemDefaults.shapes(shape = RectangleShape),
+                            content = { Text(text = it) },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .throttleClick(indication = ripple()) {
-                                    viewModel.addSearchIdHistory(it)
-                                    focusRequester.freeFocus()
-                                    navigationManager.navigateToSearchResultScreen(
-                                        searchWord = it,
-                                        isIdSearch = true,
-                                        searchMode = appViewMode
-                                    )
-                                }
                                 .animateItem(),
                             trailingContent = {
                                 Icon(
@@ -292,7 +299,7 @@ fun SearchScreen(
                                     imageVector = Icons.Rounded.Close,
                                     contentDescription = "delete"
                                 )
-                            }
+                            },
                         )
                     }
                 } else {
@@ -301,21 +308,22 @@ fun SearchScreen(
                         key = { it.keyword }
                     ) { item ->
                         ListItem(
-                            headlineContent = {
+                            onClick = rememberThrottleClick {
+                                dispatch(SearchAction.AddSearchHistory(item.keyword))
+                                focusRequester.freeFocus()
+                                navigationManager.navigateToSearchResultScreen(
+                                    searchWord = item.keyword,
+                                    isIdSearch = false,
+                                    searchMode = appViewMode
+                                )
+                            },
+                            shapes = ListItemDefaults.shapes(shape = RectangleShape),
+                            content = {
                                 Text(
                                     text = item.keyword,
                                 )
                             },
                             modifier = Modifier.fillMaxWidth()
-                                .throttleClick(indication = ripple()) {
-                                    dispatch(SearchAction.AddSearchHistory(item.keyword))
-                                    focusRequester.freeFocus()
-                                    navigationManager.navigateToSearchResultScreen(
-                                        searchWord = item.keyword,
-                                        isIdSearch = false,
-                                        searchMode = appViewMode
-                                    )
-                                }
                                 .animateItem(),
                             trailingContent = {
                                 Icon(
@@ -327,7 +335,7 @@ fun SearchScreen(
                                     imageVector = Icons.Rounded.Close,
                                     contentDescription = "delete"
                                 )
-                            }
+                            },
                         )
                     }
                 }
@@ -337,21 +345,28 @@ fun SearchScreen(
                     key = { it.name }
                 ) { word ->
                     ListItem(
-                        headlineContent = {
+                        onClick = rememberThrottleClick {
+                            val query = textState.completionToken().replaceIn(textState.text, word.name)
+                            dispatch(SearchAction.AddSearchHistory(query))
+                            focusRequester.freeFocus()
+                            navigationManager.navigateToSearchResultScreen(
+                                searchWord = query,
+                                isIdSearch = state.isIdSearch,
+                                searchMode = appViewMode
+                            )
+                        },
+                        onLongClick = {
+                            coroutineScope.launch {
+                                com.mrl.pixiv.common.util.copyToClipboard(word.name)
+                            }
+                        },
+                        shapes = ListItemDefaults.shapes(shape = RectangleShape),
+                        content = {
                             Text(
                                 text = word.name,
                             )
                         },
-                        modifier = Modifier.fillMaxWidth()
-                            .throttleClick(indication = ripple()) {
-                                dispatch(SearchAction.AddSearchHistory(word.name))
-                                focusRequester.freeFocus()
-                                navigationManager.navigateToSearchResultScreen(
-                                    searchWord = word.name,
-                                    isIdSearch = state.isIdSearch,
-                                    searchMode = appViewMode
-                                )
-                            },
+                        modifier = Modifier.fillMaxWidth(),
                         supportingContent = {
                             if (word.translatedName.isNotBlank()) {
                                 Text(
@@ -359,7 +374,7 @@ fun SearchScreen(
 //                                    style = MaterialTheme.typography.bodySmall,
                                 )
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -389,11 +404,12 @@ private fun PixivLinkSelectionDialog(
                         is PixivLinkTarget.User -> stringResource(RStrings.users)
                     }
                     ListItem(
-                        headlineContent = { Text(text = "$type #${link.id}") },
-                        supportingContent = { Text(text = link.url) },
-                        modifier = Modifier.throttleClick(indication = ripple()) {
+                        onClick = rememberThrottleClick {
                             onSelect(link)
                         },
+                        shapes = ListItemDefaults.shapes(shape = RectangleShape),
+                        content = { Text(text = "$type #${link.id}") },
+                        supportingContent = { Text(text = link.url) },
                     )
                 }
             }

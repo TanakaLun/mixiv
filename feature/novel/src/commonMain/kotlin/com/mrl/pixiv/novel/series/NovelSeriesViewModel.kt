@@ -8,6 +8,8 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.mrl.pixiv.common.data.novel.NovelSeriesDetail
 import com.mrl.pixiv.common.repository.NovelWatchlistChanges
+import com.mrl.pixiv.common.repository.NovelSeriesProgressRepository
+import com.mrl.pixiv.common.repository.NovelSeriesReadingProgress
 import com.mrl.pixiv.common.repository.PixivRepository
 import com.mrl.pixiv.common.repository.paging.NovelSeriesPagingSource
 import com.mrl.pixiv.common.util.RStrings
@@ -24,6 +26,7 @@ import org.koin.android.annotation.KoinViewModel
 data class NovelSeriesState(
     val detail: NovelSeriesDetail? = null,
     val isUpdatingWatchlist: Boolean = false,
+    val lastRead: NovelSeriesReadingProgress? = null,
 ) {
     fun withWatchlistAdded(isAdded: Boolean): NovelSeriesState = copy(
         detail = detail?.copy(watchlistAdded = isAdded),
@@ -33,9 +36,18 @@ data class NovelSeriesState(
 @KoinViewModel
 class NovelSeriesViewModel(
     val seriesId: Long,
+    seriesProgressRepository: NovelSeriesProgressRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(NovelSeriesState())
     val state = _state.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            seriesProgressRepository.observe(seriesId).collect { lastRead ->
+                _state.update { it.copy(lastRead = lastRead) }
+            }
+        }
+    }
 
     val novels = Pager(
         config = PagingConfig(

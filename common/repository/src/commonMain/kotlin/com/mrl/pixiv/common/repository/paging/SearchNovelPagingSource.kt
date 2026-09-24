@@ -4,82 +4,45 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.mrl.pixiv.common.data.Novel
 import com.mrl.pixiv.common.data.search.SearchNovelQuery
-import com.mrl.pixiv.common.data.search.SearchSort
-import com.mrl.pixiv.common.data.search.SearchTarget
-import com.mrl.pixiv.common.repository.PixivRepository
-import com.mrl.pixiv.common.repository.requireUserPreferenceValue
-import com.mrl.pixiv.common.repository.util.filterBlockedTags
-import com.mrl.pixiv.common.repository.util.filterNormalNovel
-import com.mrl.pixiv.common.repository.util.queryParams
+import com.mrl.pixiv.common.repository.feed.FeedSource
+import com.mrl.pixiv.common.repository.feed.FeedKey
+import com.mrl.pixiv.common.repository.feed.FeedPageRequest
+import com.mrl.pixiv.common.repository.feed.SearchNovelFeedSource
+import kotlinx.coroutines.CancellationException
 
 class SearchNovelPagingSource(
     private val query: SearchNovelQuery,
-    private val isPremium: Boolean,
-    private val isIdSearch: Boolean
+    isPremium: Boolean,
+    isIdSearch: Boolean,
+    // 手动翻页和无限滚动共用筛选逻辑，翻页时保留当前搜索的全部条件。
+    private val source: FeedSource<Novel> = SearchNovelFeedSource(query, isPremium, isIdSearch),
 ) : PagingSource<SearchNovelQuery, Novel>() {
     init {
         invalidateOnNovelFilterSettingsChanges()
     }
 
-    override fun getRefreshKey(state: PagingState<SearchNovelQuery, Novel>): SearchNovelQuery? {
-        return null
-    }
+    override fun getRefreshKey(state: PagingState<SearchNovelQuery, Novel>): SearchNovelQuery? = null
 
-    override suspend fun load(params: LoadParams<SearchNovelQuery>): LoadResult<SearchNovelQuery, Novel> {
-        return try {
-            if (isIdSearch) {
-                val novelId = query.word.toLongOrNull() ?: return LoadResult.Page(
-                    data = emptyList(),
-                    prevKey = null,
-                    nextKey = null
-                )
-                val resp = PixivRepository.getNovelDetail(novelId)
-                return LoadResult.Page(
-                    data = listOf(resp.novel).filterBlockedTags(),
-                    prevKey = null,
-                    nextKey = null
-                )
-            }
-            val resp = if (params.key == null) {
-                if (query.sort == SearchSort.POPULAR_DESC && !isPremium) {
-                    PixivRepository.searchPopularPreviewNovel(query)
-                } else {
-                    PixivRepository.searchNovel(query)
-                }
-            } else {
-                PixivRepository.searchNovelNext(params.key!!.toMap())
-            }
-            val nextQueryParams = resp.nextUrl?.queryParams
-            val novels = if (requireUserPreferenceValue.isR18Enabled) {
-                resp.novels.distinctBy { it.id }
-            } else {
-                resp.novels.distinctBy { it.id }.filterNormalNovel()
-            }.filterBlockedTags()
-            if (nextQueryParams != null) {
-                val nextKey = SearchNovelQuery(
-                    word = nextQueryParams["word"] ?: "",
-                    searchTarget = nextQueryParams["search_target"]
-                        ?.let { SearchTarget.valueOf(it.uppercase()) }
-                        ?: SearchTarget.PARTIAL_MATCH_FOR_TAGS,
-                    sort = nextQueryParams["sort"]?.let { SearchSort.valueOf(it.uppercase()) }
-                        ?: SearchSort.POPULAR_DESC,
-                    searchAiType = query.searchAiType,
-                    offset = nextQueryParams["offset"]?.toInt() ?: 0,
-                )
-                LoadResult.Page(
-                    data = novels,
-                    prevKey = params.key,
-                    nextKey = nextKey
-                )
-            } else {
-                LoadResult.Page(
-                    data = novels,
-                    prevKey = params.key,
-                    nextKey = null
-                )
-            }
-        } catch (e: Exception) {
-            LoadResult.Error(e)
+    override suspend fun load(params: LoadParams<SearchNovelQuery>): LoadResult<SearchNovelQuery, Novel> = try {
+        var key = params.key?.let { FeedKey.Offset(it.offset) }
+        var page = source.load(FeedPageRequest(key = key))
+        // 无限滚动不能停在被全部过滤的页面；继续请求到有结果或服务端没有下一页。
+        while (page.items.isEmpty()) {
+            val next = page.nextKey as? FeedKey.Offset ?: break
+            if (next.value <= (key?.value ?: 0)) break
+            key = next
+            page = source.load(FeedPageRequest(key = key))
         }
+        LoadResult.Page(
+            data = page.items,
+            prevKey = null,
+            nextKey = (page.nextKey as? FeedKey.Offset)
+                ?.takeIf { it.value > (key?.value ?: 0) }
+                ?.let { query.copy(offset = it.value) },
+        )
+    } catch (cancelled: CancellationException) {
+        throw cancelled
+    } catch (error: Exception) {
+        LoadResult.Error(error)
     }
 }

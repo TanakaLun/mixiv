@@ -23,6 +23,8 @@ data class UserPreference(
     val defaultPrivateBookmark: Boolean = false,
     val readClipboardOnSearch: Boolean = false,
     val appViewMode: AppViewMode = AppViewMode.ILLUST,
+    val collectionViewMode: AppViewMode = AppViewMode.ILLUST,
+    val historyViewMode: AppViewMode = AppViewMode.ILLUST,
     val aiTranslationConfig: AiTranslationConfig = AiTranslationConfig(),
     val browsingSettings: BrowsingSettings = BrowsingSettings(),
     val searchSettings: SearchSettings = SearchSettings(),

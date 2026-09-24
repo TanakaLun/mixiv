@@ -2,6 +2,8 @@ package com.mrl.pixiv.search.result.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +30,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.data.search.SearchAiType
+import com.mrl.pixiv.common.data.AppViewMode
+import com.mrl.pixiv.common.compose.ui.SearchContentFilterControls
+import com.mrl.pixiv.common.repository.requireUserPreferenceValue
 import com.mrl.pixiv.common.data.search.SearchSort
 import com.mrl.pixiv.common.data.search.SearchTarget
 import com.mrl.pixiv.common.util.RStrings
@@ -118,7 +123,7 @@ internal fun FilterBottomSheet(
             )
         }
 
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.fillMaxWidth().weight(1f, fill = false).verticalScroll(rememberScrollState())) {
             searchTargetMap.forEach { (key, value) ->
                 FilterItem(
                     text = stringResource(value),
@@ -144,6 +149,13 @@ internal fun FilterBottomSheet(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+            SearchContentFilterControls(
+                filter = innerSearchFilter.contentFilter,
+                defaultShowR18 = requireUserPreferenceValue.isR18Enabled,
+                onChange = { innerSearchFilter = innerSearchFilter.copy(contentFilter = it) },
+                modifier = Modifier.padding(horizontal = 32.dp),
+                mode = if (isNovelMode) AppViewMode.NOVEL else AppViewMode.ILLUST,
+            )
 
             Row(
                 modifier = Modifier

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="back_to_top">返回顶部</string>
     <string name="app_name" translatable="false">PiPixiv</string>
     <string name="home">首页</string>
     <string name="search">搜索</string>
@@ -191,6 +192,7 @@
     <string name="view_replies">查看回复</string>
     <string name="view_comments_count">查看评论(%1$d)</string>
     <string name="no_comments">暂无评论</string>
+    <string name="no_replies">暂无回复</string>
     <string name="add_comment">添加评论</string>
     <string name="reply">回复</string>
     <string name="block_comment">屏蔽评论</string>
@@ -294,8 +296,8 @@
     <string name="ai_generation_timeout_desc">每次 AI 生成请求的超时时间，可设置为 %1$d–%2$d 秒</string>
     <string name="ai_generation_timeout_invalid">请输入 %1$d 到 %2$d 之间的整数</string>
     <string name="ai_max_concurrent_requests">最大并发请求数</string>
-    <string name="ai_max_concurrent_requests_desc">即时翻译与稍后阅读共用的并发上限，可设置为 %1$d–%2$d</string>
-    <string name="ai_max_concurrent_requests_invalid">请输入 %1$d 到 %2$d 之间的整数</string>
+    <string name="ai_max_concurrent_requests_desc">即时翻译与稍后阅读共用的并发上限，最小为 %1$d，请按服务商额度设置</string>
+    <string name="ai_max_concurrent_requests_invalid">请输入不小于 %1$d 的有效整数</string>
     <string name="ai_refresh_models">刷新模型</string>
     <string name="ai_openai_use_response_api">使用 Response API</string>
     <string name="ai_extra_body" translatable="false">extra_body JSON</string>
@@ -414,4 +416,15 @@
     <string name="profile_desk">书桌</string>
     <string name="profile_chair">椅子</string>
     <string name="profile_workspace_comment">备注</string>
+    <string name="download_storage_permission_required">下载图片需要存储权限，请允许访问存储空间后重试。</string>
+    <string name="novel_series_continue_reading">继续阅读：%1$s（%2$d%%）</string>
+    <string name="novel_series_last_read">上次阅读的章节</string>
+    <string name="search_content_type">图片类型</string>
+    <string name="search_type_all">全部类型</string>
+    <string name="search_gif_only">只看 GIF</string>
+    <string name="search_exclude_gif">不看 GIF</string>
+    <string name="search_manga_only">只看漫画</string>
+    <string name="search_series_only">只看系列小说</string>
+    <string name="search_show_r18">显示 R-18 内容</string>
+    <string name="search_r18_only">只看 R-18</string>
 </resources>

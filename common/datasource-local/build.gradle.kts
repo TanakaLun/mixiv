@@ -12,7 +12,7 @@ kotlin {
             // Serialization
             implementation(libs.bundles.kotlinx.serialization)
             // Room
-            implementation(libs.androidx.room.runtime)
+            implementation(libs.androidx.room3.runtime)
             implementation(libs.androidx.sqlite.bundled)
             // Koin
             implementation(libs.bundles.koin)
@@ -29,8 +29,8 @@ kotlin {
 }
 
 dependencies {
-    kspAndroid(libs.androidx.room.compiler)
-    kspIosArm64(libs.androidx.room.compiler)
-    kspIosSimulatorArm64(libs.androidx.room.compiler)
-    kspJvm(libs.androidx.room.compiler)
+    kspAndroid(libs.androidx.room3.compiler)
+    kspIosArm64(libs.androidx.room3.compiler)
+    kspIosSimulatorArm64(libs.androidx.room3.compiler)
+    kspJvm(libs.androidx.room3.compiler)
 }

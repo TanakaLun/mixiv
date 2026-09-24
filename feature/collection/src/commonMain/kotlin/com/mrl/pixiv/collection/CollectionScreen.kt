@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.FilterList
@@ -30,6 +29,8 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,16 +45,24 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.mrl.pixiv.collection.components.FilterDialog
 import com.mrl.pixiv.common.compose.IllustGridDefaults
+import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
+import com.mrl.pixiv.common.compose.layout.isWidthAtLeastMedium
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
 import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
+import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
+import com.mrl.pixiv.common.data.AppViewMode
+import com.mrl.pixiv.common.kts.VSpacer
 import com.mrl.pixiv.common.kts.itemIndexKey
 import com.mrl.pixiv.common.repository.isSelf
+import com.mrl.pixiv.common.repository.SettingRepository
+import kotlinx.coroutines.flow.drop
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.BookmarkState
 import com.mrl.pixiv.common.router.NavigationManager
+import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.viewmodel.asState
 import com.mrl.pixiv.strings.collection
@@ -61,7 +70,6 @@ import com.mrl.pixiv.strings.illusts
 import com.mrl.pixiv.strings.novels
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -71,7 +79,7 @@ fun CollectionScreen(
     isNovel: Boolean,
     modifier: Modifier = Modifier,
     viewModel: CollectionViewModel = koinViewModel { parametersOf(uid) },
-    navigationManager: NavigationManager = koinInject()
+    navigationManager: NavigationManager = currentNavigationManager()
 ) {
     val state = viewModel.asState()
     val userBookmarksIllusts = viewModel.userBookmarksIllusts.collectAsLazyPagingItems()
@@ -81,8 +89,18 @@ fun CollectionScreen(
     val lazyGridState = rememberLazyGridState()
     val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState(if (isNovel) 1 else 0) { 2 }
+    val pagerState = rememberCollectionPagerState(if (isNovel) 1 else 0, navigationManager)
+    LaunchedEffect(pagerState, uid) {
+        if (uid.isSelf) {
+            snapshotFlow { pagerState.settledPage }.drop(1).collect { page ->
+                SettingRepository.updateSettings {
+                    copy(collectionViewMode = if (page == 1) AppViewMode.NOVEL else AppViewMode.ILLUST)
+                }
+            }
+        }
+    }
     val isIllustPage = pagerState.currentPage == 0
+    val useViewModeFab = currentPaneLayoutInfo().sizeClass.isWidthAtLeastMedium
 
     val illustController = remember {
         keyboardScrollerController(lazyGridState) {
@@ -106,17 +124,19 @@ fun CollectionScreen(
                     showFilterDialog = { showFilterDialog = true },
                     onBack = { navigationManager.popBackStack() }
                 )
-                PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
-                    Tab(
-                        selected = isIllustPage,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(0) } },
-                        text = { Text(text = stringResource(RStrings.illusts)) }
-                    )
-                    Tab(
-                        selected = !isIllustPage,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(1) } },
-                        text = { Text(text = stringResource(RStrings.novels)) }
-                    )
+                if (!useViewModeFab) {
+                    PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
+                        Tab(
+                            selected = isIllustPage,
+                            onClick = { scope.launch { pagerState.animateScrollToPage(0) } },
+                            text = { Text(text = stringResource(RStrings.illusts)) }
+                        )
+                        Tab(
+                            selected = !isIllustPage,
+                            onClick = { scope.launch { pagerState.animateScrollToPage(1) } },
+                            text = { Text(text = stringResource(RStrings.novels)) }
+                        )
+                    }
                 }
             }
         },
@@ -125,20 +145,33 @@ fun CollectionScreen(
                 lazyGridState.canScrollBackward
             else
                 lazyListState.canScrollBackward
-            BackToTopButton(
-                visibility = canScrollBackward,
-                modifier = Modifier,
-                onBackToTop = {
-                    scope.launch {
-                        if (isIllustPage) lazyGridState.scrollToItem(0)
-                        else lazyListState.scrollToItem(0)
+            Column {
+                BackToTopButton(
+                    visibility = canScrollBackward,
+                    modifier = Modifier,
+                    onBackToTop = {
+                        scope.launch {
+                            if (isIllustPage) lazyGridState.scrollToItem(0)
+                            else lazyListState.scrollToItem(0)
+                        }
+                    },
+                    onRefresh = {
+                        if (isIllustPage) userBookmarksIllusts.refresh()
+                        else userBookmarksNovels.refresh()
                     }
-                },
-                onRefresh = {
-                    if (isIllustPage) userBookmarksIllusts.refresh()
-                    else userBookmarksNovels.refresh()
+                )
+                if (useViewModeFab) {
+                    8.VSpacer
+                    ViewModeToggleButton(
+                        currentMode = if (isIllustPage) AppViewMode.ILLUST else AppViewMode.NOVEL,
+                        onModeChange = { mode ->
+                            scope.launch {
+                                pagerState.scrollToPage(if (mode == AppViewMode.ILLUST) 0 else 1)
+                            }
+                        }
+                    )
                 }
-            )
+            }
         },
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
     ) { paddingValues ->

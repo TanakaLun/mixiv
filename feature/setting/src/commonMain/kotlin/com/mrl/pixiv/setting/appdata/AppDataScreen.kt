@@ -1,6 +1,5 @@
 package com.mrl.pixiv.setting.appdata
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -16,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,10 +27,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
+import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.router.NavigationManager
+import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
-import com.mrl.pixiv.common.util.throttleClick
 import com.mrl.pixiv.common.viewmodel.asState
 import com.mrl.pixiv.strings.app_data
 import com.mrl.pixiv.strings.cancel
@@ -49,7 +51,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Clock
 
@@ -62,7 +63,7 @@ private data class HistoryImportDialogData(
 @Composable
 fun AppDataScreen(
     modifier: Modifier = Modifier,
-    navigationManager: NavigationManager = koinInject(),
+    navigationManager: NavigationManager = currentNavigationManager(),
     viewModel: AppDataViewModel = koinViewModel(),
 ) {
     val state = viewModel.asState()
@@ -125,50 +126,55 @@ fun AppDataScreen(
             )
 
             ListItem(
-                headlineContent = {
-                    Text(text = stringResource(RStrings.export_data))
-                },
-                modifier = Modifier.clickable {
+                onClick = {
                     val fileName = "pixiv_data_backup_${
                         Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                             .format(LocalDateTime.Formats.ISO)
                     }"
                     exportLauncher.launch(suggestedName = fileName, defaultExtension = "zip")
                 },
+                shapes = ListItemDefaults.shapes(shape = RectangleShape),
+                content = {
+                    Text(text = stringResource(RStrings.export_data))
+                },
                 leadingContent = {
                     Icon(
                         imageVector = Icons.Rounded.Upload,
                         contentDescription = null
                     )
-                }
+                },
             )
 
             ListItem(
-                headlineContent = {
-                    Text(text = stringResource(RStrings.import_data))
-                },
-                modifier = Modifier.clickable {
+                onClick = {
                     importLauncher.launch()
+                },
+                shapes = ListItemDefaults.shapes(shape = RectangleShape),
+                content = {
+                    Text(text = stringResource(RStrings.import_data))
                 },
                 leadingContent = {
                     Icon(
                         imageVector = Icons.Rounded.Download,
                         contentDescription = null
                     )
-                }
+                },
             )
 
             ListItem(
-                headlineContent = {
+                onClick = rememberThrottleClick {
+                    viewModel.clearCache()
+                },
+                shapes = ListItemDefaults.shapes(shape = RectangleShape),
+                content = {
                     Text(text = stringResource(RStrings.clear_cache, viewModel.cacheDirSize))
                 },
-                modifier = Modifier.throttleClick { viewModel.clearCache() },
                 leadingContent = {
                     Icon(
                         imageVector = Icons.Rounded.Delete,
                         contentDescription = null
                     )
-                }
+                },
             )
         }
     }

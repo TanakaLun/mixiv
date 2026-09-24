@@ -1,6 +1,7 @@
 package com.mrl.pixiv.comment
 
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,23 +13,28 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
@@ -50,17 +56,20 @@ import com.mrl.pixiv.common.repository.CommentRepository
 import com.mrl.pixiv.common.router.CommentType
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.ReportType
+import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.ToastUtil
 import com.mrl.pixiv.common.viewmodel.asState
 import com.mrl.pixiv.common.viewmodel.state
 import com.mrl.pixiv.strings.comment_success
 import com.mrl.pixiv.strings.delete_comment_success
+import com.mrl.pixiv.strings.load_failed
+import com.mrl.pixiv.strings.no_replies
+import com.mrl.pixiv.strings.retry
 import com.mrl.pixiv.strings.view_comments
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -71,14 +80,14 @@ fun CommentScreen(
     modifier: Modifier = Modifier,
     viewModel: CommentViewModel = koinViewModel { parametersOf(id, type) },
 ) {
-    val navigationManager = koinInject<NavigationManager>()
+    val navigationManager = currentNavigationManager()
     val emojis by CommentRepository.emojiCacheFlow.collectAsStateWithLifecycle()
     val stamps by CommentRepository.stampsCacheFlow.collectAsStateWithLifecycle()
     val comments = viewModel.commentList.collectAsLazyPagingItems()
     val replies = viewModel.replies.collectAsLazyPagingItems()
     val state = viewModel.asState()
     val listState = rememberLazyListState()
-    val repliesListState = rememberLazyListState()
+    val repliesListState = key(state.expandedComment?.id) { rememberLazyListState() }
     val scope = rememberCoroutineScope()
 
     var scrollToTopAfterRefresh by remember { mutableStateOf(false) }
@@ -242,7 +251,10 @@ fun CommentScreen(
     if (state.expandedComment != null) {
         ModalBottomSheet(
             onDismissRequest = { viewModel.setExpandedComment(null) },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            sheetState = rememberBottomSheetState(
+                initialValue = SheetValue.Hidden,
+                enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+            ),
         ) {
             Column(modifier = Modifier.fillMaxHeight(2 / 3f)) {
                 RepliesContent(
@@ -276,7 +288,10 @@ fun CommentScreen(
     if (showInputSheet) {
         ModalBottomSheet(
             onDismissRequest = { showInputSheet = false },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            sheetState = rememberBottomSheetState(
+                initialValue = SheetValue.Hidden,
+                enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+            ),
             shape = RectangleShape,
             dragHandle = null
         ) {
@@ -401,6 +416,39 @@ private fun RepliesContent(
                 if (index != replies.itemCount - 1) {
                     8.VSpacer
                     HorizontalDivider()
+                }
+            }
+        }
+
+        val refresh = replies.loadState.refresh
+        val append = replies.loadState.append
+        when {
+            refresh is LoadState.Loading || append is LoadState.Loading -> {
+                item(key = "replies-loading") {
+                    Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+            refresh is LoadState.Error || append is LoadState.Error -> {
+                val error = (refresh as? LoadState.Error ?: append as LoadState.Error).error
+                item(key = "replies-error") {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(stringResource(RStrings.load_failed, error.message.orEmpty()))
+                        TextButton(onClick = replies::retry) {
+                            Text(stringResource(RStrings.retry))
+                        }
+                    }
+                }
+            }
+            replies.itemCount == 0 -> {
+                item(key = "replies-empty") {
+                    Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                        Text(stringResource(RStrings.no_replies))
+                    }
                 }
             }
         }

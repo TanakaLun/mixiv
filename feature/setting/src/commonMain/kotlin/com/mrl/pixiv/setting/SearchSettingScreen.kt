@@ -17,19 +17,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mrl.pixiv.common.compose.rememberThrottleClick
+import com.mrl.pixiv.common.compose.ui.SearchContentFilterControls
 import com.mrl.pixiv.common.data.search.SearchAiType
 import com.mrl.pixiv.common.data.search.SearchSort
 import com.mrl.pixiv.common.data.search.SearchTarget
@@ -37,6 +40,7 @@ import com.mrl.pixiv.common.data.setting.SearchResultDisplayMode
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.requireUserPreferenceFlow
 import com.mrl.pixiv.common.router.NavigationManager
+import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.throttleClick
 import com.mrl.pixiv.setting.components.DropDownSelector
@@ -56,12 +60,11 @@ import com.mrl.pixiv.strings.tags_exact_match
 import com.mrl.pixiv.strings.tags_partially_match
 import com.mrl.pixiv.strings.title_and_description
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 
 @Composable
 fun SearchSettingScreen(
     modifier: Modifier = Modifier,
-    navigationManager: NavigationManager = koinInject(),
+    navigationManager: NavigationManager = currentNavigationManager(),
 ) {
     val userPreference by requireUserPreferenceFlow.collectAsStateWithLifecycle()
     val searchSettings = userPreference.searchSettings
@@ -108,15 +111,16 @@ fun SearchSettingScreen(
                 }
             )
             ListItem(
-                headlineContent = {
-                    Text(text = stringResource(RStrings.ai_generate))
-                },
-                modifier = Modifier.throttleClick(indication = ripple()) {
+                onClick = rememberThrottleClick {
                     SettingRepository.setSearchSettings(
                         searchSettings.copy(
                             defaultSearchAiType = searchSettings.defaultSearchAiType.toggled()
                         )
                     )
+                },
+                shapes = ListItemDefaults.shapes(shape = RectangleShape),
+                content = {
+                    Text(text = stringResource(RStrings.ai_generate))
                 },
                 leadingContent = {
                     Icon(Icons.Rounded.AutoAwesome, contentDescription = null)
@@ -136,7 +140,7 @@ fun SearchSettingScreen(
                             )
                         }
                     )
-                }
+                },
             )
             SearchResultDisplayModeSetting(
                 selectedMode = searchSettings.searchResultDisplayMode,
@@ -145,6 +149,14 @@ fun SearchSettingScreen(
                         searchSettings.copy(searchResultDisplayMode = mode)
                     )
                 }
+            )
+            SearchContentFilterControls(
+                filter = searchSettings.defaultContentFilter,
+                defaultShowR18 = userPreference.isR18Enabled,
+                onChange = {
+                    SettingRepository.setSearchSettings(searchSettings.copy(defaultContentFilter = it))
+                },
+                modifier = Modifier.padding(16.dp),
             )
         }
     }

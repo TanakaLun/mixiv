@@ -14,13 +14,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Visibility
+import androidx.compose.material.icons.rounded.TextFields
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,11 +34,13 @@ import com.mrl.pixiv.common.compose.ui.image.UserAvatar
 import com.mrl.pixiv.common.data.Novel
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.isBookmark
 import com.mrl.pixiv.common.util.RStrings
+import com.mrl.pixiv.common.util.convertUtcStringToLocalDateTime
 import com.mrl.pixiv.common.util.throttleClick
 import com.mrl.pixiv.strings.bookmarked
 import com.mrl.pixiv.strings.novel_work_information
 import com.mrl.pixiv.strings.view_comments
 import com.mrl.pixiv.strings.view_comments_count
+import com.mrl.pixiv.strings.word_count
 import org.jetbrains.compose.resources.stringResource
 
 internal fun validNovelSeriesId(seriesId: Long?): Long? = seriesId?.takeIf { it > 0L }
@@ -73,7 +77,10 @@ internal fun NovelMetadataBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        sheetState = rememberBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+        ),
     ) {
         LazyColumn(
             modifier = Modifier
@@ -174,7 +181,28 @@ internal fun NovelMetadataBottomSheet(
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(start = 4.dp),
                     )
+                    Spacer(modifier = Modifier.size(16.dp))
+                    Icon(
+                        imageVector = Icons.Rounded.TextFields,
+                        contentDescription = stringResource(RStrings.word_count),
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = novel.textLength.toString(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(start = 4.dp),
+                    )
                 }
+            }
+
+            item(key = "metadata_created_at") {
+                Text(
+                    text = convertUtcStringToLocalDateTime(novel.createDate),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
             }
 
             if (novel.tags.isNotEmpty()) {

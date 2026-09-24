@@ -3,10 +3,16 @@ package com.mrl.pixiv.common.activity
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
+import com.mrl.pixiv.common.util.LegacyStoragePermission
 
 abstract class BaseActivity : AppCompatActivity() {
+    private val storagePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+        LegacyStoragePermission::onResult,
+    )
     protected val TAG = this::class.simpleName
 
     @Composable
@@ -14,7 +20,13 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        LegacyStoragePermission.bind(storagePermissionLauncher)
         enableEdgeToEdge()
         setContent { BuildContent() }
+    }
+
+    override fun onDestroy() {
+        LegacyStoragePermission.unbind(storagePermissionLauncher, isChangingConfigurations)
+        super.onDestroy()
     }
 }

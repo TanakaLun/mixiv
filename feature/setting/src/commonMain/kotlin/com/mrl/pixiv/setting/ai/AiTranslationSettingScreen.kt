@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -41,6 +42,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -49,10 +51,12 @@ import com.mrl.pixiv.common.ai.AiEndpointError
 import com.mrl.pixiv.common.ai.AiLocalNetworkAccessGate
 import com.mrl.pixiv.common.ai.AiModelCatalogService
 import com.mrl.pixiv.common.ai.validateAiEndpoint
+import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.data.setting.AiProvider
 import com.mrl.pixiv.common.data.setting.AiTranslationConfig
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.router.NavigationManager
+import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.throttleClick
 import com.mrl.pixiv.setting.components.DropDownSelector
@@ -103,7 +107,7 @@ import org.koin.compose.koinInject
 @Composable
 fun AiTranslationSettingScreen(
     modifier: Modifier = Modifier,
-    navigationManager: NavigationManager = koinInject(),
+    navigationManager: NavigationManager = currentNavigationManager(),
     modelCatalogService: AiModelCatalogService = koinInject(),
 ) {
     val userPreference by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle()
@@ -162,8 +166,7 @@ fun AiTranslationSettingScreen(
     }
     val maxConcurrentRequests = remember(maxConcurrentRequestsInput) {
         maxConcurrentRequestsInput.toIntOrNull()?.takeIf {
-            it in AiTranslationConfig.MAX_CONCURRENT_REQUESTS_MIN..
-                AiTranslationConfig.MAX_CONCURRENT_REQUESTS_MAX
+            it >= AiTranslationConfig.MAX_CONCURRENT_REQUESTS_MIN
         }
     }
     Scaffold(
@@ -327,7 +330,6 @@ fun AiTranslationSettingScreen(
                                 RStrings.ai_max_concurrent_requests_desc
                             },
                             AiTranslationConfig.MAX_CONCURRENT_REQUESTS_MIN,
-                            AiTranslationConfig.MAX_CONCURRENT_REQUESTS_MAX,
                         )
                     )
                 },
@@ -338,12 +340,13 @@ fun AiTranslationSettingScreen(
 
             if (selectedProvider == AiProvider.OPENAI) {
                 ListItem(
+                    onClick = rememberThrottleClick {
+                        responseApi = !responseApi
+                    },
+                    shapes = ListItemDefaults.shapes(shape = RectangleShape),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .throttleClick {
-                            responseApi = !responseApi
-                        },
-                    headlineContent = {
+                        .fillMaxWidth(),
+                    content = {
                         Text(text = stringResource(RStrings.ai_openai_use_response_api))
                     },
                     trailingContent = {
@@ -353,7 +356,7 @@ fun AiTranslationSettingScreen(
                                 responseApi = checked
                             }
                         )
-                    }
+                    },
                 )
             }
 

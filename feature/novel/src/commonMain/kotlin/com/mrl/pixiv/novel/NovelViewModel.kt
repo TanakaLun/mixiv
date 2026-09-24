@@ -21,6 +21,8 @@ import com.mrl.pixiv.common.repository.NovelMetadataTranslation
 import com.mrl.pixiv.common.repository.NovelReadLaterRepository
 import com.mrl.pixiv.common.repository.NovelReadingProgress
 import com.mrl.pixiv.common.repository.NovelReadingProgressRepository
+import com.mrl.pixiv.common.repository.NovelSeriesProgressRepository
+import com.mrl.pixiv.common.repository.readingProgressFraction
 import com.mrl.pixiv.common.repository.NovelTranslationStreamProgress
 import com.mrl.pixiv.common.repository.NovelTranslationRepository
 import com.mrl.pixiv.common.repository.PixivRepository
@@ -42,11 +44,11 @@ import com.mrl.pixiv.strings.ai_translation_deleted
 import com.mrl.pixiv.strings.ai_translation_failed
 import com.mrl.pixiv.strings.ai_translation_success
 import com.mrl.pixiv.strings.load_failed
+import com.mrl.pixiv.strings.export_failed
 import com.mrl.pixiv.strings.novel_marker_add_success
 import com.mrl.pixiv.strings.novel_marker_delete_success
 import com.mrl.pixiv.strings.novel_marker_update_failed
-import io.github.vinceglb.filekit.FileKit
-import io.github.vinceglb.filekit.dialogs.openFileSaver
+import com.mrl.pixiv.common.util.selectSaveFile
 import io.github.vinceglb.filekit.writeString
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -143,6 +145,7 @@ class NovelViewModel(
     novelId: Long,
     markerPage: Int,
     private val readingProgressRepository: NovelReadingProgressRepository,
+    private val seriesProgressRepository: NovelSeriesProgressRepository,
     private val translationRepository: NovelTranslationRepository,
     private val aiTranslationService: NovelAiTranslationService,
     private val readLaterRepository: NovelReadLaterRepository,
@@ -152,6 +155,7 @@ class NovelViewModel(
 ), KoinComponent {
     private var lastHistoryNovelId: Long? = null
     private val progressSession = NovelProgressSession()
+    private var progressWriteJob: Job? = null
     private var sourceNovelText: String = ""
     private var translatedNovelText: String = ""
     private val initialNovelId = novelId
@@ -408,7 +412,7 @@ class NovelViewModel(
         updateState { copy(showBottomSheet = !showBottomSheet) }
     }
 
-    private fun shareNovel() {
+    private suspend fun shareNovel() {
         val novel = uiState.value.novel ?: return
         val url = "https://www.pixiv.net/novel/show.php?id=${novel.id}"
         ShareUtil.shareText(url)
@@ -418,11 +422,11 @@ class NovelViewModel(
         val novel = uiState.value.novel ?: return
         val text = uiState.value.novelText
 
-        // 这需要使用FileKit或平台特定API
         launchUI {
-            val file = FileKit.openFileSaver(
+            val file = selectSaveFile(
                 suggestedName = novel.title,
                 defaultExtension = "txt",
+                failureMessage = RStrings.export_failed,
             )
             if (file != null) {
                 withIOContext {
@@ -845,17 +849,26 @@ class NovelViewModel(
     }
 
     fun saveProgress(novelId: Long, progress: NovelReadingProgress) {
+        val state = uiState.value
+        val novel = state.novel?.takeIf { it.id == novelId }
+        val fraction = readingProgressFraction(progress, state.paragraphs)
         progressSession.update(novelId, progress)
-        launchIO {
+        updateState { withLatestReadingProgress(novelId, progress) }
+        val previousWrite = progressWriteJob
+        progressWriteJob = launchIO {
+            previousWrite?.join()
             readingProgressRepository.saveProgress(novelId, progress)
+            if (novel != null) seriesProgressRepository.record(novel, fraction)
             Logger.d(tag = "NovelScreen") { "Saved progress for novel $progress" }
         }
     }
 
     fun clearProgress(novelId: Long) {
         progressSession.clear(novelId)
-        updateState { copy(restoreProgress = null) }
-        launchIO {
+        updateState { withLatestReadingProgress(novelId, null) }
+        val previousWrite = progressWriteJob
+        progressWriteJob = launchIO {
+            previousWrite?.join()
             readingProgressRepository.clearProgress(novelId)
             Logger.d(tag = "NovelScreen") { "Cleared progress for novelId=$novelId" }
         }
@@ -869,7 +882,9 @@ class NovelViewModel(
             if (paragraphs.isEmpty()) return@launchIO
             val saved =
                 progressSession.get(novelId)
-                    ?: readingProgressRepository.getProgress(novelId)
+                    ?: readingProgressRepository.getProgress(novelId).let {
+                        progressSession.get(novelId) ?: it
+                    }
                     ?: return@launchIO
             val resolved = resolveProgress(saved, paragraphs)
             progressSession.update(novelId, resolved)

@@ -10,31 +10,31 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.analytics.logEvent
+import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
 import com.mrl.pixiv.common.compose.layout.isWidthAtLeastMedium
-import com.mrl.pixiv.common.compose.layout.isWidthCompact
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
+import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.VSpacer
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.repository.requireUserInfoFlow
 import com.mrl.pixiv.common.util.RStrings
-import com.mrl.pixiv.main.components.ViewModeToggleButton
 import com.mrl.pixiv.strings.collection
 import com.mrl.pixiv.strings.latest_tab_following
 import com.mrl.pixiv.strings.latest_tab_trend
@@ -52,9 +52,9 @@ fun LatestScreen(
 ) {
     val userInfo by requireUserInfoFlow.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    val windowAdaptiveInfo = currentWindowAdaptiveInfoV2()
+    val paneSizeClass = currentPaneLayoutInfo().sizeClass
     val refreshFlow = remember { MutableSharedFlow<LatestPage>() }
-    val isWidthAtLeastMedium = windowAdaptiveInfo.isWidthAtLeastMedium
+    val isWidthAtLeastMedium = paneSizeClass.isWidthAtLeastMedium
     val appViewMode by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle { appViewMode }
     val pages = remember(appViewMode) { LatestPage.pagesFor(appViewMode) }
     val pagerState = viewModel.pagerStateFor(appViewMode)
@@ -126,32 +126,38 @@ fun LatestScreen(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
     ) {
         Column(modifier = Modifier.padding(it)) {
-            PrimaryTabRow(
-                selectedTabIndex = pagerState.currentPage,
-                modifier = Modifier
-                    .fillMaxWidth(if (windowAdaptiveInfo.isWidthCompact) 1f else 0.5f)
-                    .padding(horizontal = 16.dp)
-            ) {
-                pages.forEachIndexed { index, it ->
-                    Tab(
-                        selected = pagerState.currentPage == index,
-                        onClick = {
-                            scope.launch {
-                                pagerState.animateScrollToPage(index)
-                            }
-                        },
-                        modifier = Modifier.padding(vertical = 10.dp)
-                    ) {
-                        Text(
-                            text = stringResource(
-                                when (it) {
-                                    LatestPage.Trend -> RStrings.latest_tab_trend
-                                    LatestPage.Collection -> RStrings.collection
-                                    LatestPage.Following -> RStrings.latest_tab_following
-                                    LatestPage.NovelNew -> RStrings.novel_new
-                                    LatestPage.NovelWatchlist -> RStrings.novel_watchlist
+            key(appViewMode) {
+                PrimaryScrollableTabRow(
+                    selectedTabIndex = pagerState.currentPage,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    edgePadding = 0.dp,
+                    minTabWidth = 48.dp,
+                ) {
+                    pages.forEachIndexed { index, page ->
+                        Tab(
+                            selected = pagerState.currentPage == index,
+                            onClick = {
+                                scope.launch {
+                                    pagerState.animateScrollToPage(index)
                                 }
-                            )
+                            },
+                            text = {
+                                Text(
+                                    text = stringResource(
+                                        when (page) {
+                                            LatestPage.Trend -> RStrings.latest_tab_trend
+                                            LatestPage.Collection -> RStrings.collection
+                                            LatestPage.Following -> RStrings.latest_tab_following
+                                            LatestPage.NovelNew -> RStrings.novel_new
+                                            LatestPage.NovelWatchlist -> RStrings.novel_watchlist
+                                        }
+                                    ),
+                                    maxLines = 1,
+                                    softWrap = false,
+                                )
+                            },
                         )
                     }
                 }

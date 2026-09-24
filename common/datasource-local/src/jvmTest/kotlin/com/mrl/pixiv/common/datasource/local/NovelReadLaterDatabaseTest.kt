@@ -1,6 +1,6 @@
 package com.mrl.pixiv.common.datasource.local
 
-import androidx.room.Room
+import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
 import com.mrl.pixiv.common.datasource.local.entity.NovelReadLaterEntity
@@ -233,7 +233,7 @@ class NovelReadLaterDatabaseTest {
     }
 
     @Test
-    fun `migration 7 to 8 creates queue table and index`() {
+    fun `migration 7 to 8 creates queue table and index`() = runTest {
         val connection = BundledSQLiteDriver().open(":memory:")
         try {
             connection.execSQL(
@@ -325,7 +325,7 @@ class NovelReadLaterDatabaseTest {
     }
 
     @Test
-    fun `migration 8 to 9 preserves body cache and defaults metadata fields`() {
+    fun `migration 8 to 9 preserves body cache and defaults metadata fields`() = runTest {
         val connection = BundledSQLiteDriver().open(":memory:")
         try {
             connection.execSQL(

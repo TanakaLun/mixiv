@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,8 +16,8 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
@@ -52,32 +51,40 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import co.touchlab.kermit.Logger
+import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
+import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.compose.ui.BlockSurface
 import com.mrl.pixiv.common.compose.ui.BookmarkIcon
 import com.mrl.pixiv.common.compose.ui.NovelBottomBookmarkSheet
@@ -85,16 +92,17 @@ import com.mrl.pixiv.common.compose.ui.novel.NovelReadLaterButton
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.spaceBy
 import com.mrl.pixiv.common.repository.BlockingRepositoryV2
+import com.mrl.pixiv.common.repository.NovelReadingProgress
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.BookmarkState
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.isBookmark
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.isPrivateBookmark
 import com.mrl.pixiv.common.router.CommentType
 import com.mrl.pixiv.common.router.NavigationManager
+import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.Platform
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.StatusBarVisibilityEffect
 import com.mrl.pixiv.common.util.platform
-import com.mrl.pixiv.common.util.throttleClick
 import com.mrl.pixiv.common.viewmodel.asState
 import com.mrl.pixiv.strings.ai_translation_setting
 import com.mrl.pixiv.strings.back
@@ -125,7 +133,6 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.math.roundToInt
@@ -161,9 +168,11 @@ fun NovelScreen(
     viewModel: NovelViewModel = koinViewModel {
         parametersOf(novelId, markerPage ?: 0)
     },
-    navigationManager: NavigationManager = koinInject(),
+    navigationManager: NavigationManager = currentNavigationManager(),
 ) {
     val uriHandler = LocalUriHandler.current
+    val paneInfo = currentPaneLayoutInfo()
+    val density = LocalDensity.current
     val state = viewModel.asState()
     val chapterStateKey = novelChapterStateKey(
         entryNovelId = novelId,
@@ -174,7 +183,19 @@ fun NovelScreen(
     val listState = key(chapterStateKey) {
         rememberLazyListState()
     }
-    val paragraphLayoutCacheKey = state.paragraphLayoutCacheKey()
+    var readerContentWidthPx by remember {
+        mutableIntStateOf(with(density) {
+            (paneInfo.size.width.roundToPx() - 2 * 16.dp.roundToPx()).coerceAtLeast(0)
+        })
+    }
+    var resizeReadingAnchor by remember(chapterStateKey) {
+        mutableStateOf<NovelReadingProgress?>(null)
+    }
+    val paragraphLayoutCacheKey = state.paragraphLayoutCacheKey(
+        contentWidthPx = readerContentWidthPx,
+        density = density.density,
+        fontScale = density.fontScale,
+    )
     val paragraphLayouts = remember(paragraphLayoutCacheKey) {
         mutableStateMapOf<Int, TextLayoutResult>()
     }
@@ -248,7 +269,9 @@ fun NovelScreen(
         }
     }
 
-    StatusBarVisibilityEffect(hidden = state.novel != null && !isNovelBlocked && !showBar)
+    if (!paneInfo.isSplit) {
+        StatusBarVisibilityEffect(hidden = state.novel != null && !isNovelBlocked && !showBar)
+    }
 
     LaunchedEffect(manuallyShowTopBar) {
         if (manuallyShowTopBar) {
@@ -259,11 +282,17 @@ fun NovelScreen(
 
     val latestState = rememberUpdatedState(state)
     val latestParagraphLayouts = rememberUpdatedState(paragraphLayouts)
-    val saveReadingProgress = remember(listState, viewModel) {
+    var handledRestoreVersion by remember(state.novel?.id) { mutableStateOf(-1L) }
+    val saveReadingProgress = remember(listState, viewModel, state.novel?.id) {
+        val chapterId = state.novel?.id
         {
             val currentState = latestState.value
             val novel = currentState.novel ?: return@remember
-            if (currentState.isTranslating || currentState.paragraphs.isEmpty()) {
+            if (novel.id != chapterId || currentState.isTranslating ||
+                currentState.paragraphs.isEmpty() || resizeReadingAnchor != null ||
+                (currentState.restoreProgress != null &&
+                    handledRestoreVersion != currentState.restoreVersion)
+            ) {
                 return@remember
             }
             val paragraphStartIndex =
@@ -293,14 +322,19 @@ fun NovelScreen(
             .drop(1)
             .filter { !it }
             .collect {
-                saveReadingProgress()
+                if (resizeReadingAnchor == null) {
+                    saveReadingProgress()
+                }
             }
     }
 
-    var handledRestoreVersion by remember(state.novel?.id) { mutableStateOf(-1L) }
-    LaunchedEffect(state.restoreVersion, state.novel?.id, state.isTranslating) {
+    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) { saveReadingProgress() }
+    DisposableEffect(saveReadingProgress) {
+        onDispose { saveReadingProgress() }
+    }
+
+    LaunchedEffect(state.restoreVersion, state.novel?.id, state.isTranslating, state.paragraphs) {
         if (handledRestoreVersion == state.restoreVersion) return@LaunchedEffect
-        handledRestoreVersion = state.restoreVersion
         if (state.isTranslating) return@LaunchedEffect
         val novel = state.novel ?: return@LaunchedEffect
         val resolvedProgress = state.restoreProgress ?: return@LaunchedEffect
@@ -308,49 +342,87 @@ fun NovelScreen(
         val paragraphStartIndex =
             paragraphStartItemIndex(novel.series.title != null, novel.caption.isNotEmpty())
 
-        val targetItemIndex = paragraphStartIndex + resolvedProgress.paragraphIndex
-        Logger.d(tag = "NovelScreen") { "Restore: paragraphStartIndex=$paragraphStartIndex, targetItemIndex=$targetItemIndex" }
+        try {
+            val targetItemIndex = paragraphStartIndex + resolvedProgress.paragraphIndex
+            Logger.d(tag = "NovelScreen") { "Restore: paragraphStartIndex=$paragraphStartIndex, targetItemIndex=$targetItemIndex" }
 
-        // 先滚动到目标段落；布局缓存已按正文和排版参数隔离，只会包含当前布局结果。
-        listState.scrollToItem(targetItemIndex, 0)
+            // 先滚动到目标段落；布局缓存已按正文和排版参数隔离，只会包含当前布局结果。
+            listState.scrollToItem(targetItemIndex, 0)
 
-        // 等待目标段落的布局完成。包含图片标记的段落可能没有文本布局，这里做超时兜底。
-        val layout = withTimeoutOrNull(500L.milliseconds) {
-            while (paragraphLayouts[resolvedProgress.paragraphIndex] == null) {
-                delay(16.milliseconds)
+            // 等待目标段落的布局完成。包含图片标记的段落可能没有文本布局，这里做超时兜底。
+            val layout = withTimeoutOrNull(500L.milliseconds) {
+                while (latestParagraphLayouts.value[resolvedProgress.paragraphIndex] == null) {
+                    delay(16.milliseconds)
+                }
+                latestParagraphLayouts.value[resolvedProgress.paragraphIndex]
+            } ?: run {
+                Logger.d(tag = "NovelScreen") {
+                    "Restore: paragraphIndex=${resolvedProgress.paragraphIndex} has no text layout, keep item-top restore."
+                }
+                return@LaunchedEffect
             }
-            paragraphLayouts[resolvedProgress.paragraphIndex]
-        } ?: run {
+
+            val targetParagraph = state.paragraphs[resolvedProgress.paragraphIndex]
+            val targetCharIndex = resolvedProgress.charIndex.coerceIn(0, targetParagraph.length)
+
+            // 根据字符位置计算所在行数
+            val lineIndex = layout.getLineForOffset(targetCharIndex)
+
+            // 获取该行顶部的Y坐标
+            val lineTop = layout.getLineTop(lineIndex)
+
+            // 补偿LazyColumn的内边距（如果有的话）
+            val beforeContentPaddingCompensation =
+                (-listState.layoutInfo.viewportStartOffset).coerceAtLeast(0)
+
+            // 计算最终偏移量：将该行的顶部与视口顶部对齐
+            val offset = (lineTop + beforeContentPaddingCompensation).toInt().coerceAtLeast(0)
+
             Logger.d(tag = "NovelScreen") {
-                "Restore: paragraphIndex=${resolvedProgress.paragraphIndex} has no text layout, keep item-top restore."
+                "Restore: paragraphIndex=${resolvedProgress.paragraphIndex}, " +
+                        "charIndex=$targetCharIndex, lineIndex=$lineIndex, " +
+                        "lineTop=$lineTop, offset=$offset"
             }
+
+            // 执行滚动，将目标行的顶部与视口顶部对齐
+            listState.scrollToItem(targetItemIndex, offset)
+        } finally {
+            // 等待滚动后的最后一帧，避免将恢复过程中的临时位置保存为阅读进度。
+            withFrameNanos { }
+            handledRestoreVersion = state.restoreVersion
+        }
+    }
+
+    // A drag keeps the character that was visible before reflow; it never reapplies the saved bookmark.
+    LaunchedEffect(paragraphLayoutCacheKey) {
+        val anchor = resizeReadingAnchor ?: return@LaunchedEffect
+        val novel = state.novel ?: return@LaunchedEffect
+        delay(80.milliseconds)
+        if (listState.isScrollInProgress || latestState.value.isTranslating) {
+            resizeReadingAnchor = null
             return@LaunchedEffect
         }
-
-        val targetParagraph = state.paragraphs[resolvedProgress.paragraphIndex]
-        val targetCharIndex = resolvedProgress.charIndex.coerceIn(0, targetParagraph.length)
-
-        // 根据字符位置计算所在行数
-        val lineIndex = layout.getLineForOffset(targetCharIndex)
-
-        // 获取该行顶部的Y坐标
-        val lineTop = layout.getLineTop(lineIndex)
-
-        // 补偿LazyColumn的内边距（如果有的话）
-        val beforeContentPaddingCompensation =
-            (-listState.layoutInfo.viewportStartOffset).coerceAtLeast(0)
-
-        // 计算最终偏移量：将该行的顶部与视口顶部对齐
-        val offset = (lineTop + beforeContentPaddingCompensation).toInt().coerceAtLeast(0)
-
-        Logger.d(tag = "NovelScreen") {
-            "Restore: paragraphIndex=${resolvedProgress.paragraphIndex}, " +
-                    "charIndex=$targetCharIndex, lineIndex=$lineIndex, " +
-                    "lineTop=$lineTop, offset=$offset"
+        val layout = withTimeoutOrNull(500.milliseconds) {
+            while (paragraphLayouts[anchor.paragraphIndex] == null) {
+                delay(16.milliseconds)
+            }
+            paragraphLayouts[anchor.paragraphIndex]
         }
-
-        // 执行滚动，将目标行的顶部与视口顶部对齐
-        listState.scrollToItem(targetItemIndex, offset)
+        if (layout != null) {
+            val paragraph = state.paragraphs.getOrNull(anchor.paragraphIndex)
+            if (paragraph != null && paragraph.hashCode() == anchor.paragraphHash) {
+                val line = layout.getLineForOffset(anchor.charIndex.coerceIn(0, paragraph.length))
+                val padding = (-listState.layoutInfo.viewportStartOffset).coerceAtLeast(0)
+                listState.scrollToItem(
+                    index = paragraphStartItemIndex(novel.series.title != null, novel.caption.isNotEmpty()) +
+                            anchor.paragraphIndex,
+                    scrollOffset = (layout.getLineTop(line) + padding).toInt().coerceAtLeast(0),
+                )
+                // Keep the resize marker through the scroll-idle observer's next frame.
+                withFrameNanos { }
+            }
+        }
+        resizeReadingAnchor = null
     }
 
     LaunchedEffect(state.novel?.id, state.isTranslating) {
@@ -515,7 +587,29 @@ fun NovelScreen(
                             listState = listState,
                             readingProgressFraction = readingProgressFraction,
                             onParagraphTextLayout = { paragraphIndex, layout ->
-                                paragraphLayouts[paragraphIndex] = layout
+                                // Keep results isolated until the new width's cache is composed. Keep old
+                                // layouts intact until that callback captures the character anchor.
+                                if (layout.layoutInput.constraints.maxWidth == paragraphLayoutCacheKey.contentWidthPx) {
+                                    paragraphLayouts[paragraphIndex] = layout
+                                }
+                            },
+                            paragraphLayoutCacheKey = paragraphLayoutCacheKey,
+                            onContentWidthChanged = { width ->
+                                if (width != readerContentWidthPx) {
+                                    if (resizeReadingAnchor == null && !state.isTranslating) {
+                                        resizeReadingAnchor = buildVisibleReadingProgress(
+                                            listState = listState,
+                                            paragraphStartIndex = paragraphStartItemIndex(
+                                                state.novel.series.title != null,
+                                                state.novel.caption.isNotEmpty(),
+                                            ),
+                                            paragraphCount = state.paragraphs.size,
+                                            paragraphLayouts = paragraphLayouts,
+                                            paragraphs = state.paragraphs,
+                                        )
+                                    }
+                                    readerContentWidthPx = width
+                                }
                             },
                             onContentClick = {
                                 manuallyShowTopBar = !manuallyShowTopBar
@@ -554,6 +648,7 @@ fun NovelScreen(
                                 }
                             },
                             onCommentClick = {
+                                saveReadingProgress()
                                 navigationManager.navigateToCommentScreen(
                                     state.novel.id,
                                     CommentType.NOVEL
@@ -684,7 +779,10 @@ fun NovelScreen(
     }
 
     if (showBookmarkBottomSheet && state.novel != null) {
-        val bottomSheetState = rememberModalBottomSheetState(true)
+        val bottomSheetState = rememberBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+        )
         NovelBottomBookmarkSheet(
             hideBottomSheet = { showBookmarkBottomSheet = false },
             novel = state.novel,
@@ -738,6 +836,7 @@ fun NovelScreen(
                 }
             },
             onCommentClick = {
+                saveReadingProgress()
                 showMetadataBottomSheet = false
                 navigationManager.navigateToCommentScreen(
                     state.novel.id,
@@ -751,7 +850,10 @@ fun NovelScreen(
     if (state.showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = { viewModel.dispatch(NovelIntent.ToggleBottomSheet) },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            sheetState = rememberBottomSheetState(
+                initialValue = SheetValue.Hidden,
+                enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+            )
         ) {
             NovelBottomSheetContent(
                 state = state,
@@ -859,32 +961,34 @@ private fun NovelBottomSheetContent(
 
         // 导出按钮
         ListItem(
-            headlineContent = { Text(text = stringResource(RStrings.export_txt_button)) },
+            onClick = rememberThrottleClick(onClick = onExport),
+            shapes = ListItemDefaults.shapes(shape = RectangleShape),
+            content = { Text(text = stringResource(RStrings.export_txt_button)) },
             modifier = Modifier
-                .fillMaxWidth()
-                .throttleClick(onClick = onExport),
+                .fillMaxWidth(),
             leadingContent = {
                 Icon(
                     imageVector = Icons.Rounded.FileDownload,
                     contentDescription = stringResource(RStrings.export_txt_button)
                 )
             },
-            colors = colors
+            colors = colors,
         )
 
         // 分享按钮
         ListItem(
-            headlineContent = { Text(text = stringResource(RStrings.share_link)) },
+            onClick = rememberThrottleClick(onClick = onShare),
+            shapes = ListItemDefaults.shapes(shape = RectangleShape),
+            content = { Text(text = stringResource(RStrings.share_link)) },
             modifier = Modifier
-                .fillMaxWidth()
-                .throttleClick(onClick = onShare),
+                .fillMaxWidth(),
             leadingContent = {
                 Icon(
                     imageVector = Icons.Rounded.Share,
                     contentDescription = stringResource(RStrings.share_link)
                 )
             },
-            colors = colors
+            colors = colors,
         )
 
         state.novel?.let { novel ->
@@ -902,23 +1006,26 @@ private fun NovelBottomSheetContent(
 
         if (state.isTranslated && !state.isTranslating) {
             ListItem(
-                headlineContent = {
+                onClick = rememberThrottleClick(onClick = onRegenerateTranslation),
+                shapes = ListItemDefaults.shapes(shape = RectangleShape),
+                content = {
                     Text(text = stringResource(RStrings.regenerate_translation))
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .throttleClick(onClick = onRegenerateTranslation),
+                    .fillMaxWidth(),
                 leadingContent = {
                     Icon(
                         imageVector = Icons.Rounded.Refresh,
                         contentDescription = stringResource(RStrings.regenerate_translation)
                     )
                 },
-                colors = colors
+                colors = colors,
             )
 
             ListItem(
-                headlineContent = {
+                onClick = rememberThrottleClick(onClick = onToggleDisplayedText),
+                shapes = ListItemDefaults.shapes(shape = RectangleShape),
+                content = {
                     Text(
                         text = stringResource(
                             if (state.isShowingOriginalText) {
@@ -930,8 +1037,7 @@ private fun NovelBottomSheetContent(
                     )
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .throttleClick(onClick = onToggleDisplayedText),
+                    .fillMaxWidth(),
                 leadingContent = {
                     Icon(
                         imageVector = if (state.isShowingOriginalText) {
@@ -948,28 +1054,31 @@ private fun NovelBottomSheetContent(
                         )
                     )
                 },
-                colors = colors
+                colors = colors,
             )
 
             ListItem(
-                headlineContent = {
+                onClick = rememberThrottleClick(onClick = onDeleteTranslation),
+                shapes = ListItemDefaults.shapes(shape = RectangleShape),
+                content = {
                     Text(text = stringResource(RStrings.delete_translation))
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .throttleClick(onClick = onDeleteTranslation),
+                    .fillMaxWidth(),
                 leadingContent = {
                     Icon(
                         imageVector = Icons.Rounded.Delete,
                         contentDescription = stringResource(RStrings.delete_translation)
                     )
                 },
-                colors = colors
+                colors = colors,
             )
         }
 
         ListItem(
-            headlineContent = {
+            onClick = rememberThrottleClick(onClick = onBlockNovel),
+            shapes = ListItemDefaults.shapes(shape = RectangleShape),
+            content = {
                 Text(
                     text = stringResource(
                         if (isNovelBlocked) RStrings.show_novel else RStrings.hide_novel
@@ -977,8 +1086,7 @@ private fun NovelBottomSheetContent(
                 )
             },
             modifier = Modifier
-                .fillMaxWidth()
-                .throttleClick(onClick = onBlockNovel),
+                .fillMaxWidth(),
             leadingContent = {
                 Icon(
                     imageVector = if (isNovelBlocked) Icons.Rounded.Image else Icons.Rounded.HideImage,
@@ -987,21 +1095,22 @@ private fun NovelBottomSheetContent(
                     )
                 )
             },
-            colors = colors
+            colors = colors,
         )
 
         ListItem(
-            headlineContent = { Text(text = stringResource(RStrings.ai_translation_setting)) },
+            onClick = rememberThrottleClick(onClick = onAiSetting),
+            shapes = ListItemDefaults.shapes(shape = RectangleShape),
+            content = { Text(text = stringResource(RStrings.ai_translation_setting)) },
             modifier = Modifier
-                .fillMaxWidth()
-                .throttleClick(onClick = onAiSetting),
+                .fillMaxWidth(),
             leadingContent = {
                 Icon(
                     imageVector = Icons.Rounded.Settings,
                     contentDescription = stringResource(RStrings.ai_translation_setting)
                 )
             },
-            colors = colors
+            colors = colors,
         )
     }
 }

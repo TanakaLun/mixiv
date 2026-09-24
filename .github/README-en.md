@@ -11,14 +11,14 @@
 A cross-platform third-party Pixiv App entirely written
 by [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform/)
 
-[![Kotlin](https://img.shields.io/badge/kotlin-2.4.20--RC3-blue.svg?logo=kotlin)](https://kotlinlang.org)
-![Compose Multiplatform](https://img.shields.io/badge/Compose_Multiplatform-1.12.0-blue)
+[![Kotlin](https://img.shields.io/badge/kotlin-2.4.20-blue.svg?logo=kotlin)](https://kotlinlang.org)
+![Compose Multiplatform](https://img.shields.io/badge/Compose_Multiplatform-1.12.1-blue)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/darriousliu/PiPixiv/release.yml)](https://github.com/darriousliu/PiPixiv/actions/workflows/release.yml)
 [![License: Apache-2.0](https://img.shields.io/github/license/darriousliu/PiPixiv?labelColor=27303D&color=0877d2)](/LICENSE)
 
 ## 📥 Download
 
-Current source version: **2.4.0**.
+Current source version: **2.5.0**.
 
 [![GitHub Release](https://img.shields.io/github/v/release/darriousliu/PiPixiv?label=Stable)](https://github.com/darriousliu/PiPixiv/releases)
 [![GitHub downloads](https://img.shields.io/github/downloads/darriousliu/PiPixiv/total?label=downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/darriousliu/PiPixiv/releases)
@@ -116,7 +116,7 @@ Current source version: **2.4.0**.
 
 <div align="left">
 
-* Kotlin **2.4.20-RC3**, Compose Multiplatform **1.12.0**, and Android Gradle Plugin **9.4.0**.
+* Kotlin **2.4.20**, Compose Multiplatform **1.12.1**, and Android Gradle Plugin **9.4.1**.
 * Gradle Wrapper **9.6.1** and JDK toolchain **25**; Android compile/target SDK **37**, minimum SDK **26**.
 * iOS uses Swift Export with an **iOS 18.0** deployment target.
 

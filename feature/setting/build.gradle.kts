@@ -24,7 +24,7 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
             implementation(libs.okio)
-            implementation(libs.androidx.room.runtime)
+            implementation(libs.androidx.room3.runtime)
             implementation(libs.html.converter)
             implementation(libs.bundles.filekit)
             implementation(libs.bundles.markdown)

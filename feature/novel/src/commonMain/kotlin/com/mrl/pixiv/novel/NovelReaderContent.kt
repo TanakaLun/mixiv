@@ -21,22 +21,30 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.rounded.ErrorOutline
+import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.TextFields
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -45,8 +53,10 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
+import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
 import com.mrl.pixiv.common.compose.layout.isWidthAtLeastMedium
 import com.mrl.pixiv.common.compose.ui.TagItem
+import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.image.UserAvatar
 import com.mrl.pixiv.common.kts.HSpacer
 import com.mrl.pixiv.common.kts.spaceBy
@@ -58,6 +68,9 @@ import com.mrl.pixiv.strings.bookmarked
 import com.mrl.pixiv.strings.cover
 import com.mrl.pixiv.strings.view_comments
 import com.mrl.pixiv.strings.view_comments_count
+import com.mrl.pixiv.strings.word_count
+import com.mrl.pixiv.strings.back_to_top
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
 private const val KEY_COVER = "cover"
@@ -81,6 +94,8 @@ internal fun NovelReaderContent(
     readingProgressFraction: Float,
     modifier: Modifier = Modifier,
     onParagraphTextLayout: (Int, TextLayoutResult) -> Unit,
+    paragraphLayoutCacheKey: ParagraphLayoutCacheKey,
+    onContentWidthChanged: (Int) -> Unit,
     onContentClick: () -> Unit = {},
     onTagClick: (String) -> Unit,
     onPixivImageClick: (Long) -> Unit,
@@ -90,6 +105,11 @@ internal fun NovelReaderContent(
     onCommentClick: () -> Unit,
 ) {
     val novel = state.novel ?: return
+    val density = LocalDensity.current
+    val scrollScope = rememberCoroutineScope()
+    val canScrollBack by remember(listState) { derivedStateOf { listState.canScrollBackward } }
+    // Measurement bookkeeping is deliberately not snapshot state: it must not request remeasure.
+    val lastMeasuredContentWidth = remember { intArrayOf(-1) }
     val displayedTitle = resolveNovelMetadataText(
         original = novel.title,
         translated = state.translatedTitle,
@@ -111,15 +131,27 @@ internal fun NovelReaderContent(
 
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().layout { measurable, constraints ->
+                val paragraphPadding = with(density) { 2 * 16.dp.roundToPx() }
+                val contentWidth = (constraints.maxWidth - paragraphPadding).coerceAtLeast(0)
+                if (lastMeasuredContentWidth[0] != contentWidth) {
+                    lastMeasuredContentWidth[0] = contentWidth
+                    // Capture both the old text layout and old list position before reflow can
+                    // normalize a large paragraph offset into the following paragraph.
+                    onContentWidthChanged(contentWidth)
+                }
+                val placeable = measurable.measure(constraints)
+                layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
+            },
             state = listState,
-            contentPadding = WindowInsets.systemBars.only(WindowInsetsSides.Vertical)
+            // 系统栏显隐时保持列表坐标稳定，避免重复进入正文时累加恢复偏移。
+            contentPadding = novelReaderContentInsets().only(WindowInsetsSides.Vertical)
                 .asPaddingValues(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // 封面图
             item(key = KEY_COVER) {
-                val isWidthAtLeastMedium = currentWindowAdaptiveInfoV2().isWidthAtLeastMedium
+                val isWidthAtLeastMedium = currentPaneLayoutInfo().sizeClass.isWidthAtLeastMedium
                 AsyncImage(
                     model = ImageRequest.Builder(LocalPlatformContext.current)
                         .data(novel.imageUrls.medium)
@@ -230,6 +262,18 @@ internal fun NovelReaderContent(
                         Text(
                             text = novel.totalView.toString(),
                             style = MaterialTheme.typography.bodyMedium
+                        )
+                        16.HSpacer
+                        Icon(
+                            Icons.Rounded.TextFields,
+                            contentDescription = stringResource(RStrings.word_count),
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        4.HSpacer
+                        Text(
+                            text = novel.textLength.toString(),
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
                 }
@@ -346,15 +390,17 @@ internal fun NovelReaderContent(
                         // 两个段落内容相同，hashcode也一样，这样就会导致列表状态异常，所以这里直接用index作为key
                         key = { it },
                     ) { index ->
-                        NovelParagraph(
-                            paragraphIndex = index,
-                            fontSize = state.fontSize,
-                            lineSpacingSp = state.lineSpacingSp,
-                            span = state.paragraphSpans[index],
-                            onParagraphTextLayout = onParagraphTextLayout,
-                            onContentClick = onContentClick,
-                            onPixivImageClick = onPixivImageClick,
-                        )
+                        key(paragraphLayoutCacheKey) {
+                            NovelParagraph(
+                                paragraphIndex = index,
+                                fontSize = state.fontSize,
+                                lineSpacingSp = state.lineSpacingSp,
+                                span = state.paragraphSpans[index],
+                                onParagraphTextLayout = onParagraphTextLayout,
+                                onContentClick = onContentClick,
+                                onPixivImageClick = onPixivImageClick,
+                            )
+                        }
                     }
 
                     item(key = KEY_SPACER_END) {
@@ -395,6 +441,21 @@ internal fun NovelReaderContent(
         }
 
         if (!state.isTranslating) {
+            VerticalScrollbar(
+                state = listState,
+                modifier = Modifier.align(Alignment.CenterEnd)
+                    .padding(WindowInsets.systemBars.only(WindowInsetsSides.Vertical).asPaddingValues()),
+            )
+            if (canScrollBack) {
+                SmallFloatingActionButton(
+                    onClick = { scrollScope.launch { listState.animateScrollToItem(0) } },
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                        .padding(WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues())
+                        .padding(end = 16.dp, bottom = 24.dp),
+                ) {
+                    Icon(Icons.Rounded.ArrowUpward, contentDescription = stringResource(RStrings.back_to_top))
+                }
+            }
             ReadingProgressIndicator(
                 progress = readingProgressFraction,
                 modifier = Modifier.align(Alignment.BottomCenter)

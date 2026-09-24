@@ -10,8 +10,6 @@ import com.mrl.pixiv.common.data.user.UserPreview
 import com.mrl.pixiv.common.repository.PixivRepository
 import com.mrl.pixiv.common.repository.requireUserPreferenceValue
 import com.mrl.pixiv.common.repository.util.filterBlockedTags
-import com.mrl.pixiv.common.repository.util.filterNormalIllust
-import com.mrl.pixiv.common.repository.util.filterNormalNovel
 import com.mrl.pixiv.common.repository.util.queryParams
 
 class SearchIllustFeedSource(
@@ -33,6 +31,7 @@ class SearchIllustFeedSource(
                 emptyList()
             } else {
                 listOf(PixivRepository.getIllustDetail(illustId, Filter.ANDROID.value).illust)
+                    .filter { query.contentFilter.matches(it, requireUserPreferenceValue.isR18Enabled) }
                     .filterBlockedTags()
             }
             return FeedPage(
@@ -50,13 +49,11 @@ class SearchIllustFeedSource(
         } else {
             PixivRepository.searchIllust(query.copy(offset = offset))
         }
-        val illusts = if (requireUserPreferenceValue.isR18Enabled) {
-            resp.illusts.distinctBy { it.id }
-        } else {
-            resp.illusts.distinctBy { it.id }.filterNormalIllust()
-        }.filterBlockedTags()
+        val illusts = resp.illusts.distinctBy { it.id }
+            .filter { query.contentFilter.matches(it, requireUserPreferenceValue.isR18Enabled) }
+            .filterBlockedTags()
 
-        val nextOffset = resp.nextUrl.nextOffset()
+        val nextOffset = resp.nextUrl.nextOffset()?.takeIf { it > offset }
         return FeedPage(
             items = illusts,
             nextKey = if (capability == FeedCapability.OFFSET) nextOffset?.let(FeedKey::Offset) else null,
@@ -82,7 +79,9 @@ class SearchNovelFeedSource(
             val novels = if (novelId == null) {
                 emptyList()
             } else {
-                listOf(PixivRepository.getNovelDetail(novelId).novel).filterBlockedTags()
+                listOf(PixivRepository.getNovelDetail(novelId).novel)
+                    .filter { query.contentFilter.matches(it, requireUserPreferenceValue.isR18Enabled) }
+                    .filterBlockedTags()
             }
             return FeedPage(
                 items = novels,
@@ -99,13 +98,11 @@ class SearchNovelFeedSource(
         } else {
             PixivRepository.searchNovel(query.copy(offset = offset))
         }
-        val novels = if (requireUserPreferenceValue.isR18Enabled) {
-            resp.novels.distinctBy { it.id }
-        } else {
-            resp.novels.distinctBy { it.id }.filterNormalNovel()
-        }.filterBlockedTags()
+        val novels = resp.novels.distinctBy { it.id }
+            .filter { query.contentFilter.matches(it, requireUserPreferenceValue.isR18Enabled) }
+            .filterBlockedTags()
 
-        val nextOffset = resp.nextUrl.nextOffset()
+        val nextOffset = resp.nextUrl.nextOffset()?.takeIf { it > offset }
         return FeedPage(
             items = novels,
             nextKey = if (capability == FeedCapability.OFFSET) nextOffset?.let(FeedKey::Offset) else null,

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,7 +34,6 @@ import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PersonOff
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -52,11 +50,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -67,6 +65,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -79,7 +78,6 @@ import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -97,7 +95,10 @@ import com.mrl.pixiv.common.animation.DefaultFloatAnimationSpec
 import com.mrl.pixiv.common.compose.IllustGridDefaults
 import com.mrl.pixiv.common.compose.LocalSharedKeyPrefix
 import com.mrl.pixiv.common.compose.LocalSharedTransitionScope
-import com.mrl.pixiv.common.compose.layout.isWidthAtLeastMedium
+import com.mrl.pixiv.common.compose.layout.ResizableSplitLayout
+import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
+import com.mrl.pixiv.common.compose.layout.isWidthAtLeastExpanded
+import com.mrl.pixiv.common.compose.layout.rememberSplitPaneState
 import com.mrl.pixiv.common.compose.ui.BlockSurface
 import com.mrl.pixiv.common.compose.ui.BookmarkIcon
 import com.mrl.pixiv.common.compose.ui.IllustBottomBookmarkSheet
@@ -123,6 +124,8 @@ import com.mrl.pixiv.common.repository.viewmodel.follow.FollowState
 import com.mrl.pixiv.common.repository.viewmodel.follow.isFollowing
 import com.mrl.pixiv.common.router.CommentType
 import com.mrl.pixiv.common.router.NavigationManager
+import com.mrl.pixiv.common.router.currentNavigationManager
+import com.mrl.pixiv.common.util.Platform
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.ShareUtil
 import com.mrl.pixiv.common.util.adaptiveFileSize1
@@ -132,6 +135,7 @@ import com.mrl.pixiv.common.util.copyToClipboard
 import com.mrl.pixiv.common.util.getScreenHeight
 import com.mrl.pixiv.common.util.isDesktop
 import com.mrl.pixiv.common.util.platform
+import com.mrl.pixiv.common.util.selectSaveFile
 import com.mrl.pixiv.common.util.throttleClick
 import com.mrl.pixiv.common.viewmodel.asState
 import com.mrl.pixiv.picture.components.UgoiraPlayer
@@ -139,6 +143,7 @@ import com.mrl.pixiv.strings.cancel_user_blocked
 import com.mrl.pixiv.strings.copy_link
 import com.mrl.pixiv.strings.download
 import com.mrl.pixiv.strings.download_with_size
+import com.mrl.pixiv.strings.export_failed
 import com.mrl.pixiv.strings.follow
 import com.mrl.pixiv.strings.followed
 import com.mrl.pixiv.strings.hide_illust
@@ -155,8 +160,8 @@ import com.mrl.pixiv.strings.viewed
 import io.github.vinceglb.filekit.dialogs.FileKitDialogSettings
 import io.github.vinceglb.filekit.dialogs.compose.rememberFileSaverLauncher
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.time.Duration.Companion.seconds
@@ -167,7 +172,7 @@ fun PictureDeeplinkScreen(
     modifier: Modifier = Modifier,
     illustId: Long,
     pictureViewModel: PictureViewModel = koinViewModel { parametersOf(null, illustId) },
-    navigationManager: NavigationManager = koinInject(),
+    navigationManager: NavigationManager = currentNavigationManager(),
 ) {
     val state = pictureViewModel.asState()
     val illust = state.illust
@@ -211,7 +216,7 @@ internal fun PictureScreen(
     enableTransition: Boolean,
     modifier: Modifier = Modifier,
     pictureViewModel: PictureViewModel = koinViewModel { parametersOf(illust, null) },
-    navigationManager: NavigationManager = koinInject(),
+    navigationManager: NavigationManager = currentNavigationManager(),
 ) {
     val relatedIllusts = pictureViewModel.relatedIllusts.collectAsLazyPagingItems()
     val navToPictureScreen = navigationManager::navigateToPictureScreen
@@ -223,10 +228,11 @@ internal fun PictureScreen(
     val relatedLayoutParams = IllustGridDefaults.relatedLayoutParameters()
     val userLayoutParams = IllustGridDefaults.userLayoutParameters()
     val density = LocalDensity.current
+    val paneLayoutInfo = currentPaneLayoutInfo()
     val userSpanCount = with(userLayoutParams.gridCells) {
         with(density) {
             density.calculateCrossAxisCellSizes(
-                LocalWindowInfo.current.containerDpSize.width.roundToPx(),
+                paneLayoutInfo.size.width.roundToPx(),
                 relatedLayoutParams.horizontalArrangement.spacing.roundToPx(),
             ).size
         }
@@ -234,7 +240,7 @@ internal fun PictureScreen(
     val relatedSpanCount = with(relatedLayoutParams.gridCells) {
         with(density) {
             density.calculateCrossAxisCellSizes(
-                LocalWindowInfo.current.containerDpSize.width.roundToPx(),
+                paneLayoutInfo.size.width.roundToPx(),
                 relatedLayoutParams.horizontalArrangement.spacing.roundToPx()
             ).size
         }
@@ -246,8 +252,9 @@ internal fun PictureScreen(
     }
 
     val lazyListState = rememberLazyListState()
-    val windowAdaptiveInfo = currentWindowAdaptiveInfoV2()
-    val isWidthAtLeastMedium = windowAdaptiveInfo.isWidthAtLeastMedium
+    // Keep both image and details panes usable; medium widths need the single-column layout.
+    val useTwoPaneLayout = paneLayoutInfo.sizeClass.isWidthAtLeastExpanded
+    val pictureSplitState = rememberSplitPaneState(key = illust.id, initialFraction = 0.5f)
     val rightListState = rememberLazyListState()
     val currPage by remember {
         derivedStateOf {
@@ -258,7 +265,7 @@ internal fun PictureScreen(
         }
     }
     val isBarVisible by remember { derivedStateOf { lazyListState.firstVisibleItemIndex <= illust.pageCount } }
-    val isUserInfoFullyVisible = if (isWidthAtLeastMedium) true
+    val isUserInfoFullyVisible = if (useTwoPaneLayout) true
     else lazyListState.isItemFullyVisible(KEY_ILLUST_TITLE)
 
     val isBookmarked = illust.isBookmark
@@ -278,17 +285,18 @@ internal fun PictureScreen(
     val isIllustBlocked = BlockingRepositoryV2.collectIllustBlockAsState(illustId = illust.id)
     val isUserBlocked = BlockingRepositoryV2.collectUserBlockAsState(userId = illust.user.id)
     val isAnyBlocked = isIllustBlocked || isUserBlocked
-    val placeholder = rememberVectorPainter(Icons.Rounded.Refresh)
     val errorImage = rememberVectorPainter(Icons.Rounded.ErrorOutline)
 
     val prefix = LocalSharedKeyPrefix.current
     val sharedTransitionScope = LocalSharedTransitionScope.current
     val animatedContentScope = LocalNavAnimatedContentScope.current
     var showAdvancedBookmark by rememberSaveable { mutableStateOf(false) }
-    val bottomSheetState = rememberModalBottomSheetState(true)
+    val bottomSheetState = rememberBottomSheetState(
+        initialValue = SheetValue.Hidden,
+        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+    )
     var contextMenuImageIndex by remember { mutableStateOf<Int?>(null) }
     var contextMenuOffset by remember { mutableStateOf(Offset.Zero) }
-    var pendingSaveAsUrl by remember { mutableStateOf<String?>(null) }
     val showPreviewControls = !browsingSettings.autoHidePreviewControls ||
             !isBarVisible ||
             arePreviewControlsVisible
@@ -370,13 +378,29 @@ internal fun PictureScreen(
             )
         }
     }
-    val saveAsLauncher = rememberFileSaverLauncher(
-        dialogSettings = FileKitDialogSettings.createDefault()
-    ) { file ->
-        val url = pendingSaveAsUrl
-        pendingSaveAsUrl = null
-        if (file != null && url != null) {
-            pictureViewModel.saveAsImage(url, file)
+    // Mobile keeps FileKit's Compose ActivityResult integration; desktop borrows
+    // a native Tao parent for the lifetime of each file dialog.
+    var pendingMobileSaveAsUrl by remember { mutableStateOf<String?>(null) }
+    val mobileSaveAsLauncher = if (platform !is Platform.Desktop) {
+        rememberFileSaverLauncher(dialogSettings = FileKitDialogSettings.createDefault()) { file ->
+            val url = pendingMobileSaveAsUrl
+            pendingMobileSaveAsUrl = null
+            if (file != null && url != null) pictureViewModel.saveAsImage(url, file)
+        }
+    } else {
+        null
+    }
+    val coroutineScope = rememberCoroutineScope()
+    fun saveAsImage(url: String) {
+        val (fileName, extension) = extractFileNameAndExtension(url)
+        if (mobileSaveAsLauncher != null) {
+            pendingMobileSaveAsUrl = url
+            mobileSaveAsLauncher.launch(suggestedName = fileName, defaultExtension = extension)
+            return
+        }
+        coroutineScope.launch {
+            val file = selectSaveFile(fileName, extension, RStrings.export_failed)
+            if (file != null) pictureViewModel.saveAsImage(url, file)
         }
     }
 
@@ -405,6 +429,10 @@ internal fun PictureScreen(
                     illust.pageCount,
                     key = { "${illust.id}_$it" },
                 ) { index ->
+                    val placeholder = com.mrl.pixiv.picture.components.rememberArtworkPagePlaceholder(
+                        page = index + 1,
+                        pageCount = illust.pageCount,
+                    )
                     val imageKey = "image-${illust.id}-$index"
                     val sharedImageKey = "${prefix}-$imageKey"
                     if (illust.pageCount > 1) {
@@ -457,17 +485,10 @@ internal fun PictureScreen(
                                         onDownload = { url ->
                                             pictureViewModel.downloadIllust(illust.id, index, url)
                                         },
-                                        onSaveAs = { url ->
-                                            pendingSaveAsUrl = url
-                                            val (fileName, extension) = extractFileNameAndExtension(
-                                                url
-                                            )
-                                            saveAsLauncher.launch(
-                                                suggestedName = fileName,
-                                                defaultExtension = extension
-                                            )
-                                        },
-                                        onCopyLink = { url -> copyToClipboard(url) }
+                                        onSaveAs = ::saveAsImage,
+                                        onCopyLink = { url ->
+                                            coroutineScope.launch { copyToClipboard(url) }
+                                        }
                                     )
                                 }
                             }
@@ -521,15 +542,10 @@ internal fun PictureScreen(
                                     onDownload = { url ->
                                         pictureViewModel.downloadIllust(illust.id, 0, url)
                                     },
-                                    onSaveAs = { url ->
-                                        pendingSaveAsUrl = url
-                                        val (fileName, extension) = extractFileNameAndExtension(url)
-                                        saveAsLauncher.launch(
-                                            suggestedName = fileName,
-                                            defaultExtension = extension
-                                        )
-                                    },
-                                    onCopyLink = { url -> copyToClipboard(url) }
+                                    onSaveAs = ::saveAsImage,
+                                    onCopyLink = { url ->
+                                        coroutineScope.launch { copyToClipboard(url) }
+                                    }
                                 )
                             }
                         }
@@ -795,7 +811,7 @@ internal fun PictureScreen(
                     )
                 },
             topBar = {
-                if (!isWidthAtLeastMedium) {
+                if (!useTwoPaneLayout) {
                     AnimatedVisibility(
                         visible = showPreviewControls,
                         enter = fadeIn(),
@@ -870,83 +886,82 @@ internal fun PictureScreen(
                         }
                     }
                 )
-            } else if (isWidthAtLeastMedium) {
-                Row(modifier = Modifier.fillMaxSize()) {
-                    // Left pane: image list with PictureTopBar overlaid
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                    ) {
-                        LazyColumn(
-                            state = lazyListState,
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            illustImageItems()
-                        }
-                        this@Row.AnimatedVisibility(
-                            visible = showPreviewControls,
-                            enter = fadeIn(),
-                            exit = fadeOut(),
-                        ) {
-                            PictureTopBar(
-                                illust = illust,
-                                currPage = currPage,
-                                isBarVisible = isBarVisible,
-                                isIllustBlocked = isIllustBlocked,
-                                isUserBlocked = isUserBlocked,
-                                onBack = onBack,
-                                popBackToHomeScreen = popBackToHomeScreen,
-                                navToUserDetailScreen = navToUserDetailScreen,
-                                onBlock = pictureViewModel::blockIllust,
-                                onRemoveBlock = pictureViewModel::removeBlockIllust
-                            )
-                        }
-                    }
-                    // Right pane: details and related works
-                    BoxWithConstraints(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                    ) {
-                        val rightPaneWidth = maxWidth
-                        val rightRelatedSpanCount = with(relatedLayoutParams.gridCells) {
-                            with(density) {
-                                calculateCrossAxisCellSizes(
-                                    rightPaneWidth.roundToPx(),
-                                    relatedLayoutParams.horizontalArrangement.spacing.roundToPx()
-                                ).size
+            } else if (useTwoPaneLayout) {
+                ResizableSplitLayout(
+                    state = pictureSplitState,
+                    minSourceWidth = 320.dp,
+                    minDetailWidth = 360.dp,
+                    source = {
+                        // Left pane: image list with PictureTopBar overlaid
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            LazyColumn(
+                                state = lazyListState,
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                illustImageItems()
+                            }
+                            AnimatedVisibility(
+                                visible = showPreviewControls,
+                                enter = fadeIn(),
+                                exit = fadeOut(),
+                            ) {
+                                PictureTopBar(
+                                    illust = illust,
+                                    currPage = currPage,
+                                    isBarVisible = isBarVisible,
+                                    isIllustBlocked = isIllustBlocked,
+                                    isUserBlocked = isUserBlocked,
+                                    onBack = onBack,
+                                    popBackToHomeScreen = popBackToHomeScreen,
+                                    navToUserDetailScreen = navToUserDetailScreen,
+                                    onBlock = pictureViewModel::blockIllust,
+                                    onRemoveBlock = pictureViewModel::removeBlockIllust
+                                )
                             }
                         }
-                        val rightUserSpanCount = with(userLayoutParams.gridCells) {
-                            with(density) {
-                                calculateCrossAxisCellSizes(
-                                    rightPaneWidth.roundToPx(),
-                                    relatedLayoutParams.horizontalArrangement.spacing.roundToPx()
-                                ).size
+                    },
+                    detail = {
+                        // Right pane: details and related works
+                        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                            val rightPaneWidth = maxWidth
+                            val rightRelatedSpanCount = with(relatedLayoutParams.gridCells) {
+                                with(density) {
+                                    calculateCrossAxisCellSizes(
+                                        rightPaneWidth.roundToPx(),
+                                        relatedLayoutParams.horizontalArrangement.spacing.roundToPx()
+                                    ).size
+                                }
+                            }
+                            val rightUserSpanCount = with(userLayoutParams.gridCells) {
+                                with(density) {
+                                    calculateCrossAxisCellSizes(
+                                        rightPaneWidth.roundToPx(),
+                                        relatedLayoutParams.horizontalArrangement.spacing.roundToPx()
+                                    ).size
+                                }
+                            }
+                            val rightRelatedRowCount =
+                                if (relatedIllusts.itemCount % rightRelatedSpanCount == 0) {
+                                    relatedIllusts.itemCount / rightRelatedSpanCount
+                                } else {
+                                    relatedIllusts.itemCount / rightRelatedSpanCount + 1
+                                }
+                            LazyColumn(
+                                state = rightListState,
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                illustDetailItems(
+                                    currentUserSpanCount = rightUserSpanCount,
+                                    currentRelatedSpanCount = rightRelatedSpanCount,
+                                    currentRelatedRowCount = rightRelatedRowCount,
+                                )
+                                item(key = KEY_SPACER) {
+                                    Spacer(modifier = Modifier.height(70.dp))
+                                }
                             }
                         }
-                        val rightRelatedRowCount =
-                            if (relatedIllusts.itemCount % rightRelatedSpanCount == 0) {
-                                relatedIllusts.itemCount / rightRelatedSpanCount
-                            } else {
-                                relatedIllusts.itemCount / rightRelatedSpanCount + 1
-                            }
-                        LazyColumn(
-                            state = rightListState,
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            illustDetailItems(
-                                currentUserSpanCount = rightUserSpanCount,
-                                currentRelatedSpanCount = rightRelatedSpanCount,
-                                currentRelatedRowCount = rightRelatedRowCount,
-                            )
-                            item(key = KEY_SPACER) {
-                                Spacer(modifier = Modifier.height(70.dp))
-                            }
-                        }
-                    }
-                }
+                    },
+                )
             } else {
                 LazyColumn(
                     state = lazyListState,
@@ -1119,7 +1134,10 @@ private fun BottomMenu(
     onDownload: () -> Unit = {},
     onShare: () -> Unit = {}
 ) {
-    val bottomSheetState = rememberModalBottomSheetState(true)
+    val bottomSheetState = rememberBottomSheetState(
+        initialValue = SheetValue.Hidden,
+        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+    )
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -1246,6 +1264,7 @@ private fun PictureTopBar(
     modifier: Modifier = Modifier,
 ) {
     var showBottomMenu by rememberSaveable { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     TopAppBar(
         title = {},
         modifier = modifier,
@@ -1316,10 +1335,12 @@ private fun PictureTopBar(
                 )
                 BottomMenuItem(
                     onClick = {
-                        ShareUtil.shareText(
-                            "${illust.title} | ${illust.user.name} #pixiv https://www.pixiv.net/artworks/${illust.id}"
-                        )
-                        showBottomMenu = false
+                        coroutineScope.launch {
+                            ShareUtil.shareText(
+                                "${illust.title} | ${illust.user.name} #pixiv https://www.pixiv.net/artworks/${illust.id}"
+                            )
+                            showBottomMenu = false
+                        }
                     },
                     text = stringResource(RStrings.share),
                     modifier = Modifier.padding(vertical = 15.dp),

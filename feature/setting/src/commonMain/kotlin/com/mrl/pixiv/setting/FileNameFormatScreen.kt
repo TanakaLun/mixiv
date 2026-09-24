@@ -26,22 +26,24 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.data.setting.UserPreference
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.router.NavigationManager
+import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
-import com.mrl.pixiv.common.util.throttleClick
 import com.mrl.pixiv.strings.download_single_folder_by_user_desc
 import com.mrl.pixiv.strings.download_single_folder_by_user_title
 import com.mrl.pixiv.strings.file_name_format_title
@@ -53,13 +55,12 @@ import com.mrl.pixiv.strings.legend_title
 import com.mrl.pixiv.strings.legend_user_id
 import com.mrl.pixiv.strings.legend_user_name
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun FileNameFormatScreen(
     modifier: Modifier = Modifier,
-    navigationManager: NavigationManager = koinInject()
+    navigationManager: NavigationManager = currentNavigationManager()
 ) {
     val userPreference by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle()
     val format = rememberTextFieldState(userPreference.fileNameFormat)
@@ -107,19 +108,20 @@ fun FileNameFormatScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             ListItem(
-                headlineContent = {
+                onClick = rememberThrottleClick {
+                    SettingRepository.setDownloadSubFolderByUser(
+                        !userPreference.downloadSubFolderByUser
+                    )
+                },
+                shapes = ListItemDefaults.shapes(shape = RectangleShape),
+                content = {
                     Text(text = stringResource(RStrings.download_single_folder_by_user_title))
                 },
                 supportingContent = {
                     Text(text = stringResource(RStrings.download_single_folder_by_user_desc))
                 },
                 modifier = Modifier
-                    .height(IntrinsicSize.Min)
-                    .throttleClick(indication = ripple()) {
-                        SettingRepository.setDownloadSubFolderByUser(
-                            !userPreference.downloadSubFolderByUser
-                        )
-                    },
+                    .height(IntrinsicSize.Min),
                 leadingContent = {
                     Column(
                         modifier = Modifier.fillMaxHeight(),
