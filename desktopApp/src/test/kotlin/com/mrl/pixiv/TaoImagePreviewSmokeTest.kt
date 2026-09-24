@@ -252,10 +252,10 @@ object TaoImagePreviewSmokeHarness {
 private const val PreviewImageArgb = 0xffbc2649.toInt()
 
 private fun TaoWindow.dispatchSmokePointer(code: Int, first: Int, second: Int) {
-    // Tao exposes event listeners publicly but its dispatch entry is internal. Reflection keeps
-    // this test on the native host's input path without requiring global OS input permissions.
+    // 通过反射走原生窗口的事件分发入口，避免依赖系统级输入权限。
+    // 只去掉 Kotlin 的内部名称后缀，防止误匹配同参数的滚动手势入口。
     val dispatch = javaClass.declaredMethods.single {
-        it.name.startsWith("dispatch") && it.parameterTypes.contentEquals(
+        it.name.substringBefore('$') == "dispatch" && it.parameterTypes.contentEquals(
             arrayOf(Int::class.javaPrimitiveType, Int::class.javaPrimitiveType, Int::class.javaPrimitiveType),
         )
     }
