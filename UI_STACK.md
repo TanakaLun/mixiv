@@ -159,10 +159,83 @@ exit:  fadeOut(tween(90))
 | Navigation3 转场 | **保留 Navigation3**；优先只换 chrome，不动 `AdaptiveScene`/`transitionSpec`；或评估 `miuix-nav`（更名自 `miuix-navigation3-ui`，自研 runtime、零依赖 androidx.navigation3，接入=整套替换） |
 | 毛玻璃 / textureBlur | `miuix-blur`（**minSdk 33**，应用 minSdk 26 → 需门控） |
 
+### 5.1 Material Icons → MiuixIcons mapping
+
+> 导出时间：Phase 5。权威图标列表：`docs/guide/icons.md`（miuix 源码）。
+> 用法：`MiuixIcons.Name`（Regular 默认）+ `import top.yukonga.miuix.kmp.icon.extended.Name`；basic 用 `MiuixIcons.Basic.Name` + `import top.yukonga.miuix.kmp.icon.basic.Name`。
+
+| Material | MiuixIcons | 状态 |
+|---|---|---|
+| `AutoMirrored.Rounded.ArrowBack` | `Back` | 可迁 |
+| `AutoMirrored.Rounded.ArrowBackIos` | `ChevronBackward` | 可迁 |
+| `AutoMirrored.Rounded.ArrowForward` | `Forward` | 可迁 |
+| `AutoMirrored.Rounded.ArrowForwardIos` | `ChevronForward` | 可迁 |
+| `AutoMirrored.Rounded.Sort` | `Sort` | 可迁 |
+| `AutoMirrored.Rounded.ViewList` | `ListView` | 可迁 |
+| `AutoMirrored.Rounded.Logout` | （无） | 暂留 / issue |
+| `AutoMirrored.Filled.Comment` | `Messages` | 可迁（近似） |
+| `Default.MoreHoriz` / `Rounded.MoreVert` | `More` | 可迁 |
+| `Default.EditCalendar` | `Edit` | 可迁（近似） |
+| `Default.EmojiEmotions` | （无） | 暂留 / issue |
+| `Outlined.WatchLater` / `Rounded.WatchLater` / `Rounded.Schedule` | `Alarm` / `Timer` | 可迁 |
+| `Rounded.AccountCircle` | `ContactsCircle` | 可迁（近似） |
+| `Rounded.Add` | `Add` | 可迁 |
+| `Rounded.AddLink` | `Link` | 可迁 |
+| `Rounded.ArrowDropDown` | `ExpandMore` | 可迁 |
+| `Rounded.ArrowUpward` | （无） | 暂留 / issue |
+| `Rounded.AutoAwesome` | （无） | 暂留 / issue |
+| `Rounded.Block` | `Blocklist` | 可迁 |
+| `Rounded.Book` | `Notes` | 可迁（近似） |
+| `Rounded.Bookmark` / `BookmarkBorder` / `Bookmarks` | （无 bookmark） | 暂留 / issue |
+| `Rounded.CalendarMonth` | `Months` | 可迁 |
+| `Rounded.Check` | `Ok` 或 `MiuixIcons.Basic.Check` | 可迁 |
+| `Rounded.CheckCircle` | `Ok` | 可迁 |
+| `Rounded.Close` | `Close` 或 `MiuixIcons.Basic.Close` | 可迁 |
+| `Rounded.CollectionsBookmark` | `MapAlbum` | 可迁（近似） |
+| `Rounded.ContentCopy` | `Copy` | 可迁 |
+| `Rounded.ContentPaste` | `Paste` | 可迁 |
+| `Rounded.Delete` | `Delete` | 可迁 |
+| `Rounded.Download` | `Download` | 可迁 |
+| `Rounded.Equalizer` | `Tune` | 可迁 |
+| `Rounded.Error` / `ErrorOutline` | `Report` | 可迁（近似） |
+| `Rounded.Favorite` | `FavoritesFill` | 可迁 |
+| `Rounded.FavoriteBorder` | `Favorites` | 可迁 |
+| `Rounded.FilterAlt` / `FilterList` | `Filter` | 可迁 |
+| `Rounded.Folder` | `Folder` | 可迁 |
+| `Rounded.HideImage` | `Hide` | 可迁（近似） |
+| `Rounded.History` | `Recent` | 可迁 |
+| `Rounded.Home` | `Home` | 可迁 |
+| `Rounded.Image` | `Image` | 可迁 |
+| `Rounded.ImportExport` | `Import` | 可迁（近似） |
+| `Rounded.Info` | `Info` | 可迁 |
+| `Rounded.Lock` | `Lock` | 可迁 |
+| `Rounded.NetworkWifi` | （无） | 暂留 / issue |
+| `Rounded.Palette` | `Theme` | 可迁（近似） |
+| `Rounded.Person` | `Contacts` | 可迁（近似） |
+| `Rounded.PersonOff` | （无） | 暂留 / issue |
+| `Rounded.Refresh` | `Refresh` | 可迁 |
+| `Rounded.Save` | （无 save） | 暂留 / issue |
+| `Rounded.Search` | `Search` 或 `MiuixIcons.Basic.Search` | 可迁 |
+| `Rounded.Settings` | `Settings` | 可迁 |
+| `Rounded.Storage` | （无） | 暂留 / issue |
+| `Rounded.Style` | （无） | 暂留 / issue |
+| `Rounded.Tag` | （无） | 暂留 / issue |
+| `Rounded.TextFields` | （无） | 暂留 / issue |
+| `Rounded.TouchApp` | （无） | 暂留 / issue |
+| `Rounded.Translate` | `Translate` | 可迁 |
+| `Rounded.Upload` | `UploadCloud` | 可迁（近似） |
+| `Rounded.ViewModule` | `GridView` | 可迁 |
+| `Rounded.Visibility` | `Show` | 可迁 |
+| `Rounded.VisibilityOff` | `Hide` | 可迁 |
+| `Rounded.Warning` | `Report` | 可迁（近似） |
+| `Rounded._18UpRating` | （无） | 暂留 / issue |
+
+Miuix basic icons（仅 Regular）：`ArrowRight`, `ArrowUpDown`, `Check`, `Close`, `Search`, `SearchCleanup`, `Sidebar` → use `MiuixIcons.Basic.X`.
+
 ## 6. 约束与风险
 
 1. **minSdk 26** vs `miuix-blur` minSdk 33 → blur 需版本门控或放弃。
-2. `androidx.compose.material3` 包下自定义文件（`IconButtonExt.kt`）会与官方 API 冲突风险，迁移时迁出。
+2. `androidx.compose.material3` 包下自定义文件（`IconButtonExt.kt`）**已删除**；长按按钮改为 `com.mrl.pixiv.common.compose.ui.LongPressIconButton`（foundation `combinedClickable`）。
 3. Dynamic color + expressiveness 色板与 Miuix token 不一致，需 `ThemeController` 类桥接（skill: `ThemeController`, 深色模式, 动态颜色）。
 4. Shared element + predictive back 依赖 Nav3 metadata，换组件库时勿改 graph 结构。
 5. 双 material 栈（androidx + jetbrains）并存；Android-only 后可逐步收敛到单栈，但与 miuix 迁移解耦处理。

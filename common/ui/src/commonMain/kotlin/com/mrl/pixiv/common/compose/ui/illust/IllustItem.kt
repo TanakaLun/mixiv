@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.SheetValue
@@ -56,6 +55,7 @@ import com.mrl.pixiv.common.compose.LocalSharedTransitionScope
 import com.mrl.pixiv.common.compose.layout.isWidthAtLeastExpanded
 import com.mrl.pixiv.common.compose.ui.BookmarkIcon
 import com.mrl.pixiv.common.compose.ui.IllustBottomBookmarkSheet
+import com.mrl.pixiv.common.compose.ui.LongPressIconButton
 import com.mrl.pixiv.common.data.AiType
 import com.mrl.pixiv.common.data.Illust
 import com.mrl.pixiv.common.data.Restrict
@@ -176,7 +176,7 @@ fun SquareIllustItem(
                     shouldShowTip = shouldShowTip,
                     modifier = Modifier.align(Alignment.BottomEnd),
                 ) {
-                    IconButton(
+                    LongPressIconButton(
                         onClick = throttleClick {
                             val restrict =
                                 if (requireUserPreferenceValue.defaultPrivateBookmark) Restrict.PRIVATE else Restrict.PUBLIC
@@ -305,7 +305,7 @@ fun RectangleIllustItem(
                     BookmarkTooltipBox(
                         shouldShowTip = shouldShowTip,
                     ) {
-                        IconButton(
+                        LongPressIconButton(
                             onClick = throttleClick {
                                 val restrict =
                                     if (requireUserPreferenceValue.defaultPrivateBookmark) Restrict.PRIVATE else Restrict.PUBLIC

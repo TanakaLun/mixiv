@@ -16,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.TextFields
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
@@ -36,6 +35,7 @@ import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.mrl.pixiv.common.compose.ui.BookmarkIcon
+import com.mrl.pixiv.common.compose.ui.LongPressIconButton
 import com.mrl.pixiv.common.compose.ui.NovelBottomBookmarkSheet
 import com.mrl.pixiv.common.compose.ui.illust.AIBadge
 import com.mrl.pixiv.common.data.AiType
@@ -50,6 +50,7 @@ import com.mrl.pixiv.common.util.allowRgb565
 import com.mrl.pixiv.common.util.convertUtcStringToLocalDateTime
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import kotlin.time.Duration.Companion.seconds
@@ -231,7 +232,7 @@ fun NovelItem(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 NovelReadLaterButton(novel = novel)
-                IconButton(
+                LongPressIconButton(
                     onClick = {
                         val restrict = if (requireUserPreferenceValue.defaultPrivateBookmark) {
                             Restrict.PRIVATE

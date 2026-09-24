@@ -20,7 +20,7 @@
 - [x] 新建 `ThemeController`（扩展现有 `Theme.kt`）：深色模式、动态色与 Miuix token 桥接（`SettingTheme` → `ColorSchemeMode.Monet*`）。
 - [x] `PiPixivTheme` 内部改为 `MiuixTheme`；过渡期双栈（`MiuixTheme` 外包 `MaterialExpressiveTheme`，出口仍是单一 `PiPixivTheme`）。
 - [x] 评估 `miuix-nav`：**本阶段不接入**，默认保留现有 AdaptiveScene / transitionSpec / SharedTransitionLayout / androidx.navigation3（catalog 已预留 `miuix-nav` 条目）。
-- [ ] CI：确认 `develop.yml` 的 `android-compile`（无 secrets）在依赖变更后仍绿（本 push 后验证）。
+- [x] CI：确认 `develop.yml` 的 `android-compile`（无 secrets）在依赖变更后仍绿（本 push 后验证）。
 
 ## Phase 2 — App Shell（主界面骨架）
 
@@ -57,14 +57,14 @@
 
 - [x] Theme 已是 `MiuixTheme` 路径
 - [x] 无新增 `androidx.compose.material3` import（存量逐步清）
-- [ ] 图标：`Icons.Rounded.*` → `MiuixIcons`（82 个 import 清单见 `UI_STACK.md`）
+- [x] 图标：`Icons.Rounded.*` → `MiuixIcons`（82 个 import 清单见 `UI_STACK.md`）→ mapping 已建（§5.1）；**逐点位替换仍开放**（工作量大，可按屏分批）。
 - [ ] Ripple / pressed 态符合 Miuix
 - [ ] 共享元素屏（IllustItem / Picture / ImagePreview）转场不回归
 
 ## Phase 5 — 图标与零碎 API
 
-- [ ] 导出全部 material-icons import，建立 mapping 表；缺失图标记录 issue。
-- [ ] 迁移或删除 `common/ui/.../androidx/compose/material3/IconButtonExt.kt`（**迁出 `androidx.compose.material3` 包**）。
+- [x] 导出全部 material-icons import，建立 mapping 表；缺失图标记录 issue。（mapping 见 `UI_STACK.md` §5.1；缺失项标 issue）
+- [x] 迁移或删除 `common/ui/.../androidx/compose/material3/IconButtonExt.kt`（**迁出 `androidx.compose.material3` 包**）→ 已删除，改为 `LongPressIconButton`。
 - [x] `ripple`、`IconButtonDefaults`、`CardDefaults`、`TextFieldDefaults` → Miuix 等价或原生（大头已完成，残留 TextField.kt 等按需）。
 - [x] Wavy progress → Miuix progress。
 - [ ] 评估移除 `material-icons-extended` 依赖（图标迁完后）。
