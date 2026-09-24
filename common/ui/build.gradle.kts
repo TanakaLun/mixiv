@@ -23,6 +23,8 @@ kotlin {
             implementation(libs.bundles.compose.navigation3)
             // Toast
             implementation(libs.sonner)
+            // miuix
+            implementation(libs.bundles.miuix)
         }
 
         commonTest.dependencies {

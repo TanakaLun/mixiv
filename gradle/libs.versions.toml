@@ -30,6 +30,7 @@ hotswan = "2.0.2"
 webview = "1.0.3"
 nucleus = "2.5.18"
 zoomimage = "1.7.0-beta01"
+miuix = "0.9.4"
 
 # AndroidX
 agp = "9.4.1"
@@ -128,6 +129,12 @@ filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose
 filekit-coil = { module = "io.github.vinceglb:filekit-coil", version.ref = "filekit" }
 
 html-converter = { module = "be.digitalia.compose.htmlconverter:htmlconverter", version.ref = "htmlconverter" }
+
+miuix-ui = { module = "top.yukonga.miuix.kmp:miuix-ui", version.ref = "miuix" }
+miuix-preference = { module = "top.yukonga.miuix.kmp:miuix-preference", version.ref = "miuix" }
+miuix-icons = { module = "top.yukonga.miuix.kmp:miuix-icons", version.ref = "miuix" }
+miuix-nav = { module = "top.yukonga.miuix.kmp:miuix-nav", version.ref = "miuix" }
+miuix-squircle = { module = "top.yukonga.miuix.kmp:miuix-squircle", version.ref = "miuix" }
 
 okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version.ref = "okhttp" }
 okhttp = { module = "com.squareup.okhttp3:okhttp" }
@@ -259,6 +266,7 @@ markdown = ["markdown-core", "markdown-m3"]
 lottie = ["lottie", "lottie-compose"]
 firebase = ["firebase-analytics", "firebase-crashlytics"]
 filekit = ["filekit-core", "filekit-dialogs", "filekit-dialogs-compose", "filekit-coil"]
+miuix = ["miuix-ui", "miuix-preference", "miuix-icons"]
 
 # AndroidX
 androidx = ["androidx-activity-compose", "androidx-appcompat", "androidx-core-ktx"]

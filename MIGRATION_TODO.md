@@ -5,21 +5,21 @@
 
 ## 0. 前置（必做）
 
-- [ ] 加载 `miuix` skill，核对当前版本 API（勿凭记忆写组件名）。
-- [ ] `gradle/libs.versions.toml` 增加 miuix 模块依赖（按需）：
+- [x] 加载 `miuix` skill，核对当前版本 API（勿凭记忆写组件名）。
+- [x] `gradle/libs.versions.toml` 增加 miuix 模块依赖（按需）：
   - `miuix-ui`、`miuix-preference`、`miuix-icons`、`miuix-nav`、`miuix-squircle`（原 `miuix-navigation3-ui` 已更名/弃用，现为自研 `miuix-nav`，零依赖 `androidx.navigation3`）
   - `miuix-blur`：仅当 minSdk≥33 或运行时门控；当前 **minSdk 26 → 默认不引入或加开关**。
-- [ ] 所有 Compose 根节点用 `MiuixTheme { ... }` 包裹（替换或桥接 `PiPixivTheme` / `MaterialExpressiveTheme`）。
-- [ ] 确认 Overlay 组件调用链外层有 Miuix `Scaffold` 祖先。
-- [ ] 决定策略：**全量替换 Material** vs **增量（设置页先行）**。默认建议增量，见 Phase 分阶段。
+- [x] 所有 Compose 根节点用 `MiuixTheme { ... }` 包裹（替换或桥接 `PiPixivTheme` / `MaterialExpressiveTheme`）。
+- [ ] 确认 Overlay 组件调用链外层有 Miuix `Scaffold` 祖先（随 Phase 3 迁 preference/overlay 时确认）。
+- [x] 决定策略：**增量（设置页先行）**，过渡期双栈。
 - [ ] 每阶段结束：英文 conventional commit → push → `gh run list` / `gh run watch`。
 
 ## Phase 1 — 基础设施
 
-- [ ] 添加 miuix 依赖与 BOM/版本对齐（只动 catalog + 相关 `build.gradle.kts`）。
-- [ ] 新建 `ThemeController`（或扩展现有 `Theme.kt`）：深色模式、动态色与 Miuix token 桥接。
-- [ ] `PiPixivTheme` 内部改为 `MiuixTheme`；过渡期可双栈（Material 未迁移屏仍可用），但出口必须是单一 Theme。
-- [ ] 评估 `miuix-nav`（`top.yukonga.miuix.kmp:miuix-nav`，自研 runtime、`@Serializable` route、`NavDisplay`）是否整体替换 Navigation3；**默认保留现有 AdaptiveScene / transitionSpec / SharedTransitionLayout / androidx.navigation3**（见 `UI_STACK.md` §3），本阶段不动转场。注意：接入 `miuix-nav` = 换整套导航模型，不是 Navigation3 的 UI 插件。
+- [x] 添加 miuix 依赖与 BOM/版本对齐（只动 catalog + 相关 `build.gradle.kts`）。
+- [x] 新建 `ThemeController`（扩展现有 `Theme.kt`）：深色模式、动态色与 Miuix token 桥接（`SettingTheme` → `ColorSchemeMode.Monet*`）。
+- [x] `PiPixivTheme` 内部改为 `MiuixTheme`；过渡期双栈（`MiuixTheme` 外包 `MaterialExpressiveTheme`，出口仍是单一 `PiPixivTheme`）。
+- [x] 评估 `miuix-nav`：**本阶段不接入**，默认保留现有 AdaptiveScene / transitionSpec / SharedTransitionLayout / androidx.navigation3（catalog 已预留 `miuix-nav` 条目）。
 - [ ] CI：确认 `develop.yml` 的 `android-compile`（无 secrets）在依赖变更后仍绿。
 
 ## Phase 2 — App Shell（主界面骨架）
