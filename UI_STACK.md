@@ -156,7 +156,7 @@ exit:  fadeOut(tween(90))
 | `CircularProgressIndicator` / Wavy | Miuix progress（查 skill API） |
 | `Text` / `Button` / `IconButton` | Miuix 基础组件 + `MiuixIcons` |
 | `MaterialExpressiveTheme` | `MiuixTheme` 包裹（skill 强制） |
-| Navigation3 转场 | **保留 Navigation3**；优先只换 chrome，不动 `AdaptiveScene`/`transitionSpec`；或评估 `miuix-navigation3-ui` |
+| Navigation3 转场 | **保留 Navigation3**；优先只换 chrome，不动 `AdaptiveScene`/`transitionSpec`；或评估 `miuix-nav`（更名自 `miuix-navigation3-ui`，自研 runtime、零依赖 androidx.navigation3，接入=整套替换） |
 | 毛玻璃 / textureBlur | `miuix-blur`（**minSdk 33**，应用 minSdk 26 → 需门控） |
 
 ## 6. 约束与风险
