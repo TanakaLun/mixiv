@@ -46,9 +46,11 @@ internal fun KotlinMultiplatformExtension.commonDependencies() {
         kspAndroid(libs.findLibrary("koin-ksp-compiler").get())
         kspCommonMainMetadata(libs.findLibrary("koin-ksp-compiler").get())
     }
+    val kspCommonMetadataTasks =
+        project.tasks.matching { it.name == "kspCommonMainKotlinMetadata" }
     project.tasks.configureEach {
         if (name.startsWith("ksp") && name != "kspCommonMainKotlinMetadata") {
-            dependsOn("kspCommonMainKotlinMetadata")
+            dependsOn(kspCommonMetadataTasks)
         }
     }
 }
