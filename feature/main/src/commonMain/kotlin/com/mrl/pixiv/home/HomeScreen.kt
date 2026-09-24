@@ -240,7 +240,7 @@ private fun HomeImageFeedPage(
     PullToRefresh(
         isRefreshing = isRefreshing,
         onRefresh = recommendImageList::refresh,
-        modifier = modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         pullToRefreshState = pullRefreshState,
     ) {
         Box(

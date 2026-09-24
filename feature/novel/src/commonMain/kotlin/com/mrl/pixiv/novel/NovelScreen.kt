@@ -873,7 +873,6 @@ fun NovelScreen(
             )
         }
     }
-}
 
 @Composable
 private fun NovelBottomSheetContent(

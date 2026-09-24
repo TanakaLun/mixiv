@@ -1279,7 +1279,7 @@ private fun PictureTopBar(
                                 showBottomMenu = true
                             },
                     )
-                    AnimatedVisibility(
+                    androidx.compose.animation.AnimatedVisibility(
                         modifier = Modifier.align(Alignment.Center),
                         visible = isBarVisible,
                         enter = fadeIn(),

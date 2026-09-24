@@ -69,32 +69,10 @@ fun MainNavigationScaffold(
 
     when (layoutType) {
         NavigationSuiteType.None -> content()
-        NavigationSuiteType.BottomBar -> Column(modifier = Modifier.fillMaxSize()) {
-            Box(modifier = Modifier.weight(1f)) {
-                content()
-            }
-            NavigationBar {
-                screens.forEach { (screen, title) ->
-                    NavigationBarItem(
-                        selected = page == screen,
-                        onClick = {
-                            if (page != screen) {
-                                navigationManager.switchMainPage(screen)
-                            }
-                        },
-                        icon = screen.icon,
-                        label = stringResource(title),
-                        badge = if (screen == MainPage.Profile && hasNewVersion) {
-                            { Badge() }
-                        } else {
-                            null
-                        },
-                    )
-                }
-            }
-        }
-
-        else -> Row(modifier = Modifier.fillMaxSize()) {
+        NavigationSuiteType.NavigationRail,
+        NavigationSuiteType.WideNavigationRailCollapsed,
+        NavigationSuiteType.WideNavigationRailExpanded,
+        -> Row(modifier = Modifier.fillMaxSize()) {
             NavigationRail {
                 screens.forEach { (screen, title) ->
                     NavigationRailItem(
@@ -116,6 +94,31 @@ fun MainNavigationScaffold(
             }
             Box(modifier = Modifier.weight(1f)) {
                 content()
+            }
+        }
+
+        else -> Column(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.weight(1f)) {
+                content()
+            }
+            NavigationBar {
+                screens.forEach { (screen, title) ->
+                    NavigationBarItem(
+                        selected = page == screen,
+                        onClick = {
+                            if (page != screen) {
+                                navigationManager.switchMainPage(screen)
+                            }
+                        },
+                        icon = screen.icon,
+                        label = stringResource(title),
+                        badge = if (screen == MainPage.Profile && hasNewVersion) {
+                            { Badge() }
+                        } else {
+                            null
+                        },
+                    )
+                }
             }
         }
     }

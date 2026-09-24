@@ -503,7 +503,7 @@ private fun ProfileDetailSection(
                             .clip(imageShape)
                             .border(
                                 width = 1.dp,
-                                color = MiuixTheme.colorScheme.outlineVariant,
+                                color = MiuixTheme.colorScheme.dividerLine,
                                 shape = imageShape,
                             ),
                     )

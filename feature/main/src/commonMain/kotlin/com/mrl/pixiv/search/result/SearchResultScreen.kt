@@ -295,7 +295,6 @@ fun SearchResultsScreen(
                 },
                 onRefresh = onRefresh,
             )
-            )
         },
     ) {
         HorizontalPager(

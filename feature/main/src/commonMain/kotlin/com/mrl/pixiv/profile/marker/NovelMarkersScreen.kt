@@ -83,7 +83,9 @@ fun NovelMarkersScreen(
                     MarkerMessage(
                         text = stringResource(RStrings.load_failed),
                         action = {
-                            Button(onClick = markers::retry, text = stringResource(RStrings.retry))
+                            Button(onClick = markers::retry) {
+                                Text(text = stringResource(RStrings.retry))
+                            }
                         },
                     )
                 }
