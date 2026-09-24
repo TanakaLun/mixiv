@@ -69,7 +69,10 @@ fun NetworkSettingScreen(
             Card(modifier = Modifier.padding(horizontal = 12.dp)) {
                 BypassSettingEditor(
                     bypassSetting = userPreference.bypassSetting,
-                    onUpdate = { setting -> viewModel.updateBypassSetting(setting) },
+                    onUpdate = { setting ->
+                        viewModel.updateBypassSetting(setting)
+                        ToastUtil.safeShortToast(RStrings.restart_app_to_take_effect)
+                    },
                 )
             }
 

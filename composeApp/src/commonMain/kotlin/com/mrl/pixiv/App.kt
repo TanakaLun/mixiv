@@ -17,6 +17,7 @@ import com.mrl.pixiv.common.repository.VersionManager
 import com.mrl.pixiv.common.viewmodel.asState
 import com.mrl.pixiv.navigation.AppNavGraph
 import com.mrl.pixiv.setting.network.AiLocalNetworkPermissionEffect
+import com.mrl.pixiv.setting.network.LocalNetworkPermissionEffect
 import com.mrl.pixiv.splash.SplashViewModel
 import com.mrl.pixiv.theme.PiPixivTheme
 import io.github.vinceglb.filekit.FileKit
@@ -42,8 +43,12 @@ fun App(
     val aiEndpoint by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle {
         aiTranslationConfig.endpoint
     }
+    val bypassSetting by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle {
+        bypassSetting
+    }
 
     SetUpImageLoaderFactory(imageLoaderBuilder)
+    LocalNetworkPermissionEffect(bypassSetting)
     AiLocalNetworkPermissionEffect(aiEndpoint)
 
     LaunchedEffect(Unit) {
