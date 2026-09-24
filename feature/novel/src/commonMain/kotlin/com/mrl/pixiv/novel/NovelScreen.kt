@@ -55,6 +55,7 @@ import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.compose.ui.BlockSurface
 import com.mrl.pixiv.common.compose.ui.BookmarkIcon
+import com.mrl.pixiv.common.compose.ui.LongPressIconButton
 import com.mrl.pixiv.common.compose.ui.NovelBottomBookmarkSheet
 import com.mrl.pixiv.common.compose.ui.novel.NovelReadLaterButton
 import com.mrl.pixiv.common.data.AppViewMode
@@ -687,7 +688,7 @@ fun NovelScreen(
                                             )
                                         }
                                     }
-                                    androidx.compose.material3.IconButton(
+                                    LongPressIconButton(
                                         onClick = { viewModel.dispatch(NovelIntent.ToggleBookmark) },
                                         onLongClick = { showBookmarkBottomSheet = true }
                                     ) {
