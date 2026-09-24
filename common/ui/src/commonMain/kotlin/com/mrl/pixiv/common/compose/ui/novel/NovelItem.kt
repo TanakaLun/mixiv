@@ -17,7 +17,6 @@ import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.TextFields
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
@@ -89,7 +88,7 @@ fun NovelItem(
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
             .clickable { onNovelClick(novel.id) },
-        cornerRadius = MaterialTheme.shapes.medium.topStart,
+        cornerRadius = 12.dp,
     ) {
         Row(
             modifier = Modifier
@@ -157,13 +156,13 @@ fun NovelItem(
                         imageVector = Icons.Rounded.Person,
                         contentDescription = null,
                         modifier = Modifier.size(14.dp),
-                        tint = MiuixTheme.colorScheme.onSurfaceVariant
+                        tint = MiuixTheme.colorScheme.onSurfaceVariantSummary
                     )
                     4.HSpacer
                     Text(
                         text = novel.user.name,
                         style = MiuixTheme.textStyles.body2,
-                        color = MiuixTheme.colorScheme.onSurfaceVariant,
+                        color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
@@ -173,13 +172,13 @@ fun NovelItem(
                         imageVector = Icons.Rounded.TextFields,
                         contentDescription = null,
                         modifier = Modifier.size(14.dp),
-                        tint = MiuixTheme.colorScheme.onSurfaceVariant
+                        tint = MiuixTheme.colorScheme.onSurfaceVariantSummary
                     )
                     4.HSpacer
                     Text(
                         text = "${novel.textLength}",
                         style = MiuixTheme.textStyles.body2,
-                        color = MiuixTheme.colorScheme.onSurfaceVariant
+                        color = MiuixTheme.colorScheme.onSurfaceVariantSummary
                     )
                     if (isAI) {
                         8.HSpacer
@@ -192,7 +191,7 @@ fun NovelItem(
                         convertUtcStringToLocalDateTime(novel.createDate)
                     },
                     style = MiuixTheme.textStyles.footnote2,
-                    color = MiuixTheme.colorScheme.onSurfaceVariant,
+                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                     modifier = Modifier.padding(top = 4.dp),
                 )
 
@@ -213,7 +212,7 @@ fun NovelItem(
                         Text(
                             text = tagsText,
                             style = MiuixTheme.textStyles.footnote2,
-                            color = MiuixTheme.colorScheme.onSurfaceVariant,
+                            color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -252,7 +251,7 @@ fun NovelItem(
                 Text(
                     text = "${novel.totalBookmarks}",
                     style = MiuixTheme.textStyles.footnote2,
-                    color = MiuixTheme.colorScheme.onSurfaceVariant
+                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary
                 )
                 if (markerPageLabel != null && onMarkerClick != null) {
                     IconButton(onClick = onMarkerClick) {
@@ -264,7 +263,7 @@ fun NovelItem(
                     Text(
                         text = markerPageLabel,
                         style = MiuixTheme.textStyles.footnote2,
-                        color = MiuixTheme.colorScheme.onSurfaceVariant,
+                        color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                     )
                 }
             }
