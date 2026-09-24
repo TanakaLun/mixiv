@@ -98,3 +98,7 @@ buildkonfig {
         buildConfigField(FieldSpec.Type.STRING, "sentryDsn", sentryDsn.orEmpty(), const = true)
     }
 }
+
+tasks.matching { it.name.startsWith("ksp") }.configureEach {
+    dependsOn(tasks.matching { it.name == "generateBuildKonfig" })
+}
