@@ -26,9 +26,6 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PersonOff
-import androidx.compose.material3.MediumTopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -45,10 +43,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import be.digitalia.compose.htmlconverter.htmlToAnnotatedString
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
@@ -121,12 +117,14 @@ import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.ListPopupColumn
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 import top.yukonga.miuix.kmp.window.WindowListPopup
-import kotlin.math.pow
 
 private const val KEY_USER_INFO = "user_info"
 private const val KEY_USER_DETAILS = "user_details"
@@ -147,7 +145,7 @@ fun ProfileDetailScreen(
     val state = viewModel.asState()
     val coroutineScope = rememberCoroutineScope()
     val userInfo = state.userInfo
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = MiuixScrollBehavior()
     val lazyListState = rememberLazyListState()
     val isBlocked = BlockingRepositoryV2.collectUserBlockAsState(uid)
 
@@ -216,7 +214,8 @@ fun ProfileDetailScreen(
             LazyColumn(
                 modifier = Modifier
                     .padding(it)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .scrollEndHaptic(),
                 state = lazyListState,
                 contentPadding = PaddingValues(horizontal = 15.dp)
             ) {
@@ -554,7 +553,7 @@ private fun ProfileDetailRow(label: String, value: String) {
 @Composable
 private fun ProfileDetailAppBar(
     userInfo: UserDetailResp,
-    scrollBehavior: TopAppBarScrollBehavior,
+    scrollBehavior: ScrollBehavior,
     isBlocked: Boolean,
     onBack: () -> Unit,
     onPrivateFollow: (Long) -> Unit,
@@ -562,124 +561,107 @@ private fun ProfileDetailAppBar(
     modifier: Modifier = Modifier,
 ) {
     val avatarSize = 50.dp
-    val expandedHeight = TopAppBarDefaults.MediumAppBarExpandedHeight + avatarSize
-    val backgroundHeight = TopAppBarDefaults.MediumAppBarExpandedHeight +
-            WindowInsets.statusBars.asPaddingValues().calculateTopPadding() +
-            avatarSize * scrollBehavior.state.collapsedFraction.pow(2) +
-            with(LocalDensity.current) {
-                scrollBehavior.state.heightOffset.toDp()
-            }
+    val collapsedFraction = scrollBehavior.state.collapsedFraction
+    val statusBarPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val backgroundHeight = statusBarPadding +
+        avatarSize * 2f +
+        with(LocalDensity.current) { scrollBehavior.state.heightOffset.toDp() }
     val backgroundUrl = userInfo.profile.backgroundImageURL.ifEmpty {
         userInfo.user.profileImageUrls.medium
     }
     var showMenu by rememberSaveable { mutableStateOf(false) }
 
-    if (backgroundUrl.isNotEmpty()) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalPlatformContext.current)
-                .data(backgroundUrl)
-                .allowRgb565(true)
-                .build(),
-            contentScale = ContentScale.FillWidth,
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(backgroundHeight)
-                .blur(10.dp)
-                .drawWithCache {
-                    val color = Color.Black.copy(alpha = 0.5f)
-                    onDrawWithContent {
-                        drawContent()
-                        drawRect(color)
+    Box(modifier = modifier) {
+        if (backgroundUrl.isNotEmpty()) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalPlatformContext.current)
+                    .data(backgroundUrl)
+                    .allowRgb565(true)
+                    .build(),
+                contentScale = ContentScale.FillWidth,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(backgroundHeight)
+                    .blur(10.dp)
+                    .drawWithCache {
+                        val color = Color.Black.copy(alpha = 0.5f)
+                        onDrawWithContent {
+                            drawContent()
+                            drawRect(color)
+                        }
                     }
-                }
-        )
-    }
-    MediumTopAppBar(
-        title = {
-            Row(
-                verticalAlignment = CenterVertically
-            ) {
-                UserAvatar(
-                    url = userInfo.user.profileImageUrls.medium,
-                    modifier = Modifier.size(avatarSize * (2 - scrollBehavior.state.collapsedFraction)),
-                )
-                if (scrollBehavior.state.collapsedFraction == 1f) {
-                    Text(
-                        modifier = Modifier.padding(start = 10.dp),
-                        text = userInfo.user.name,
-                        style = TextStyle(
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Medium,
-                        ),
+            )
+        }
+        TopAppBar(
+            title = userInfo.user.name,
+            largeTitle = "",
+            color = Color.Transparent,
+            titleColor = Color.White,
+            largeTitleColor = Color.White,
+            navigationIcon = {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos,
+                        contentDescription = null,
+                        tint = Color.White,
                     )
                 }
-            }
-        },
-        modifier = modifier.statusBarsPadding(),
-        navigationIcon = {
-            IconButton(
-                onClick = onBack,
-                modifier = Modifier.padding(vertical = 10.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos,
-                    contentDescription = null
-                )
-            }
-        },
-        actions = {
-            if (!isBlocked) {
-                IconButton(
-                    onClick = { showMenu = true },
-                    modifier = Modifier.padding(vertical = 10.dp),
+            },
+            actions = {
+                if (!isBlocked) {
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(
+                            imageVector = Icons.Rounded.MoreVert,
+                            contentDescription = null,
+                            tint = Color.White,
+                        )
+                    }
+                }
+                WindowListPopup(
+                    show = showMenu,
+                    onDismissRequest = { showMenu = false },
                 ) {
-                    Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = null)
-                }
-            }
-            WindowListPopup(
-                show = showMenu,
-                onDismissRequest = { showMenu = false },
-            ) {
-                ListPopupColumn {
-                    val isSelf = userInfo.user.isSelf
-                    if (!userInfo.user.isFollowing && !isSelf) {
-                        BasicComponent(
-                            title = stringResource(RStrings.private_follow),
-                            onClick = {
-                                onPrivateFollow(userInfo.user.id)
-                                showMenu = false
-                            },
-                        )
-                    }
-                    if (!isSelf) {
-                        BasicComponent(
-                            title = stringResource(RStrings.block_user),
-                            onClick = {
-                                onBlockUser(userInfo.user.id)
-                                showMenu = false
-                            },
-                        )
-                        BasicComponent(
-                            title = stringResource(RStrings.report_user),
-                            onClick = {
-                                // todo report
-                                showMenu = false
-                            },
-                        )
+                    ListPopupColumn {
+                        val isSelf = userInfo.user.isSelf
+                        if (!userInfo.user.isFollowing && !isSelf) {
+                            BasicComponent(
+                                title = stringResource(RStrings.private_follow),
+                                onClick = {
+                                    onPrivateFollow(userInfo.user.id)
+                                    showMenu = false
+                                },
+                            )
+                        }
+                        if (!isSelf) {
+                            BasicComponent(
+                                title = stringResource(RStrings.block_user),
+                                onClick = {
+                                    onBlockUser(userInfo.user.id)
+                                    showMenu = false
+                                },
+                            )
+                            BasicComponent(
+                                title = stringResource(RStrings.report_user),
+                                onClick = {
+                                    showMenu = false
+                                },
+                            )
+                        }
                     }
                 }
-            }
-        },
-        expandedHeight = expandedHeight,
-        windowInsets = WindowInsets(0),
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent,
-            scrolledContainerColor = Color.Transparent,
-            navigationIconContentColor = Color.White,
-            titleContentColor = Color.White,
-            actionIconContentColor = Color.White
-        ),
-        scrollBehavior = scrollBehavior
-    )
+            },
+            scrollBehavior = scrollBehavior,
+            defaultWindowInsetsPadding = false,
+            modifier = Modifier.statusBarsPadding(),
+        )
+        UserAvatar(
+            url = userInfo.user.profileImageUrls.medium,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(start = 56.dp)
+                .padding(top = statusBarPadding + 4.dp)
+                .size(avatarSize * (2 - collapsedFraction))
+        )
+    }
 }
