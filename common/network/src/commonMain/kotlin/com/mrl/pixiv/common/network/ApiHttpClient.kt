@@ -9,10 +9,7 @@ import io.ktor.client.plugins.plugin
 import io.ktor.client.request.accept
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import org.koin.core.annotation.Single
 
-@Single(createdAtStart = true)
-@ApiClient
 fun apiHttpClient() = baseHttpClient.apply {
     plugin(HttpSend).apply {
         intercept { request ->

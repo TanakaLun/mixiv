@@ -5,4 +5,5 @@ import org.koin.ksp.generated.module
 
 actual val allModule = listOf(
     AndroidAppModule.module,
+    networkClientsModule,
 )
