@@ -172,7 +172,9 @@ private fun TrendingIllustPage(
                 },
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(horizontal = 48.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                minWidth = 64.dp,
+                maxWidth = 160.dp,
                 listState = null,
             )
         }
@@ -259,7 +261,9 @@ private fun TrendingNovelPage(
                 },
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(horizontal = 48.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                minWidth = 64.dp,
+                maxWidth = 160.dp,
                 listState = null,
             )
         }

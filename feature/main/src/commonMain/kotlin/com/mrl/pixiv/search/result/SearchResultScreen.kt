@@ -250,6 +250,9 @@ fun SearchResultsScreen(
                     onTabSelected = { index ->
                         scope.launch { pagerState.animateScrollToPage(index) }
                     },
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                    minWidth = 64.dp,
+                    maxWidth = 160.dp,
                 )
             }
         },

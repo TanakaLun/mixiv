@@ -94,6 +94,9 @@ fun DownloadScreen(
                     val (status, _) = tabs[index]
                     viewModel.changeFilterStatus(status)
                 },
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                minWidth = 64.dp,
+                maxWidth = 160.dp,
             )
 
             LazyColumn(

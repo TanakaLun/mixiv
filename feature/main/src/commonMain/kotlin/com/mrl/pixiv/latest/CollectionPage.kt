@@ -198,7 +198,11 @@ private fun CollectionIllustPage(
                         viewModel.updateFilterTag(restrict, state.filterTag)
                         userBookmarksIllusts.refresh()
                     },
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(vertical = 4.dp),
+                    minWidth = 64.dp,
+                    maxWidth = 160.dp,
                     listState = null,
                 )
                 IconButton(
@@ -313,7 +317,9 @@ private fun CollectionNovelPage(
                 },
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(horizontal = 48.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                minWidth = 64.dp,
+                maxWidth = 160.dp,
                 listState = null,
             )
         }

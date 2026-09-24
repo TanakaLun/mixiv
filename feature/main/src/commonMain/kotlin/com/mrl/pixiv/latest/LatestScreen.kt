@@ -140,7 +140,9 @@ fun LatestScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                    minWidth = 64.dp,
+                    maxWidth = 160.dp,
                 )
             }
             HorizontalPager(

@@ -177,7 +177,11 @@ fun FollowingScreen(
                             pagerState.animateScrollToPage(index)
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(if (paneSizeClass.isWidthCompact) 1f else 0.5f),
+                    modifier = Modifier
+                        .fillMaxWidth(if (paneSizeClass.isWidthCompact) 1f else 0.5f)
+                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                    minWidth = 64.dp,
+                    maxWidth = 160.dp,
                 )
             }
             LaunchedEffect(pagerState.currentPage) {

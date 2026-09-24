@@ -199,31 +199,31 @@ fun RankingScreen(
                                 8.HSpacer
                             }
                         }
+                        IconButton(
+                            onClick = { showDatePicker = true }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.EditCalendar,
+                                contentDescription = null
+                            )
+                        }
                     }
                 )
-                Row {
-                    TabRow(
-                        tabs = availableModes.map { stringResource(it.title) },
-                        selectedTabIndex = pagerState.currentPage.coerceAtMost(
-                            availableModes.lastIndex.coerceAtLeast(0)
-                        ),
-                        onTabSelected = { index ->
-                            scope.launch {
-                                pagerState.scrollToPage(index)
-                            }
-                        },
-                        modifier = Modifier.weight(1f),
-                        listState = null,
-                    )
-                    IconButton(
-                        onClick = { showDatePicker = true }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.EditCalendar,
-                            contentDescription = null
-                        )
-                    }
-                }
+                TabRow(
+                    tabs = availableModes.map { stringResource(it.title) },
+                    selectedTabIndex = pagerState.currentPage.coerceAtMost(
+                        availableModes.lastIndex.coerceAtLeast(0)
+                    ),
+                    onTabSelected = { index ->
+                        scope.launch {
+                            pagerState.scrollToPage(index)
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                    minWidth = 64.dp,
+                    maxWidth = 160.dp,
+                    listState = null,
+                )
             }
         },
         floatingActionButton = {

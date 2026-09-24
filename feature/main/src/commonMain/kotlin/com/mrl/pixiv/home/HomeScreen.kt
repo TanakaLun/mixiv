@@ -188,7 +188,11 @@ private fun IllustMode(
                     pagerState.animateScrollToPage(index)
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 4.dp),
+            minWidth = 64.dp,
+            maxWidth = 160.dp,
         )
 
         HorizontalPager(
