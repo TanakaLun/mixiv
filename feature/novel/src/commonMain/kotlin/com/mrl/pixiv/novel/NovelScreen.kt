@@ -104,6 +104,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import top.yukonga.miuix.kmp.basic.FloatingActionButton
 import top.yukonga.miuix.kmp.basic.Icon
@@ -895,146 +896,148 @@ private fun NovelBottomSheetContent(
             .fillMaxWidth()
             .verticalScroll(rememberScrollState()),
     ) {
-        // 字号调整
-        BasicComponent(
-            title = stringResource(RStrings.font_size_value, state.fontSize),
-            bottomAction = {
-                Slider(
-                    value = state.fontSize.toFloat(),
-                    onValueChange = { onFontSizeChange(it.roundToInt()) },
-                    valueRange = 10f..32f,
-                    steps = 21
-                )
-            },
-        )
-
-        // 行间距调整
-        BasicComponent(
-            title = stringResource(
-                RStrings.line_spacing_value,
-                (if (state.lineSpacingSp >= 0) "+" else "") + state.lineSpacingSp.toString()
-            ),
-            bottomAction = {
-                Slider(
-                    value = state.lineSpacingSp.toFloat(),
-                    onValueChange = { onLineSpacingChange(it.roundToInt()) },
-                    valueRange = -10f..10f,
-                    steps = 19
-                )
-            },
-        )
-
-        // 导出按钮
-        BasicComponent(
-            title = stringResource(RStrings.export_txt_button),
-            startAction = {
-                Icon(
-                    imageVector = MiuixIcons.Download,
-                    contentDescription = stringResource(RStrings.export_txt_button)
-                )
-            },
-            onClick = rememberThrottleClick(onClick = onExport),
-        )
-
-        // 分享按钮
-        BasicComponent(
-            title = stringResource(RStrings.share_link),
-            startAction = {
-                Icon(
-                    imageVector = MiuixIcons.Share,
-                    contentDescription = stringResource(RStrings.share_link)
-                )
-            },
-            onClick = rememberThrottleClick(onClick = onShare),
-        )
-
-        state.novel?.let { novel ->
+        Card(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+            // 字号调整
             BasicComponent(
-                title = stringResource(RStrings.read_later),
-                endActions = {
-                    NovelReadLaterButton(
-                        novel = novel,
-                        tint = LocalContentColor.current,
+                title = stringResource(RStrings.font_size_value, state.fontSize),
+                bottomAction = {
+                    Slider(
+                        value = state.fontSize.toFloat(),
+                        onValueChange = { onFontSizeChange(it.roundToInt()) },
+                        valueRange = 10f..32f,
+                        steps = 21
                     )
                 },
             )
-        }
 
-        if (state.isTranslated && !state.isTranslating) {
+            // 行间距调整
             BasicComponent(
-                title = stringResource(RStrings.regenerate_translation),
+                title = stringResource(
+                    RStrings.line_spacing_value,
+                    (if (state.lineSpacingSp >= 0) "+" else "") + state.lineSpacingSp.toString()
+                ),
+                bottomAction = {
+                    Slider(
+                        value = state.lineSpacingSp.toFloat(),
+                        onValueChange = { onLineSpacingChange(it.roundToInt()) },
+                        valueRange = -10f..10f,
+                        steps = 19
+                    )
+                },
+            )
+
+            // 导出按钮
+            BasicComponent(
+                title = stringResource(RStrings.export_txt_button),
                 startAction = {
                     Icon(
-                        imageVector = MiuixIcons.Refresh,
-                        contentDescription = stringResource(RStrings.regenerate_translation)
+                        imageVector = MiuixIcons.Download,
+                        contentDescription = stringResource(RStrings.export_txt_button)
                     )
                 },
-                onClick = rememberThrottleClick(onClick = onRegenerateTranslation),
+                onClick = rememberThrottleClick(onClick = onExport),
             )
+
+            // 分享按钮
+            BasicComponent(
+                title = stringResource(RStrings.share_link),
+                startAction = {
+                    Icon(
+                        imageVector = MiuixIcons.Share,
+                        contentDescription = stringResource(RStrings.share_link)
+                    )
+                },
+                onClick = rememberThrottleClick(onClick = onShare),
+            )
+
+            state.novel?.let { novel ->
+                BasicComponent(
+                    title = stringResource(RStrings.read_later),
+                    endActions = {
+                        NovelReadLaterButton(
+                            novel = novel,
+                            tint = LocalContentColor.current,
+                        )
+                    },
+                )
+            }
+
+            if (state.isTranslated && !state.isTranslating) {
+                BasicComponent(
+                    title = stringResource(RStrings.regenerate_translation),
+                    startAction = {
+                        Icon(
+                            imageVector = MiuixIcons.Refresh,
+                            contentDescription = stringResource(RStrings.regenerate_translation)
+                        )
+                    },
+                    onClick = rememberThrottleClick(onClick = onRegenerateTranslation),
+                )
+
+                BasicComponent(
+                    title = stringResource(
+                        if (state.isShowingOriginalText) {
+                            RStrings.show_translated_text
+                        } else {
+                            RStrings.show_original_text
+                        }
+                    ),
+                    startAction = {
+                        Icon(
+                            imageVector = if (state.isShowingOriginalText) {
+                                MiuixIcons.Translate
+                            } else {
+                                Icons.Rounded.Visibility
+                            },
+                            contentDescription = stringResource(
+                                if (state.isShowingOriginalText) {
+                                    RStrings.show_translated_text
+                                } else {
+                                    RStrings.show_original_text
+                                }
+                            )
+                        )
+                    },
+                    onClick = rememberThrottleClick(onClick = onToggleDisplayedText),
+                )
+
+                BasicComponent(
+                    title = stringResource(RStrings.delete_translation),
+                    startAction = {
+                        Icon(
+                            imageVector = MiuixIcons.Delete,
+                            contentDescription = stringResource(RStrings.delete_translation)
+                        )
+                    },
+                    onClick = rememberThrottleClick(onClick = onDeleteTranslation),
+                )
+            }
 
             BasicComponent(
                 title = stringResource(
-                    if (state.isShowingOriginalText) {
-                        RStrings.show_translated_text
-                    } else {
-                        RStrings.show_original_text
-                    }
+                    if (isNovelBlocked) RStrings.show_novel else RStrings.hide_novel
                 ),
                 startAction = {
                     Icon(
-                        imageVector = if (state.isShowingOriginalText) {
-                            MiuixIcons.Translate
-                        } else {
-                            Icons.Rounded.Visibility
-                        },
+                        imageVector = if (isNovelBlocked) MiuixIcons.Image else Icons.Rounded.HideImage,
                         contentDescription = stringResource(
-                            if (state.isShowingOriginalText) {
-                                RStrings.show_translated_text
-                            } else {
-                                RStrings.show_original_text
-                            }
+                            if (isNovelBlocked) RStrings.show_novel else RStrings.hide_novel
                         )
                     )
                 },
-                onClick = rememberThrottleClick(onClick = onToggleDisplayedText),
+                onClick = rememberThrottleClick(onClick = onBlockNovel),
             )
 
             BasicComponent(
-                title = stringResource(RStrings.delete_translation),
+                title = stringResource(RStrings.ai_translation_setting),
                 startAction = {
                     Icon(
-                        imageVector = MiuixIcons.Delete,
-                        contentDescription = stringResource(RStrings.delete_translation)
+                        imageVector = MiuixIcons.Settings,
+                        contentDescription = stringResource(RStrings.ai_translation_setting)
                     )
                 },
-                onClick = rememberThrottleClick(onClick = onDeleteTranslation),
+                onClick = rememberThrottleClick(onClick = onAiSetting),
             )
         }
-
-        BasicComponent(
-            title = stringResource(
-                if (isNovelBlocked) RStrings.show_novel else RStrings.hide_novel
-            ),
-            startAction = {
-                Icon(
-                    imageVector = if (isNovelBlocked) MiuixIcons.Image else Icons.Rounded.HideImage,
-                    contentDescription = stringResource(
-                        if (isNovelBlocked) RStrings.show_novel else RStrings.hide_novel
-                    )
-                )
-            },
-            onClick = rememberThrottleClick(onClick = onBlockNovel),
-        )
-
-        BasicComponent(
-            title = stringResource(RStrings.ai_translation_setting),
-            startAction = {
-                Icon(
-                    imageVector = MiuixIcons.Settings,
-                    contentDescription = stringResource(RStrings.ai_translation_setting)
-                )
-            },
-            onClick = rememberThrottleClick(onClick = onAiSetting),
-        )
     }
 }

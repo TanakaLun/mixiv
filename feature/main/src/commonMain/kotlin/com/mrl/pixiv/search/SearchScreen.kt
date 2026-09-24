@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -79,6 +79,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.FloatingActionButton
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
@@ -267,101 +268,95 @@ fun SearchScreen(
                 }
             }
             if (textState.text.isEmpty()) {
-                if (state.isIdSearch) {
-                    items(
-                        items = searchIdHistory,
-                        key = { it }
-                    ) {
-                        BasicComponent(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .animateItem(),
-                            title = it,
-                            onClick = rememberThrottleClick {
-                                viewModel.addSearchIdHistory(it)
-                                focusRequester.freeFocus()
-                                navigationManager.navigateToSearchResultScreen(
-                                    searchWord = it,
-                                    isIdSearch = true,
-                                    searchMode = appViewMode
+                item(key = "search_history_card") {
+                    Card {
+                        if (state.isIdSearch) {
+                            searchIdHistory.forEach { historyItem ->
+                                BasicComponent(
+                                    title = historyItem,
+                                    onClick = rememberThrottleClick {
+                                        viewModel.addSearchIdHistory(historyItem)
+                                        focusRequester.freeFocus()
+                                        navigationManager.navigateToSearchResultScreen(
+                                            searchWord = historyItem,
+                                            isIdSearch = true,
+                                            searchMode = appViewMode
+                                        )
+                                    },
+                                    endActions = {
+                                        Icon(
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .throttleClick {
+                                                    viewModel.deleteSearchIdHistory(historyItem)
+                                                },
+                                            imageVector = Icons.Rounded.Close,
+                                            contentDescription = "delete"
+                                        )
+                                    },
                                 )
-                            },
-                            endActions = {
-                                Icon(
-                                    modifier = Modifier
-                                        .size(24.dp)
-                                        .throttleClick {
-                                            viewModel.deleteSearchIdHistory(it)
-                                        },
-                                    imageVector = Icons.Rounded.Close,
-                                    contentDescription = "delete"
+                            }
+                        } else {
+                            searchHistory.forEach { item ->
+                                BasicComponent(
+                                    title = item.keyword,
+                                    onClick = rememberThrottleClick {
+                                        dispatch(SearchAction.AddSearchHistory(item.keyword))
+                                        focusRequester.freeFocus()
+                                        navigationManager.navigateToSearchResultScreen(
+                                            searchWord = item.keyword,
+                                            isIdSearch = false,
+                                            searchMode = appViewMode
+                                        )
+                                    },
+                                    endActions = {
+                                        Icon(
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .throttleClick {
+                                                    dispatch(SearchAction.DeleteSearchHistory(item.keyword))
+                                                },
+                                            imageVector = Icons.Rounded.Close,
+                                            contentDescription = "delete"
+                                        )
+                                    },
                                 )
-                            },
-                        )
-                    }
-                } else {
-                    items(
-                        items = searchHistory,
-                        key = { it.keyword }
-                    ) { item ->
-                        BasicComponent(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .animateItem(),
-                            title = item.keyword,
-                            onClick = rememberThrottleClick {
-                                dispatch(SearchAction.AddSearchHistory(item.keyword))
-                                focusRequester.freeFocus()
-                                navigationManager.navigateToSearchResultScreen(
-                                    searchWord = item.keyword,
-                                    isIdSearch = false,
-                                    searchMode = appViewMode
-                                )
-                            },
-                            endActions = {
-                                Icon(
-                                    modifier = Modifier
-                                        .size(24.dp)
-                                        .throttleClick {
-                                            dispatch(SearchAction.DeleteSearchHistory(item.keyword))
-                                        },
-                                    imageVector = Icons.Rounded.Close,
-                                    contentDescription = "delete"
-                                )
-                            },
-                        )
+                            }
+                        }
                     }
                 }
             } else {
-                items(
-                    items = state.autoCompleteSearchWords,
-                    key = { it.name }
-                ) { word ->
-                    BasicComponent(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .pointerInput(word.name) {
-                                detectTapGestures(onLongPress = {
-                                    coroutineScope.launch {
-                                        com.mrl.pixiv.common.util.copyToClipboard(word.name)
-                                    }
-                                })
-                            },
-                        title = word.name,
-                        summary = if (word.translatedName.isNotBlank()) word.translatedName else null,
-                        onClick = rememberThrottleClick {
-                            val query = textState.completionToken().replaceIn(textState.text, word.name)
-                            dispatch(SearchAction.AddSearchHistory(query))
-                            focusRequester.freeFocus()
-                            navigationManager.navigateToSearchResultScreen(
-                                searchWord = query,
-                                isIdSearch = state.isIdSearch,
-                                searchMode = appViewMode
+                item(key = "autocomplete_card") {
+                    Card {
+                        state.autoCompleteSearchWords.forEach { word ->
+                            BasicComponent(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .pointerInput(word.name) {
+                                        detectTapGestures(onLongPress = {
+                                            coroutineScope.launch {
+                                                com.mrl.pixiv.common.util.copyToClipboard(word.name)
+                                            }
+                                        })
+                                    },
+                                title = word.name,
+                                summary = if (word.translatedName.isNotBlank()) word.translatedName else null,
+                                onClick = rememberThrottleClick {
+                                    val query = textState.completionToken().replaceIn(textState.text, word.name)
+                                    dispatch(SearchAction.AddSearchHistory(query))
+                                    focusRequester.freeFocus()
+                                    navigationManager.navigateToSearchResultScreen(
+                                        searchWord = query,
+                                        isIdSearch = state.isIdSearch,
+                                        searchMode = appViewMode
+                                    )
+                                },
                             )
-                        },
-                    )
+                        }
+                    }
                 }
             }
+            item { Spacer(modifier = Modifier.height(12.dp)) }
         }
     }
 }

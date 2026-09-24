@@ -6,7 +6,9 @@ import com.mrl.pixiv.common.repository.requireUserPreferenceValue
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -64,7 +66,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import top.yukonga.miuix.kmp.basic.Badge
 import top.yukonga.miuix.kmp.basic.BasicComponent
-import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.ListPopupColumn
@@ -81,19 +83,8 @@ private val options =
     )
 
 private const val KEY_USER_INFO = "user_info"
-private const val KEY_DIVIDER = "divider"
-private const val KEY_PREFERENCE = "preference"
-private const val KEY_HISTORY = "history"
-private const val KEY_READ_LATER = "read_later"
-private const val KEY_COLLECTION = "collection"
-private const val KEY_NOVEL_MARKERS = "novel_markers"
-private const val KEY_BOOKMARK_TAGS = "bookmark_tags"
-private const val KEY_BLOCK_SETTINGS = "block_settings"
-private const val KEY_DOWNLOAD_MANAGER = "download_manager"
-private const val KEY_APP_DATA = "app_data"
-private const val KEY_EXPORT_TOKEN = "export_token"
-private const val KEY_ABOUT = "about"
-private const val KEY_LOGOUT = "logout"
+private const val KEY_MAIN_PREFS = "main_prefs"
+private const val KEY_ACCOUNT_PREFS = "account_prefs"
 
 @Composable
 fun ProfileScreen(
@@ -141,171 +132,134 @@ fun ProfileScreen(
                     }
                 }
             }
-            item(key = KEY_DIVIDER) {
-                HorizontalDivider(
-                    modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp),
-                )
-            }
-            item(key = KEY_PREFERENCE) {
-                BasicComponent(
-                    title = stringResource(RStrings.preference),
-                    startAction = {
-                        Icon(imageVector = Icons.Rounded.Settings, contentDescription = null)
-                    },
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = rememberThrottleClick {
-                        navigationManager.navigateToSettingScreen()
-                    },
-                )
-            }
-            item(key = KEY_HISTORY) {
-                BasicComponent(
-                    title = stringResource(RStrings.history),
-                    startAction = {
-                        Icon(imageVector = Icons.Rounded.History, contentDescription = null)
-                    },
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = rememberThrottleClick {
-                        navigationManager.navigateToHistoryScreen()
-                    },
-                )
-            }
-            item(key = KEY_READ_LATER) {
-                BasicComponent(
-                    title = stringResource(RStrings.read_later),
-                    startAction = {
-                        Icon(imageVector = Icons.Rounded.Schedule, contentDescription = null)
-                    },
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = rememberThrottleClick {
-                        navigationManager.navigateToNovelReadLaterScreen()
-                    },
-                )
-            }
-            item(key = KEY_COLLECTION) {
-                BasicComponent(
-                    title = stringResource(RStrings.collection),
-                    startAction = {
-                        Icon(imageVector = Icons.Rounded.Bookmarks, contentDescription = null)
-                    },
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = rememberThrottleClick {
-                        navigationManager.navigateToCollectionScreen(
-                            userInfo.user.id,
-                            isNovel = requireUserPreferenceValue.collectionViewMode == AppViewMode.NOVEL,
-                        )
-                    },
-                )
-            }
-            item(key = KEY_NOVEL_MARKERS) {
-                BasicComponent(
-                    title = stringResource(RStrings.novel_markers),
-                    startAction = {
-                        Icon(imageVector = Icons.Rounded.Bookmark, contentDescription = null)
-                    },
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = rememberThrottleClick {
-                        navigationManager.navigateToNovelMarkersScreen()
-                    },
-                )
-            }
-            item(key = KEY_BOOKMARK_TAGS) {
-                BasicComponent(
-                    title = stringResource(RStrings.bookmark_tags),
-                    startAction = {
-                        Icon(imageVector = Icons.Rounded.Style, contentDescription = null)
-                    },
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = rememberThrottleClick {
-                        navigationManager.navigateToBookmarkedTagsScreen()
-                    },
-                )
-            }
-            item(key = KEY_BLOCK_SETTINGS) {
-                BasicComponent(
-                    title = stringResource(RStrings.block_settings),
-                    startAction = {
-                        Icon(imageVector = Icons.Rounded.Block, contentDescription = null)
-                    },
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = rememberThrottleClick {
-                        navigationManager.navigateToBlockSettings()
-                    },
-                )
-            }
-            item(key = KEY_DOWNLOAD_MANAGER) {
-                BasicComponent(
-                    title = stringResource(RStrings.download_manager),
-                    startAction = {
-                        Icon(imageVector = Icons.Rounded.Download, contentDescription = null)
-                    },
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = rememberThrottleClick {
-                        navigationManager.navigateToDownloadScreen()
-                    },
-                )
-            }
-            item(key = KEY_APP_DATA) {
-                BasicComponent(
-                    title = stringResource(RStrings.app_data),
-                    startAction = {
-                        Icon(imageVector = Icons.Rounded.Storage, contentDescription = null)
-                    },
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = rememberThrottleClick {
-                        navigationManager.navigateToAppDataScreen()
-                    },
-                )
-            }
-            item(key = KEY_EXPORT_TOKEN) {
-                Column {
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            item(key = KEY_MAIN_PREFS) {
+                Card(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                    BasicComponent(
+                        title = stringResource(RStrings.preference),
+                        startAction = {
+                            Icon(imageVector = Icons.Rounded.Settings, contentDescription = null)
+                        },
+                        onClick = rememberThrottleClick {
+                            navigationManager.navigateToSettingScreen()
+                        },
                     )
+                    BasicComponent(
+                        title = stringResource(RStrings.history),
+                        startAction = {
+                            Icon(imageVector = Icons.Rounded.History, contentDescription = null)
+                        },
+                        onClick = rememberThrottleClick {
+                            navigationManager.navigateToHistoryScreen()
+                        },
+                    )
+                    BasicComponent(
+                        title = stringResource(RStrings.read_later),
+                        startAction = {
+                            Icon(imageVector = Icons.Rounded.Schedule, contentDescription = null)
+                        },
+                        onClick = rememberThrottleClick {
+                            navigationManager.navigateToNovelReadLaterScreen()
+                        },
+                    )
+                    BasicComponent(
+                        title = stringResource(RStrings.collection),
+                        startAction = {
+                            Icon(imageVector = Icons.Rounded.Bookmarks, contentDescription = null)
+                        },
+                        onClick = rememberThrottleClick {
+                            navigationManager.navigateToCollectionScreen(
+                                userInfo.user.id,
+                                isNovel = requireUserPreferenceValue.collectionViewMode == AppViewMode.NOVEL,
+                            )
+                        },
+                    )
+                    BasicComponent(
+                        title = stringResource(RStrings.novel_markers),
+                        startAction = {
+                            Icon(imageVector = Icons.Rounded.Bookmark, contentDescription = null)
+                        },
+                        onClick = rememberThrottleClick {
+                            navigationManager.navigateToNovelMarkersScreen()
+                        },
+                    )
+                    BasicComponent(
+                        title = stringResource(RStrings.bookmark_tags),
+                        startAction = {
+                            Icon(imageVector = Icons.Rounded.Style, contentDescription = null)
+                        },
+                        onClick = rememberThrottleClick {
+                            navigationManager.navigateToBookmarkedTagsScreen()
+                        },
+                    )
+                    BasicComponent(
+                        title = stringResource(RStrings.block_settings),
+                        startAction = {
+                            Icon(imageVector = Icons.Rounded.Block, contentDescription = null)
+                        },
+                        onClick = rememberThrottleClick {
+                            navigationManager.navigateToBlockSettings()
+                        },
+                    )
+                    BasicComponent(
+                        title = stringResource(RStrings.download_manager),
+                        startAction = {
+                            Icon(imageVector = Icons.Rounded.Download, contentDescription = null)
+                        },
+                        onClick = rememberThrottleClick {
+                            navigationManager.navigateToDownloadScreen()
+                        },
+                    )
+                    BasicComponent(
+                        title = stringResource(RStrings.app_data),
+                        startAction = {
+                            Icon(imageVector = Icons.Rounded.Storage, contentDescription = null)
+                        },
+                        onClick = rememberThrottleClick {
+                            navigationManager.navigateToAppDataScreen()
+                        },
+                    )
+                }
+            }
+            item(key = KEY_ACCOUNT_PREFS) {
+                Card(modifier = Modifier.padding(horizontal = 12.dp)) {
                     BasicComponent(
                         title = stringResource(RStrings.export_token),
                         startAction = {
                             Icon(imageVector = Icons.Rounded.ImportExport, contentDescription = null)
                         },
-                        modifier = Modifier.padding(horizontal = 8.dp),
                         onClick = rememberThrottleClick {
                             viewModel.dispatch(ProfileAction.ExportToken)
                         },
                     )
+                    BasicComponent(
+                        title = stringResource(RStrings.about),
+                        startAction = {
+                            Icon(imageVector = Icons.Rounded.Info, contentDescription = null)
+                        },
+                        endActions = {
+                            if (hasNewVersion) {
+                                Badge {
+                                    Text(text = stringResource(RStrings.new_version_available))
+                                }
+                            }
+                        },
+                        onClick = rememberThrottleClick {
+                            navigationManager.navigateToAboutScreen()
+                        },
+                    )
+                    BasicComponent(
+                        title = stringResource(RStrings.sign_out),
+                        startAction = {
+                            Icon(imageVector = Icons.AutoMirrored.Rounded.Logout, contentDescription = null)
+                        },
+                        onClick = rememberThrottleClick {
+                            viewModel.logout()
+                            navigationManager.navigateToLoginOptionScreen()
+                        },
+                    )
                 }
             }
-            item(key = KEY_ABOUT) {
-                BasicComponent(
-                    title = stringResource(RStrings.about),
-                    startAction = {
-                        Icon(imageVector = Icons.Rounded.Info, contentDescription = null)
-                    },
-                    endActions = {
-                        if (hasNewVersion) {
-                            Badge {
-                                Text(text = stringResource(RStrings.new_version_available))
-                            }
-                        }
-                    },
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = rememberThrottleClick {
-                        navigationManager.navigateToAboutScreen()
-                    },
-                )
-            }
-            item(key = KEY_LOGOUT) {
-                BasicComponent(
-                    title = stringResource(RStrings.sign_out),
-                    startAction = {
-                        Icon(imageVector = Icons.AutoMirrored.Rounded.Logout, contentDescription = null)
-                    },
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    onClick = rememberThrottleClick {
-                        viewModel.logout()
-                        navigationManager.navigateToLoginOptionScreen()
-                    },
-                )
-            }
+            item { Spacer(modifier = Modifier.height(12.dp)) }
         }
     }
 }

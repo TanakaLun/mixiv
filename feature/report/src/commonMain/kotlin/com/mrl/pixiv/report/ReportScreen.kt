@@ -3,12 +3,12 @@ package com.mrl.pixiv.report
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.runtime.Composable
@@ -37,6 +37,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
@@ -166,19 +167,24 @@ fun ReportScreen(
         show = showTopicSheet,
         onDismissRequest = { showTopicSheet = false },
     ) {
-        LazyColumn {
-            items(
-                items = state.topicList,
-                key = { it.topicId }
-            ) { topic ->
-                BasicComponent(
-                    title = topic.topicTitle,
-                    onClick = {
-                        viewModel.selectTopic(topic.topicId)
-                        showTopicSheet = false
-                    },
-                )
-                HorizontalDivider()
+        LazyColumn(
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+        ) {
+            item(key = "report_topics_card") {
+                Card {
+                    state.topicList.forEachIndexed { index, topic ->
+                        BasicComponent(
+                            title = topic.topicTitle,
+                            onClick = {
+                                viewModel.selectTopic(topic.topicId)
+                                showTopicSheet = false
+                            },
+                        )
+                        if (index != state.topicList.lastIndex) {
+                            HorizontalDivider()
+                        }
+                    }
+                }
             }
         }
     }

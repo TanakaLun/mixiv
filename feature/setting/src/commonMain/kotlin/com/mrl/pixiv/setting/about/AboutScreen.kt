@@ -59,6 +59,7 @@ import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Badge
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Scaffold
@@ -127,12 +128,11 @@ fun AboutScreen(
                 )
             }
 
-            Column {
+            Card(modifier = Modifier.padding(horizontal = 12.dp)) {
                 // Project URL
                 BasicComponent(
                     title = stringResource(RStrings.project_url),
                     summary = Constants.GITHUB_URL,
-                    modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = rememberThrottleClick {
                         uriHandler.openUri(Constants.GITHUB_URL)
                     },
@@ -142,7 +142,6 @@ fun AboutScreen(
                 BasicComponent(
                     title = stringResource(RStrings.feedback),
                     summary = stringResource(RStrings.feedback_content),
-                    modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = rememberThrottleClick {
                         uriHandler.openUri(Constants.GITHUB_ISSUE_URL)
                     },
@@ -152,7 +151,6 @@ fun AboutScreen(
                 BasicComponent(
                     title = stringResource(RStrings.share_app),
                     summary = stringResource(RStrings.recommend_this_app),
-                    modifier = Modifier.padding(horizontal = 8.dp),
                     onClick = rememberThrottleClick {
                         coroutineScope.launch {
                             ShareUtil.shareText(
@@ -168,7 +166,6 @@ fun AboutScreen(
                 // Check Update
                 BasicComponent(
                     title = stringResource(RStrings.check_update),
-                    modifier = Modifier.padding(horizontal = 8.dp),
                     endActions = {
                         if (hasNewVersion) {
                             Badge {

@@ -3,6 +3,7 @@ package com.mrl.pixiv.setting.block
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -42,11 +42,13 @@ import com.mrl.pixiv.strings.confirm
 import com.mrl.pixiv.strings.no_blocked_items
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Checkbox
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Spacer
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
@@ -65,7 +67,6 @@ fun BlockIllustScreen(
     BlockTextScreen(
         title = stringResource(RStrings.block_illust),
         items = blockedIllusts,
-        key = { it.illustId },
         onRemove = { item ->
             BlockingRepositoryV2.removeBlockIllust(item.illustId)
         },
@@ -89,7 +90,6 @@ fun BlockNovelScreen(
     BlockTextScreen(
         title = stringResource(RStrings.block_novel),
         items = blockedNovels,
-        key = { it.novelId },
         onRemove = { item ->
             BlockingRepositoryV2.removeBlockNovel(item.novelId)
         },
@@ -113,7 +113,6 @@ fun BlockUserScreen(
     BlockTextScreen(
         title = stringResource(RStrings.block_user),
         items = blockedUsers,
-        key = { it.userId },
         onRemove = { item ->
             BlockingRepositoryV2.removeBlockUser(item.userId)
         },
@@ -144,7 +143,6 @@ fun BlockTagScreen(
     BlockTextScreen(
         title = stringResource(RStrings.block_tags),
         items = tags,
-        key = { it.tag },
         onRemove = { item -> BlockingRepositoryV2.removeBlockTag(item.tag) },
         modifier = modifier,
         topBarActions = {
@@ -235,7 +233,6 @@ fun BlockTagScreen(
 private fun <T> BlockTextScreen(
     title: String,
     items: List<T>,
-    key: (T) -> Any,
     onRemove: (T) -> Unit,
     topBarActions: @Composable RowScope.() -> Unit = {},
     modifier: Modifier = Modifier,
@@ -276,30 +273,33 @@ private fun <T> BlockTextScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
         ) {
-            itemsIndexed(
-                items = items,
-                key = { _, item -> key(item) }
-            ) { index, item ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    itemContent(item)
-                    IconButton(onClick = { onRemove(item) }) {
-                        Icon(
-                            imageVector = Icons.Rounded.Delete,
-                            contentDescription = null
-                        )
+            item(key = "block_list_card") {
+                Card {
+                    items.forEachIndexed { index, item ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            itemContent(item)
+                            IconButton(onClick = { onRemove(item) }) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Delete,
+                                    contentDescription = null
+                                )
+                            }
+                        }
+                        if (index != items.lastIndex) {
+                            HorizontalDivider()
+                        }
                     }
                 }
-                if (index != items.lastIndex) {
-                    HorizontalDivider()
-                }
             }
+            item { Spacer(modifier = Modifier.height(12.dp)) }
         }
     }
 }

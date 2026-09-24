@@ -2,10 +2,11 @@ package com.mrl.pixiv.collection.tags
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.rememberSwipeToDismissBoxState
@@ -25,10 +26,10 @@ import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.icon.extended.Delete
+import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 
@@ -60,49 +61,55 @@ fun BookmarkedTagsScreen(
         LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize()
+                .fillMaxSize(),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 8.dp),
         ) {
-            items(items = tags, key = { it.name }) { tag ->
-                val state = rememberSwipeToDismissBoxState { it / 3 }
-                SwipeToDismissBox(
-                    state = state,
-                    backgroundContent = {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Red)
-                        ) {
-                            Icon(
-                                imageVector = MiuixIcons.Delete,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .padding(horizontal = 10.dp)
-                                    .align(
-                                        when (state.dismissDirection) {
-                                            SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
-                                            SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
-                                            SwipeToDismissBoxValue.Settled -> Alignment.Center
-                                        }
-                                    ),
-                                tint = Color.White
-                            )
+            if (tags.isNotEmpty()) {
+                item(key = "bookmark_tags_card") {
+                    Card {
+                        tags.forEach { tag ->
+                            val state = rememberSwipeToDismissBoxState { it / 3 }
+                            SwipeToDismissBox(
+                                state = state,
+                                backgroundContent = {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(Color.Red)
+                                    ) {
+                                        Icon(
+                                            imageVector = MiuixIcons.Delete,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .padding(horizontal = 10.dp)
+                                                .align(
+                                                    when (state.dismissDirection) {
+                                                        SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
+                                                        SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
+                                                        SwipeToDismissBoxValue.Settled -> Alignment.Center
+                                                    }
+                                                ),
+                                            tint = Color.White
+                                        )
+                                    }
+                                },
+                                onDismiss = {
+                                    BookmarkedTagRepository.removeTag(tag)
+                                }
+                            ) {
+                                ArrowPreference(
+                                    title = tag.name,
+                                    summary = tag.translatedName.ifEmpty { null },
+                                    onClick = {
+                                        navigationManager.navigateToSearchResultScreen(tag.name)
+                                    },
+                                )
+                            }
                         }
-                    },
-                    onDismiss = {
-                        BookmarkedTagRepository.removeTag(tag)
                     }
-                ) {
-                    ArrowPreference(
-                        title = tag.name,
-                        summary = tag.translatedName.ifEmpty { null },
-                        onClick = {
-                            navigationManager.navigateToSearchResultScreen(tag.name)
-                        },
-                        modifier = Modifier
-                            .animateItem(),
-                    )
                 }
             }
+            item { Spacer(modifier = Modifier.height(12.dp)) }
         }
     }
 }
