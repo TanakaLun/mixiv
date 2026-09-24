@@ -1,5 +1,6 @@
 import com.mrl.pixiv.buildsrc.configureDesktopSentryMapping
 import dev.nucleusframework.desktop.application.dsl.TargetFormat
+import dev.nucleusframework.desktop.application.tasks.AbstractElectronBuilderPackageTask
 import dev.nucleusframework.desktop.application.tasks.AbstractGenerateAotCacheTask
 import dev.nucleusframework.desktop.application.tasks.AbstractJPackageTask
 import dev.nucleusframework.desktop.application.tasks.AbstractProguardTask
@@ -200,6 +201,16 @@ val verifyMMKVNativeLibraryPackaging = tasks.register("verifyMMKVNativeLibraryPa
 
 tasks.withType<AbstractJPackageTask>().configureEach {
     dependsOn(verifyMMKVNativeLibraryPackaging)
+}
+
+tasks.withType<AbstractElectronBuilderPackageTask>().configureEach {
+    doFirst {
+        // Nucleus 会复用已有的元数据，打包前重新生成以确保安装包使用当前版本。
+        val packageMetadata = destinationDir.file("package.json").get().asFile
+        check(!packageMetadata.exists() || packageMetadata.delete()) {
+            "无法清理旧的桌面安装包元数据：$packageMetadata"
+        }
+    }
 }
 
 val directJvmRunTasks = setOf("run", "hotRun", "hotDev")
