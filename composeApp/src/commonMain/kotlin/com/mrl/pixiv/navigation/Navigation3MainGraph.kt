@@ -93,7 +93,7 @@ fun Navigation3MainGraph(
     rememberNavigationState(navigationManager)
     val inputState = remember { PaneInputState() }
     val topRecord = navigationManager.backStack.last()
-    val showMainNavigation = navigationManager.backStack.any { it.destination == Destination.Main } &&
+    val showMainNavigation = topRecord.destination == Destination.Main &&
         !topRecord.destination.paneSpec.preferredFullWidth
     LaunchedEffect(topRecord.entryId) {
         inputState.activeEntryId = topRecord.entryId
