@@ -62,11 +62,12 @@ fun NetworkSettingScreen(
                 .padding(vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            BypassSettingEditor(
-                modifier = Modifier.padding(horizontal = 12.dp),
-                bypassSetting = userPreference.bypassSetting,
-                onUpdate = { setting -> viewModel.updateBypassSetting(setting) },
-            )
+            Card(modifier = Modifier.padding(horizontal = 12.dp)) {
+                BypassSettingEditor(
+                    bypassSetting = userPreference.bypassSetting,
+                    onUpdate = { setting -> viewModel.updateBypassSetting(setting) },
+                )
+            }
 
             Card(modifier = Modifier.padding(horizontal = 12.dp)) {
                 PictureSourceWidget(
