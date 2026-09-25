@@ -20,7 +20,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -297,7 +296,6 @@ private fun CollectionTopAppBar(
     onBack: () -> Unit = {},
 ) {
     TopAppBar(
-        modifier = Modifier.shadow(4.dp),
         title = stringResource(RStrings.artworks),
         scrollBehavior = scrollBehavior,
         navigationIcon = {
