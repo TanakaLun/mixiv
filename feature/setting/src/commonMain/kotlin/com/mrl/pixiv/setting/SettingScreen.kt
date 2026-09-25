@@ -10,6 +10,7 @@ import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.NetworkWifi
+import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Translate
@@ -24,6 +25,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
+import com.mrl.pixiv.common.data.setting.SettingTheme
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.router.NavigationManager
@@ -33,14 +35,20 @@ import com.mrl.pixiv.common.util.isPlatformDynamicColorSupported
 import com.mrl.pixiv.strings.ai_translation_setting
 import com.mrl.pixiv.strings.app_language
 import com.mrl.pixiv.strings.browsing_setting
+import com.mrl.pixiv.strings.color_mode
 import com.mrl.pixiv.strings.file_name_format_title
 import com.mrl.pixiv.strings.history_setting
 import com.mrl.pixiv.strings.label_default
-import com.mrl.pixiv.strings.monet_dynamic_color
+import com.mrl.pixiv.strings.monet_dark
+import com.mrl.pixiv.strings.monet_light
+import com.mrl.pixiv.strings.monet_system
 import com.mrl.pixiv.strings.network_setting
 import com.mrl.pixiv.strings.privacy_setting
 import com.mrl.pixiv.strings.search_setting
 import com.mrl.pixiv.strings.setting
+import com.mrl.pixiv.strings.theme_dark
+import com.mrl.pixiv.strings.theme_light
+import com.mrl.pixiv.strings.theme_system
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
@@ -52,7 +60,6 @@ import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
-import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 const val KEY_LANGUAGE = "language"
 const val KEY_NETWORK_SETTING = "network_setting"
@@ -83,7 +90,34 @@ fun SettingScreen(
     }
 
     val scrollBehavior = MiuixScrollBehavior()
+    val themeName by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle { theme }
     val monetEnabled by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle { monet }
+    val settingTheme = remember(themeName) {
+        SettingTheme.entries.firstOrNull { it.name == themeName } ?: SettingTheme.SYSTEM
+    }
+    val colorModeItems = if (isPlatformDynamicColorSupported) {
+        listOf(
+            stringResource(RStrings.theme_system),
+            stringResource(RStrings.theme_light),
+            stringResource(RStrings.theme_dark),
+            stringResource(RStrings.monet_system),
+            stringResource(RStrings.monet_light),
+            stringResource(RStrings.monet_dark),
+        )
+    } else {
+        listOf(
+            stringResource(RStrings.theme_system),
+            stringResource(RStrings.theme_light),
+            stringResource(RStrings.theme_dark),
+        )
+    }
+    val baseColorMode = when (settingTheme) {
+        SettingTheme.SYSTEM -> 0
+        SettingTheme.LIGHT -> 1
+        SettingTheme.DARK -> 2
+    }
+    val selectedColorMode =
+        if (monetEnabled && isPlatformDynamicColorSupported) baseColorMode + 3 else baseColorMode
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -112,13 +146,23 @@ fun SettingScreen(
                         startAction = { Icon(Icons.Rounded.Translate, contentDescription = null) },
                         onSelectedIndexChange = { currentLanguage = it },
                     )
-                    if (isPlatformDynamicColorSupported) {
-                        SwitchPreference(
-                            checked = monetEnabled,
-                            onCheckedChange = SettingRepository::setMonetEnabled,
-                            title = stringResource(RStrings.monet_dynamic_color),
-                        )
-                    }
+                    OverlayDropdownPreference(
+                        items = colorModeItems,
+                        selectedIndex = selectedColorMode,
+                        title = stringResource(RStrings.color_mode),
+                        startAction = { Icon(Icons.Rounded.Palette, contentDescription = null) },
+                        onSelectedIndexChange = { index ->
+                            val theme = when (index % 3) {
+                                0 -> SettingTheme.SYSTEM
+                                1 -> SettingTheme.LIGHT
+                                else -> SettingTheme.DARK
+                            }
+                            SettingRepository.setSettingTheme(theme)
+                            SettingRepository.setMonetEnabled(
+                                isPlatformDynamicColorSupported && index >= 3
+                            )
+                        },
+                    )
                     SettingDestinationItem(
                         title = stringResource(RStrings.network_setting),
                         icon = Icons.Rounded.NetworkWifi,
