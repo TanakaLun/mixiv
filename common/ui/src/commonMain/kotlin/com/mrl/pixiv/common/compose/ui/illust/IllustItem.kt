@@ -199,12 +199,12 @@ fun RectangleIllustItem(
         modifier = modifier
             .padding(horizontal = 5.dp)
             .padding(bottom = 5.dp)
+            .shadow(4.dp, shape, clip = false)
+            .clip(shape)
             .throttleClick {
                 navToPictureScreen(prefix, enableTransition)
             }
-            .shadow(4.dp, shape, clip = false)
-            .background(color = MiuixTheme.colorScheme.surface, shape = shape)
-            .clip(shape),
+            .background(color = MiuixTheme.colorScheme.surface, shape = shape),
     ) {
         Column {
             val imageKey = illust.imageUrls.medium

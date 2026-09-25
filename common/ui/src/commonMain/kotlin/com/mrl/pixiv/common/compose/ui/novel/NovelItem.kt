@@ -85,9 +85,10 @@ fun NovelItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .clickable { onNovelClick(novel.id) },
+            .padding(horizontal = 8.dp, vertical = 4.dp),
         cornerRadius = 12.dp,
+        showIndication = true,
+        onClick = { onNovelClick(novel.id) },
     ) {
         Row(
             modifier = Modifier

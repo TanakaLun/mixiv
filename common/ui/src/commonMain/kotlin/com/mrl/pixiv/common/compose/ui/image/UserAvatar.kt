@@ -30,8 +30,8 @@ fun UserAvatar(
             contentDescription = contentDescription,
             contentScale = contentScale,
             modifier = modifier
-                .throttleClick(onClick = onClick)
-                .clip(CircleShape),
+                .clip(CircleShape)
+                .throttleClick(onClick = onClick),
             loadingContent = {
                 CircularProgressIndicator(modifier)
             }
