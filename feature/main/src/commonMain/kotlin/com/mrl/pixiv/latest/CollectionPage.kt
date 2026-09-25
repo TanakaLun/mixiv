@@ -13,9 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.mrl.pixiv.collection.CollectionAction
 import com.mrl.pixiv.collection.CollectionViewModel
-import com.mrl.pixiv.collection.components.FilterDialog
 import com.mrl.pixiv.common.compose.RecommendGridDefaults
 import com.mrl.pixiv.common.compose.layout.AdaptiveVerticalStaggeredGrid
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
@@ -31,7 +29,6 @@ import com.mrl.pixiv.common.repository.viewmodel.bookmark.BookmarkState
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.isBookmark
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
-import com.mrl.pixiv.common.viewmodel.asState
 import kotlinx.coroutines.flow.SharedFlow
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -43,8 +40,6 @@ fun CollectionPage(
     uid: Long,
     refreshFlow: SharedFlow<LatestPage>,
     modifier: Modifier = Modifier,
-    showFilterDialog: Boolean = false,
-    onShowFilterDialogChange: (Boolean) -> Unit = {},
     viewModel: CollectionViewModel = koinViewModel { parametersOf(uid) },
     latestViewModel: LatestViewModel = koinViewModel(),
     navigationManager: NavigationManager = currentNavigationManager(),
@@ -57,8 +52,6 @@ fun CollectionPage(
                 uid = uid,
                 refreshFlow = refreshFlow,
                 modifier = modifier,
-                showFilterDialog = showFilterDialog,
-                onShowFilterDialogChange = onShowFilterDialogChange,
                 viewModel = viewModel,
                 latestViewModel = latestViewModel,
                 navigationManager = navigationManager
@@ -70,8 +63,6 @@ fun CollectionPage(
                 uid = uid,
                 refreshFlow = refreshFlow,
                 modifier = modifier,
-                showFilterDialog = showFilterDialog,
-                onShowFilterDialogChange = onShowFilterDialogChange,
                 viewModel = viewModel,
                 latestViewModel = latestViewModel,
                 navigationManager = navigationManager
@@ -85,8 +76,6 @@ private fun CollectionIllustPage(
     uid: Long,
     refreshFlow: SharedFlow<LatestPage>,
     modifier: Modifier = Modifier,
-    showFilterDialog: Boolean = false,
-    onShowFilterDialogChange: (Boolean) -> Unit = {},
     viewModel: CollectionViewModel = koinViewModel { parametersOf(uid) },
     latestViewModel: LatestViewModel = koinViewModel(),
     navigationManager: NavigationManager = currentNavigationManager(),
@@ -94,7 +83,6 @@ private fun CollectionIllustPage(
     val userBookmarksIllusts = viewModel.userBookmarksIllusts.collectAsLazyPagingItems()
     val pullRefreshState = rememberPullToRefreshState()
     val lazyGridState = latestViewModel.collectionLazyGirdState
-    val state = viewModel.asState()
     val layoutParams = RecommendGridDefaults.coverLayoutParameters()
     val isRefreshing = userBookmarksIllusts.loadState.refresh is LoadState.Loading
     val controller = remember {
@@ -161,22 +149,6 @@ private fun CollectionIllustPage(
             )
         }
     }
-    if (showFilterDialog) {
-        FilterDialog(
-            onDismissRequest = { onShowFilterDialogChange(false) },
-            userBookmarkTags = state.userBookmarkTagsIllust,
-            privateBookmarkTags = state.privateBookmarkTagsIllust,
-            restrict = state.restrict,
-            filterTag = state.filterTag,
-            onLoadUserBookmarksTags = {
-                viewModel.dispatch(CollectionAction.LoadUserBookmarksTagsIllust(it))
-            },
-            onSelected = { restrict, tag ->
-                viewModel.updateFilterTag(restrict, tag)
-                userBookmarksIllusts.refresh()
-            }
-        )
-    }
 }
 
 @Composable
@@ -184,8 +156,6 @@ private fun CollectionNovelPage(
     uid: Long,
     refreshFlow: SharedFlow<LatestPage>,
     modifier: Modifier = Modifier,
-    showFilterDialog: Boolean = false,
-    onShowFilterDialogChange: (Boolean) -> Unit = {},
     viewModel: CollectionViewModel = koinViewModel { parametersOf(uid) },
     latestViewModel: LatestViewModel = koinViewModel(),
     navigationManager: NavigationManager = currentNavigationManager(),
@@ -193,7 +163,6 @@ private fun CollectionNovelPage(
     val userBookmarksNovels = viewModel.userBookmarksNovels.collectAsLazyPagingItems()
     val pullRefreshState = rememberPullToRefreshState()
     val lazyListState = latestViewModel.collectionNovelLazyListState
-    val state = viewModel.asState()
     val isRefreshing = userBookmarksNovels.loadState.refresh is LoadState.Loading
     val controller = remember {
         keyboardScrollerController(lazyListState) {
@@ -250,22 +219,5 @@ private fun CollectionNovelPage(
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
         }
-    }
-
-    if (showFilterDialog) {
-        FilterDialog(
-            onDismissRequest = { onShowFilterDialogChange(false) },
-            userBookmarkTags = state.userBookmarkTagsNovel,
-            privateBookmarkTags = state.privateBookmarkTagsNovel,
-            restrict = state.novelRestrict,
-            filterTag = state.novelFilterTag,
-            onLoadUserBookmarksTags = {
-                viewModel.dispatch(CollectionAction.LoadUserBookmarksTagsNovel(it))
-            },
-            onSelected = { restrict, tag ->
-                viewModel.updateNovelFilterTag(restrict, tag)
-                userBookmarksNovels.refresh()
-            }
-        )
     }
 }

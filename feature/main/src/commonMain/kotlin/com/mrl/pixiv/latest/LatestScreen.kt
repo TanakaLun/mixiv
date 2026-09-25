@@ -9,14 +9,12 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -24,7 +22,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mrl.pixiv.collection.CollectionAction
 import com.mrl.pixiv.collection.CollectionViewModel
+import com.mrl.pixiv.collection.components.FilterAction
 import com.mrl.pixiv.common.analytics.logEvent
 import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
 import com.mrl.pixiv.common.compose.layout.isWidthAtLeastMedium
@@ -56,7 +56,6 @@ import org.koin.core.parameter.parametersOf
 import top.yukonga.miuix.kmp.basic.DropdownEntry
 import top.yukonga.miuix.kmp.basic.DropdownItem
 import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.TabRow
@@ -81,7 +80,6 @@ fun LatestScreen(
     val pagerState = viewModel.pagerStateFor(appViewMode)
     val page = pages[pagerState.currentPage.coerceIn(pages.indices)]
     val uid = userInfo.user.id
-    var showCollectionFilterDialog by rememberSaveable { mutableStateOf(false) }
     var selectedFollowingPage by rememberSaveable(uid) { mutableIntStateOf(0) }
     val trendingFilter by viewModel.trendingFilter.collectAsStateWithLifecycle()
     val scrollState = when (page) {
@@ -185,63 +183,48 @@ fun LatestScreen(
                                     parametersOf(uid)
                                 }
                                 val collectionState = collectionViewModel.asState()
-                                val restrictValues = listOf(Restrict.PUBLIC, Restrict.PRIVATE)
-                                val restrictLabels = listOf(
-                                    stringResource(RStrings.word_public),
-                                    stringResource(RStrings.word_private),
-                                )
-                                val currentRestrict = if (appViewMode == AppViewMode.ILLUST) {
-                                    collectionState.restrict
-                                } else {
-                                    collectionState.novelRestrict
-                                }
-                                val selectedRestrictIndex = restrictValues
-                                    .indexOf(currentRestrict)
-                                    .coerceAtLeast(0)
-                                val restrictEntry = remember(currentRestrict, restrictLabels) {
-                                    DropdownEntry(
-                                        restrictLabels.mapIndexed { index, label ->
-                                            DropdownItem(
-                                                text = label,
-                                                selected = index == selectedRestrictIndex,
-                                                onClick = {
-                                                    restrictValues.getOrNull(index)?.let { restrict ->
-                                                        if (appViewMode == AppViewMode.ILLUST) {
-                                                            collectionViewModel.updateFilterTag(
-                                                                restrict,
-                                                                collectionViewModel.state.filterTag,
-                                                            )
-                                                        } else {
-                                                            collectionViewModel.updateNovelFilterTag(
-                                                                restrict,
-                                                                collectionViewModel.state.novelFilterTag,
-                                                            )
-                                                        }
-                                                        scope.launch {
-                                                            refreshFlow.emit(LatestPage.Collection)
-                                                        }
-                                                    }
-                                                },
-                                            )
+                                val isIllust = appViewMode == AppViewMode.ILLUST
+                                FilterAction(
+                                    restrict = if (isIllust) {
+                                        collectionState.restrict
+                                    } else {
+                                        collectionState.novelRestrict
+                                    },
+                                    filterTag = if (isIllust) {
+                                        collectionState.filterTag
+                                    } else {
+                                        collectionState.novelFilterTag
+                                    },
+                                    userBookmarkTags = if (isIllust) {
+                                        collectionState.userBookmarkTagsIllust
+                                    } else {
+                                        collectionState.userBookmarkTagsNovel
+                                    },
+                                    privateBookmarkTags = if (isIllust) {
+                                        collectionState.privateBookmarkTagsIllust
+                                    } else {
+                                        collectionState.privateBookmarkTagsNovel
+                                    },
+                                    onLoadUserBookmarksTags = {
+                                        collectionViewModel.dispatch(
+                                            if (isIllust) {
+                                                CollectionAction.LoadUserBookmarksTagsIllust(it)
+                                            } else {
+                                                CollectionAction.LoadUserBookmarksTagsNovel(it)
+                                            }
+                                        )
+                                    },
+                                    onSelected = { restrict, tag ->
+                                        if (isIllust) {
+                                            collectionViewModel.updateFilterTag(restrict, tag)
+                                        } else {
+                                            collectionViewModel.updateNovelFilterTag(restrict, tag)
                                         }
-                                    )
-                                }
-                                OverlayIconDropdownMenu(entry = restrictEntry) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Public,
-                                        contentDescription = restrictLabels[selectedRestrictIndex],
-                                        tint = MiuixTheme.colorScheme.onBackground,
-                                    )
-                                }
-                                IconButton(
-                                    onClick = { showCollectionFilterDialog = true },
-                                    backgroundColor = MiuixTheme.colorScheme.surfaceVariant,
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.FilterList,
-                                        contentDescription = null,
-                                    )
-                                }
+                                        scope.launch {
+                                            refreshFlow.emit(LatestPage.Collection)
+                                        }
+                                    },
+                                )
                             }
 
                             LatestPage.Following -> {
@@ -352,8 +335,6 @@ fun LatestScreen(
                     CollectionPage(
                         uid = userInfo.user.id,
                         refreshFlow = refreshFlow,
-                        showFilterDialog = showCollectionFilterDialog,
-                        onShowFilterDialogChange = { showCollectionFilterDialog = it },
                     )
                 }
 
