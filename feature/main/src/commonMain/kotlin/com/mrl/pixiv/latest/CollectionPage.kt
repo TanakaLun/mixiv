@@ -1,24 +1,13 @@
 package com.mrl.pixiv.latest
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -35,7 +24,6 @@ import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.RectangleIllustItem
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.data.AppViewMode
-import com.mrl.pixiv.common.data.Restrict
 import com.mrl.pixiv.common.kts.itemIndexKey
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
@@ -43,28 +31,20 @@ import com.mrl.pixiv.common.repository.viewmodel.bookmark.BookmarkState
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.isBookmark
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
-import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.viewmodel.asState
-import com.mrl.pixiv.strings.word_private
-import com.mrl.pixiv.strings.word_public
 import kotlinx.coroutines.flow.SharedFlow
-import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.PullToRefresh
-import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.rememberPullToRefreshState
-import top.yukonga.miuix.kmp.theme.MiuixTheme
-
-private const val KEY_TOP_SPACE = "top_space"
 
 @Composable
 fun CollectionPage(
     uid: Long,
     refreshFlow: SharedFlow<LatestPage>,
     modifier: Modifier = Modifier,
+    showFilterDialog: Boolean = false,
+    onShowFilterDialogChange: (Boolean) -> Unit = {},
     viewModel: CollectionViewModel = koinViewModel { parametersOf(uid) },
     latestViewModel: LatestViewModel = koinViewModel(),
     navigationManager: NavigationManager = currentNavigationManager(),
@@ -77,6 +57,8 @@ fun CollectionPage(
                 uid = uid,
                 refreshFlow = refreshFlow,
                 modifier = modifier,
+                showFilterDialog = showFilterDialog,
+                onShowFilterDialogChange = onShowFilterDialogChange,
                 viewModel = viewModel,
                 latestViewModel = latestViewModel,
                 navigationManager = navigationManager
@@ -88,6 +70,8 @@ fun CollectionPage(
                 uid = uid,
                 refreshFlow = refreshFlow,
                 modifier = modifier,
+                showFilterDialog = showFilterDialog,
+                onShowFilterDialogChange = onShowFilterDialogChange,
                 viewModel = viewModel,
                 latestViewModel = latestViewModel,
                 navigationManager = navigationManager
@@ -101,6 +85,8 @@ private fun CollectionIllustPage(
     uid: Long,
     refreshFlow: SharedFlow<LatestPage>,
     modifier: Modifier = Modifier,
+    showFilterDialog: Boolean = false,
+    onShowFilterDialogChange: (Boolean) -> Unit = {},
     viewModel: CollectionViewModel = koinViewModel { parametersOf(uid) },
     latestViewModel: LatestViewModel = koinViewModel(),
     navigationManager: NavigationManager = currentNavigationManager(),
@@ -109,7 +95,6 @@ private fun CollectionIllustPage(
     val pullRefreshState = rememberPullToRefreshState()
     val lazyGridState = latestViewModel.collectionLazyGirdState
     val state = viewModel.asState()
-    var showFilterDialog by rememberSaveable { mutableStateOf(false) }
     val layoutParams = RecommendGridDefaults.coverLayoutParameters()
     val isRefreshing = userBookmarksIllusts.loadState.refresh is LoadState.Loading
     val controller = remember {
@@ -121,8 +106,10 @@ private fun CollectionIllustPage(
     KeyEventListener(controller)
 
     LaunchedEffect(Unit) {
-        refreshFlow.collect {
-            userBookmarksIllusts.refresh()
+        refreshFlow.collect { refreshedPage ->
+            if (refreshedPage == LatestPage.Collection) {
+                userBookmarksIllusts.refresh()
+            }
         }
     }
 
@@ -141,12 +128,6 @@ private fun CollectionIllustPage(
                 verticalItemSpacing = layoutParams.verticalArrangement.spacing,
                 horizontalArrangement = layoutParams.horizontalArrangement,
             ) {
-                item(
-                    key = KEY_TOP_SPACE,
-                    span = StaggeredGridItemSpan.FullLine
-                ) {
-                    Spacer(modifier = Modifier.height(40.dp))
-                }
                 items(
                     count = userBookmarksIllusts.itemCount,
                     key = userBookmarksIllusts.itemIndexKey { index, item -> "${index}_${item.id}" }
@@ -178,48 +159,11 @@ private fun CollectionIllustPage(
                 state = lazyGridState,
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
-            val options = listOf(
-                RStrings.word_public to Restrict.PUBLIC,
-                RStrings.word_private to Restrict.PRIVATE,
-            )
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(horizontal = 32.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                TabRow(
-                    tabs = options.map { stringResource(it.first) },
-                    selectedTabIndex = options.indexOfFirst { it.second == state.restrict }
-                        .coerceAtLeast(0),
-                    onTabSelected = { index ->
-                        val restrict = options.getOrNull(index)?.second ?: return@TabRow
-                        viewModel.updateFilterTag(restrict, state.filterTag)
-                        userBookmarksIllusts.refresh()
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(vertical = 4.dp),
-                    minWidth = 64.dp,
-                    maxWidth = 160.dp,
-                    listState = null,
-                )
-                IconButton(
-                    onClick = { showFilterDialog = true },
-                    backgroundColor = MiuixTheme.colorScheme.surfaceVariant,
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.FilterList,
-                        contentDescription = null
-                    )
-                }
-            }
         }
     }
     if (showFilterDialog) {
         FilterDialog(
-            onDismissRequest = { showFilterDialog = false },
+            onDismissRequest = { onShowFilterDialogChange(false) },
             userBookmarkTags = state.userBookmarkTagsIllust,
             privateBookmarkTags = state.privateBookmarkTagsIllust,
             restrict = state.restrict,
@@ -240,6 +184,8 @@ private fun CollectionNovelPage(
     uid: Long,
     refreshFlow: SharedFlow<LatestPage>,
     modifier: Modifier = Modifier,
+    showFilterDialog: Boolean = false,
+    onShowFilterDialogChange: (Boolean) -> Unit = {},
     viewModel: CollectionViewModel = koinViewModel { parametersOf(uid) },
     latestViewModel: LatestViewModel = koinViewModel(),
     navigationManager: NavigationManager = currentNavigationManager(),
@@ -248,7 +194,6 @@ private fun CollectionNovelPage(
     val pullRefreshState = rememberPullToRefreshState()
     val lazyListState = latestViewModel.collectionNovelLazyListState
     val state = viewModel.asState()
-    var showFilterDialog by rememberSaveable { mutableStateOf(false) }
     val isRefreshing = userBookmarksNovels.loadState.refresh is LoadState.Loading
     val controller = remember {
         keyboardScrollerController(lazyListState) {
@@ -259,8 +204,10 @@ private fun CollectionNovelPage(
     KeyEventListener(controller)
 
     LaunchedEffect(Unit) {
-        refreshFlow.collect {
-            userBookmarksNovels.refresh()
+        refreshFlow.collect { refreshedPage ->
+            if (refreshedPage == LatestPage.Collection) {
+                userBookmarksNovels.refresh()
+            }
         }
     }
 
@@ -274,7 +221,7 @@ private fun CollectionNovelPage(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = lazyListState,
-                contentPadding = PaddingValues(vertical = 50.dp),
+                contentPadding = PaddingValues(vertical = 10.dp),
             ) {
                 items(
                     count = userBookmarksNovels.itemCount,
@@ -302,32 +249,12 @@ private fun CollectionNovelPage(
                 state = lazyListState,
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
-            val options = listOf(
-                RStrings.word_public to Restrict.PUBLIC,
-                RStrings.word_private to Restrict.PRIVATE,
-            )
-            TabRow(
-                tabs = options.map { stringResource(it.first) },
-                selectedTabIndex = options.indexOfFirst { it.second == state.novelRestrict }
-                    .coerceAtLeast(0),
-                onTabSelected = { index ->
-                    val restrict = options.getOrNull(index)?.second ?: return@TabRow
-                    viewModel.updateNovelFilterTag(restrict, state.novelFilterTag)
-                    userBookmarksNovels.refresh()
-                },
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                minWidth = 64.dp,
-                maxWidth = 160.dp,
-                listState = null,
-            )
         }
     }
 
     if (showFilterDialog) {
         FilterDialog(
-            onDismissRequest = { showFilterDialog = false },
+            onDismissRequest = { onShowFilterDialogChange(false) },
             userBookmarkTags = state.userBookmarkTagsNovel,
             privateBookmarkTags = state.privateBookmarkTagsNovel,
             restrict = state.novelRestrict,

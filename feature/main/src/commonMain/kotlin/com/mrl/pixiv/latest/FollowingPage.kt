@@ -1,14 +1,6 @@
 package com.mrl.pixiv.latest
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import com.mrl.pixiv.common.util.RStrings
-import com.mrl.pixiv.strings.word_public
-import com.mrl.pixiv.strings.word_private
-import org.jetbrains.compose.resources.stringResource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,20 +20,19 @@ import com.mrl.pixiv.follow.FollowingViewModel
 import kotlinx.coroutines.flow.SharedFlow
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import top.yukonga.miuix.kmp.basic.TabRow
 
 @Composable
 fun FollowingPage(
     uid: Long,
     refreshFlow: SharedFlow<LatestPage>,
     modifier: Modifier = Modifier,
+    selectedPage: Int = 0,
     viewModel: FollowingViewModel = koinViewModel { parametersOf(uid) },
 ) {
     val navigationManager = currentNavigationManager()
     val paneSizeClass = currentPaneLayoutInfo().sizeClass
     val isWidthAtLeastMedium = paneSizeClass.isWidthAtLeastMedium
     val appViewMode by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle { appViewMode }
-    var selectedPage by rememberSaveable(uid) { mutableIntStateOf(0) }
     val pageIndex = selectedPage.coerceIn(viewModel.pages.indices)
     val followingUsers = (if (pageIndex == 0) viewModel.publicFollowingPageSource
         else viewModel.privateFollowingPageSource).collectAsLazyPagingItems()
@@ -61,28 +52,19 @@ fun FollowingPage(
 
     KeyEventListener(controller)
     LaunchedEffect(refreshFlow, followingUsers) {
-        refreshFlow.collect {
-            followingUsers.refresh()
+        refreshFlow.collect { refreshedPage ->
+            if (refreshedPage == LatestPage.Following) {
+                followingUsers.refresh()
+            }
         }
     }
-    Column(modifier = modifier.fillMaxSize()) {
-        if (viewModel.pages.size > 1) {
-            TabRow(
-                tabs = viewModel.pages.mapIndexed { index, _ ->
-                    stringResource(if (index == 0) RStrings.word_public else RStrings.word_private)
-                },
-                selectedTabIndex = pageIndex,
-                onTabSelected = { selectedPage = it },
-            )
-        }
-        FollowingScreenBody(
-            followingUsers = followingUsers,
-            navToPictureScreen = navigationManager::navigateToPictureScreen,
-            navToUserProfile = navigationManager::navigateToProfileDetailScreen,
-            modifier = Modifier.weight(1f),
-            lazyListState = listState,
-            lazyGridState = gridState,
-            showIllusts = appViewMode == AppViewMode.ILLUST,
-        )
-    }
+    FollowingScreenBody(
+        followingUsers = followingUsers,
+        navToPictureScreen = navigationManager::navigateToPictureScreen,
+        navToUserProfile = navigationManager::navigateToProfileDetailScreen,
+        modifier = modifier.fillMaxSize(),
+        lazyListState = listState,
+        lazyGridState = gridState,
+        showIllusts = appViewMode == AppViewMode.ILLUST,
+    )
 }

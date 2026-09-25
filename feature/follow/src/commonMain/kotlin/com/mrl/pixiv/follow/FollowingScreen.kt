@@ -19,6 +19,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Public
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -35,7 +37,6 @@ import com.mrl.pixiv.common.analytics.logEvent
 import com.mrl.pixiv.common.compose.IllustGridDefaults
 import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
 import com.mrl.pixiv.common.compose.layout.isWidthAtLeastMedium
-import com.mrl.pixiv.common.compose.layout.isWidthCompact
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.rememberThrottleClick
@@ -70,16 +71,19 @@ import org.koin.core.parameter.parametersOf
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.PullToRefresh
 import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 enum class FollowingPage {
     Public,
@@ -140,7 +144,40 @@ fun FollowingScreen(
                             contentDescription = "Back"
                         )
                     }
-                }
+                },
+                actions = {
+                    if (pages.size > 1) {
+                        val restrictLabels = listOf(
+                            stringResource(RStrings.word_public),
+                            stringResource(RStrings.word_private),
+                        )
+                        val selectedIndex = pagerState.currentPage.coerceIn(pages.indices)
+                        val restrictEntry = remember(selectedIndex, restrictLabels) {
+                            DropdownEntry(
+                                restrictLabels.mapIndexed { index, label ->
+                                    DropdownItem(
+                                        text = label,
+                                        selected = index == selectedIndex,
+                                        onClick = {
+                                            if (pagerState.currentPage != index) {
+                                                scope.launch {
+                                                    pagerState.animateScrollToPage(index)
+                                                }
+                                            }
+                                        },
+                                    )
+                                }
+                            )
+                        }
+                        OverlayIconDropdownMenu(entry = restrictEntry) {
+                            Icon(
+                                imageVector = Icons.Rounded.Public,
+                                contentDescription = restrictLabels[selectedIndex],
+                                tint = MiuixTheme.colorScheme.onBackground,
+                            )
+                        }
+                    }
+                },
             )
         },
         floatingActionButton = {
@@ -171,25 +208,6 @@ fun FollowingScreen(
                 .fillMaxSize()
                 .pageScrollModifiers(scrollBehavior),
         ) {
-            if (pages.size > 1) {
-                TabRow(
-                    tabs = pages.map { page ->
-                        stringResource(if (page == FollowingPage.Public) RStrings.word_public else RStrings.word_private)
-                    },
-                    selectedTabIndex = pagerState.currentPage,
-                    onTabSelected = { index ->
-                        scope.launch {
-                            if (pagerState.currentPage == index) return@launch
-                            pagerState.animateScrollToPage(index)
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth(if (paneSizeClass.isWidthCompact) 1f else 0.5f)
-                        .padding(horizontal = 12.dp, vertical = 4.dp),
-                    minWidth = 64.dp,
-                    maxWidth = 160.dp,
-                )
-            }
             LaunchedEffect(pagerState.currentPage) {
                 logEvent("screen_view", buildMap {
                     put("screen_name", "Following")
