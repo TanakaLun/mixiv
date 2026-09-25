@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Image
@@ -63,7 +62,6 @@ const val KEY_HISTORY_SETTING = "history_setting"
 const val KEY_PRIVACY_SETTING = "privacy_setting"
 const val KEY_FILE_NAME_FORMAT = "file_name_format"
 const val KEY_AI_TRANSLATION_SETTING = "ai_translation_setting"
-const val KEY_DEFAULT_OPEN_LINK = "default_open_link"
 
 @Composable
 fun SettingScreen(
@@ -156,9 +154,9 @@ fun SettingScreen(
                         icon = Icons.Rounded.Translate,
                         onClick = navigationManager::navigateToAiTranslationSettingScreen,
                     )
+                    AppLinkItem()
                 }
             }
-            appLinkItem()
             item { Spacer(modifier = Modifier.height(12.dp)) }
         }
     }
@@ -184,4 +182,5 @@ expect fun triggerLocaleChange(
     labelDefault: String,
 )
 
-expect fun LazyListScope.appLinkItem()
+@Composable
+expect fun AppLinkItem()
