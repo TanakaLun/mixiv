@@ -29,8 +29,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.HideImage
 import androidx.compose.material.icons.rounded.PersonOff
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -281,10 +279,6 @@ internal fun PictureScreen(
     val errorImage = rememberVectorPainter(Icons.Rounded.ErrorOutline)
 
     var showAdvancedBookmark by rememberSaveable { mutableStateOf(false) }
-    val bottomSheetState = rememberBottomSheetState(
-        initialValue = SheetValue.Hidden,
-        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-    )
     var contextMenuImageIndex by remember { mutableStateOf<Int?>(null) }
     var contextMenuOffset by remember { mutableStateOf(Offset.Zero) }
     val showPreviewControls = !browsingSettings.autoHidePreviewControls ||
@@ -987,7 +981,6 @@ internal fun PictureScreen(
         IllustBottomBookmarkSheet(
             hideBottomSheet = { showAdvancedBookmark = false },
             illust = illust,
-            bottomSheetState = bottomSheetState,
             onBookmarkClick = { restrict, tags, isEdit ->
                 if (isEdit || !isBookmarked) {
                     BookmarkState.bookmarkIllust(illust.id, restrict, tags)

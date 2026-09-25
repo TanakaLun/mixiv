@@ -16,8 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.TextFields
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -272,14 +270,9 @@ fun NovelItem(
     }
 
     if (showBottomSheet) {
-        val bottomSheetState = rememberBottomSheetState(
-            initialValue = SheetValue.Hidden,
-            enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-        )
         NovelBottomBookmarkSheet(
             hideBottomSheet = { showBottomSheet = false },
             novel = novel,
-            bottomSheetState = bottomSheetState,
             onBookmarkClick = { restrict, tags, isEdit ->
                 if (isEdit || !isBookmarked) {
                     BookmarkState.bookmarkNovel(novel.id, restrict, tags)

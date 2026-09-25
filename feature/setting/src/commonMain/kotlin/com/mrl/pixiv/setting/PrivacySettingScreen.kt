@@ -108,37 +108,37 @@ fun PrivacySettingScreen(
                 )
             }
         }
-    }
 
-    OverlayDialog(
-        show = showR18Warning,
-        title = stringResource(RStrings.tips),
-        onDismissRequest = { showR18Warning = false },
-        content = {
-            Column {
-                Text(text = remember(tipText) { htmlToAnnotatedString(tipText) })
-                Spacer(Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    TextButton(
-                        text = stringResource(RStrings.cancel),
-                        onClick = { showR18Warning = false },
-                        modifier = Modifier.weight(1f),
-                    )
-                    Spacer(Modifier.width(16.dp))
-                    TextButton(
-                        text = stringResource(RStrings.confirm),
-                        onClick = {
-                            SettingRepository.setIsR18Enabled(true)
-                            showR18Warning = false
-                        },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.textButtonColorsPrimary(),
-                    )
+        OverlayDialog(
+            show = showR18Warning,
+            title = stringResource(RStrings.tips),
+            onDismissRequest = { showR18Warning = false },
+            content = {
+                Column {
+                    Text(text = remember(tipText) { htmlToAnnotatedString(tipText) })
+                    Spacer(Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        TextButton(
+                            text = stringResource(RStrings.cancel),
+                            onClick = { showR18Warning = false },
+                            modifier = Modifier.weight(1f),
+                        )
+                        Spacer(Modifier.width(16.dp))
+                        TextButton(
+                            text = stringResource(RStrings.confirm),
+                            onClick = {
+                                SettingRepository.setIsR18Enabled(true)
+                                showR18Warning = false
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.textButtonColorsPrimary(),
+                        )
+                    }
                 }
-            }
-        },
-    )
+            },
+        )
+    }
 }

@@ -167,27 +167,27 @@ fun ReportScreen(
                 }
             }
         }
-    }
 
-    OverlayBottomSheet(
-        show = showTopicSheet,
-        onDismissRequest = { showTopicSheet = false },
-    ) {
-        LazyColumn(
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+        OverlayBottomSheet(
+            show = showTopicSheet,
+            onDismissRequest = { showTopicSheet = false },
         ) {
-            item(key = "report_topics_card") {
-                Card {
-                    state.topicList.forEachIndexed { index, topic ->
-                        BasicComponent(
-                            title = topic.topicTitle,
-                            onClick = {
-                                viewModel.selectTopic(topic.topicId)
-                                showTopicSheet = false
-                            },
-                        )
-                        if (index != state.topicList.lastIndex) {
-                            HorizontalDivider()
+            LazyColumn(
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+            ) {
+                item(key = "report_topics_card") {
+                    Card {
+                        state.topicList.forEachIndexed { index, topic ->
+                            BasicComponent(
+                                title = topic.topicTitle,
+                                onClick = {
+                                    viewModel.selectTopic(topic.topicId)
+                                    showTopicSheet = false
+                                },
+                            )
+                            if (index != state.topicList.lastIndex) {
+                                HorizontalDivider()
+                            }
                         }
                     }
                 }

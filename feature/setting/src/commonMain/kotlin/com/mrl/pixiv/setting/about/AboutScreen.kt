@@ -186,56 +186,56 @@ fun AboutScreen(
                 )
             }
         }
-    }
 
-    if (showUpdateDialog && latestVersionInfo != null) {
-        val latestVersionInfo = latestVersionInfo!!
-        val asset = latestVersionInfo.getCurrentFlavorAsset()
-        val releaseNotes = remember(latestVersionInfo.body) {
-            normalizeReleaseNotesLineEndings(latestVersionInfo.body.orEmpty())
-        }
-        OverlayDialog(
-            show = true,
-            title = asset?.name ?: latestVersionInfo.tagName,
-            onDismissRequest = { showUpdateDialog = false },
-            content = {
-                Column {
-                    Markdown(
-                        content = releaseNotes,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 400.dp)
-                            .verticalScroll(rememberScrollState())
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        TextButton(
-                            text = stringResource(RStrings.cancel),
-                            onClick = { showUpdateDialog = false },
-                            modifier = Modifier.weight(1f),
+        if (showUpdateDialog && latestVersionInfo != null) {
+            val latestVersionInfo = latestVersionInfo!!
+            val asset = latestVersionInfo.getCurrentFlavorAsset()
+            val releaseNotes = remember(latestVersionInfo.body) {
+                normalizeReleaseNotesLineEndings(latestVersionInfo.body.orEmpty())
+            }
+            OverlayDialog(
+                show = true,
+                title = asset?.name ?: latestVersionInfo.tagName,
+                onDismissRequest = { showUpdateDialog = false },
+                content = {
+                    Column {
+                        Markdown(
+                            content = releaseNotes,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 400.dp)
+                                .verticalScroll(rememberScrollState())
                         )
-                        Spacer(Modifier.width(16.dp))
-                        TextButton(
-                            text = stringResource(RStrings.download),
-                            onClick = click@{
-                                val url = asset?.downloadUrl
-                                    ?: run {
-                                        VersionManager.checkUpdate()
-                                        uriHandler.openUri(Constants.GITHUB_RELEASE_URL)
-                                        return@click
-                                    }
-                                uriHandler.openUri(url)
-                            },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.textButtonColorsPrimary(),
-                        )
+                        Spacer(Modifier.height(16.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            TextButton(
+                                text = stringResource(RStrings.cancel),
+                                onClick = { showUpdateDialog = false },
+                                modifier = Modifier.weight(1f),
+                            )
+                            Spacer(Modifier.width(16.dp))
+                            TextButton(
+                                text = stringResource(RStrings.download),
+                                onClick = click@{
+                                    val url = asset?.downloadUrl
+                                        ?: run {
+                                            VersionManager.checkUpdate()
+                                            uriHandler.openUri(Constants.GITHUB_RELEASE_URL)
+                                            return@click
+                                        }
+                                    uriHandler.openUri(url)
+                                },
+                                modifier = Modifier.weight(1f),
+                                colors = ButtonDefaults.textButtonColorsPrimary(),
+                            )
+                        }
                     }
-                }
-            },
-        )
+                },
+            )
+        }
     }
 }
 

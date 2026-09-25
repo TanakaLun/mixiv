@@ -174,55 +174,53 @@ fun AppDataScreen(
                 )
             }
         }
-    }
 
-    dialogData?.let { data ->
-        OverlayDialog(
-            show = true,
-            title = stringResource(RStrings.history_import_user_mismatch_title),
-            onDismissRequest = {
-                viewModel.onHistoryImportConfirm(data.requestId, false)
-                dialogData = null
-            },
-            content = {
-                Column {
-                    Text(
-                        text = stringResource(
-                            RStrings.history_import_user_mismatch_desc,
-                            data.currentUserId,
-                            data.importUserId
+        dialogData?.let { data ->
+            OverlayDialog(
+                show = true,
+                title = stringResource(RStrings.history_import_user_mismatch_title),
+                onDismissRequest = {
+                    viewModel.onHistoryImportConfirm(data.requestId, false)
+                    dialogData = null
+                },
+                content = {
+                    Column {
+                        Text(
+                            text = stringResource(
+                                RStrings.history_import_user_mismatch_desc,
+                                data.currentUserId,
+                                data.importUserId
+                            )
                         )
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        TextButton(
-                            text = stringResource(RStrings.cancel),
-                            onClick = {
-                                viewModel.onHistoryImportConfirm(data.requestId, false)
-                                dialogData = null
-                            },
-                            modifier = Modifier.weight(1f),
-                        )
-                        Spacer(Modifier.width(16.dp))
-                        TextButton(
-                            text = stringResource(RStrings.confirm),
-                            onClick = {
-                                viewModel.onHistoryImportConfirm(data.requestId, true)
-                                dialogData = null
-                            },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.textButtonColorsPrimary(),
-                        )
+                        Spacer(Modifier.height(16.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            TextButton(
+                                text = stringResource(RStrings.cancel),
+                                onClick = {
+                                    viewModel.onHistoryImportConfirm(data.requestId, false)
+                                    dialogData = null
+                                },
+                                modifier = Modifier.weight(1f),
+                            )
+                            Spacer(Modifier.width(16.dp))
+                            TextButton(
+                                text = stringResource(RStrings.confirm),
+                                onClick = {
+                                    viewModel.onHistoryImportConfirm(data.requestId, true)
+                                    dialogData = null
+                                },
+                                modifier = Modifier.weight(1f),
+                                colors = ButtonDefaults.textButtonColorsPrimary(),
+                            )
+                        }
                     }
-                }
-            },
-        )
+                },
+            )
+        }
     }
-
-
 }
 
 @Composable

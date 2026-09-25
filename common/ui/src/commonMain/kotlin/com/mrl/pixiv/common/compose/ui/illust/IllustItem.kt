@@ -10,16 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.PlainTooltip
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.Text as MaterialText
-import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
-import androidx.compose.material3.rememberBottomSheetState
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -70,6 +61,9 @@ import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.Badge
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TooltipAnchorPosition
+import top.yukonga.miuix.kmp.basic.TooltipBox
+import top.yukonga.miuix.kmp.basic.rememberTooltipState
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Copy
 import top.yukonga.miuix.kmp.theme.MiuixTheme
@@ -171,14 +165,9 @@ fun SquareIllustItem(
         }
     }
     if (showBottomSheet) {
-        val bottomSheetState = rememberBottomSheetState(
-            initialValue = SheetValue.Hidden,
-            enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-        )
         IllustBottomBookmarkSheet(
             hideBottomSheet = { showBottomSheet = false },
             illust = illust,
-            bottomSheetState = bottomSheetState,
             onBookmarkClick = onBookmarkClick,
         )
     }
@@ -309,14 +298,9 @@ fun RectangleIllustItem(
         }
     }
     if (showBottomSheet) {
-        val bottomSheetState = rememberBottomSheetState(
-            initialValue = SheetValue.Hidden,
-            enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-        )
         IllustBottomBookmarkSheet(
             hideBottomSheet = { showBottomSheet = false },
             illust = illust,
-            bottomSheetState = bottomSheetState,
             onBookmarkClick = onBookmarkClick,
         )
     }
@@ -326,7 +310,6 @@ internal fun calculateIllustAspectRatio(width: Int, height: Int): Float {
     return width.toFloat() / height
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BookmarkTooltipBox(
     shouldShowTip: Boolean,
@@ -346,16 +329,10 @@ private fun BookmarkTooltipBox(
 
     Box(modifier = modifier) {
         TooltipBox(
-            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
-                positioning = TooltipAnchorPosition.Above,
-            ),
-            tooltip = {
-                PlainTooltip {
-                    MaterialText(text = stringResource(RStrings.long_click_to_edit_favorite))
-                }
-            },
+            text = stringResource(RStrings.long_click_to_edit_favorite),
             state = tooltipState,
-            enableUserInput = false,
+            positioning = TooltipAnchorPosition.Above,
+            enabled = false,
             content = content,
         )
     }

@@ -176,67 +176,68 @@ fun BlockTagScreen(
                 color = if (it.isRegex) lightBlue else Color.Unspecified,
                 style = MiuixTheme.textStyles.body1,
             )
+        },
+        dialogContent = {
+            if (showAddDialog) {
+                OverlayDialog(
+                    show = true,
+                    title = stringResource(RStrings.add_tags),
+                    onDismissRequest = { showAddDialog = false },
+                    content = {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            TextField(
+                                value = inputTag,
+                                onValueChange = { inputTag = it },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                label = stringResource(RStrings.add_tags),
+                            )
+                            if (!regexValid && normalizedTag.isNotBlank()) {
+                                Text(
+                                    text = " ",
+                                    color = MiuixTheme.colorScheme.error,
+                                )
+                            }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Checkbox(
+                                    state = ToggleableState(isRegex),
+                                    onClick = { isRegex = !isRegex },
+                                )
+                                Text(text = stringResource(RStrings.block_tag_as_regex))
+                            }
+                            Spacer(Modifier.height(16.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                TextButton(
+                                    text = stringResource(RStrings.cancel),
+                                    onClick = { showAddDialog = false },
+                                    modifier = Modifier.weight(1f),
+                                )
+                                Spacer(Modifier.width(16.dp))
+                                TextButton(
+                                    text = stringResource(RStrings.confirm),
+                                    onClick = {
+                                        if (!canConfirm) return@TextButton
+                                        BlockingRepositoryV2.blockTag(normalizedTag, isRegex = isRegex)
+                                        showAddDialog = false
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    enabled = canConfirm,
+                                    colors = ButtonDefaults.textButtonColorsPrimary(),
+                                )
+                            }
+                        }
+                    },
+                )
+            }
         }
     )
-
-    if (showAddDialog) {
-        OverlayDialog(
-            show = true,
-            title = stringResource(RStrings.add_tags),
-            onDismissRequest = { showAddDialog = false },
-            content = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    TextField(
-                        value = inputTag,
-                        onValueChange = { inputTag = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        label = stringResource(RStrings.add_tags),
-                    )
-                    if (!regexValid && normalizedTag.isNotBlank()) {
-                        Text(
-                            text = " ",
-                            color = MiuixTheme.colorScheme.error,
-                        )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Checkbox(
-                            state = ToggleableState(isRegex),
-                            onClick = { isRegex = !isRegex },
-                        )
-                        Text(text = stringResource(RStrings.block_tag_as_regex))
-                    }
-                    Spacer(Modifier.height(16.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        TextButton(
-                            text = stringResource(RStrings.cancel),
-                            onClick = { showAddDialog = false },
-                            modifier = Modifier.weight(1f),
-                        )
-                        Spacer(Modifier.width(16.dp))
-                        TextButton(
-                            text = stringResource(RStrings.confirm),
-                            onClick = {
-                                if (!canConfirm) return@TextButton
-                                BlockingRepositoryV2.blockTag(normalizedTag, isRegex = isRegex)
-                                showAddDialog = false
-                            },
-                            modifier = Modifier.weight(1f),
-                            enabled = canConfirm,
-                            colors = ButtonDefaults.textButtonColorsPrimary(),
-                        )
-                    }
-                }
-            },
-        )
-    }
 }
 
 @Composable
@@ -248,6 +249,7 @@ private fun <T> BlockTextScreen(
     topBarActions: @Composable RowScope.() -> Unit = {},
     modifier: Modifier = Modifier,
     itemContent: @Composable RowScope.(T) -> Unit = {},
+    dialogContent: @Composable () -> Unit = {},
 ) {
     val navigationManager = currentNavigationManager()
 
@@ -266,6 +268,8 @@ private fun <T> BlockTextScreen(
             )
         }
     ) { innerPadding ->
+        dialogContent()
+
         if (items.isEmpty()) {
             Box(
                 modifier = Modifier

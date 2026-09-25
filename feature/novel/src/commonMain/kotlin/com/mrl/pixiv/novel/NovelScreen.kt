@@ -23,8 +23,6 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.HideImage
 import androidx.compose.material.icons.rounded.Visibility
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -762,81 +760,61 @@ fun NovelScreen(
                 }
             }
         }
-    }
 
-    if (showBookmarkBottomSheet && state.novel != null) {
-        val bottomSheetState = rememberBottomSheetState(
-            initialValue = SheetValue.Hidden,
-            enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-        )
-        NovelBottomBookmarkSheet(
-            hideBottomSheet = { showBookmarkBottomSheet = false },
-            novel = state.novel,
-            bottomSheetState = bottomSheetState,
-            onBookmarkClick = { restrict, tags, isEdit ->
-                if (isEdit || !state.novel.isBookmark) {
-                    BookmarkState.bookmarkNovel(state.novel.id, restrict, tags)
-                } else {
-                    BookmarkState.deleteBookmarkNovel(state.novel.id)
-                }
-            }
-        )
-    }
+        if (showMetadataBottomSheet && state.novel != null && !isNovelBlocked) {
+            NovelMetadataBottomSheet(
+                novel = state.novel,
+                onDismissRequest = { showMetadataBottomSheet = false },
+                onAuthorClick = { userId ->
+                    showMetadataBottomSheet = false
+                    navigationManager.navigateToProfileDetailScreen(userId)
+                },
+                onSeriesClick = { seriesId ->
+                    showMetadataBottomSheet = false
+                    navigationManager.navigateToNovelSeriesScreen(seriesId)
+                },
+                onTagClick = { tag ->
+                    showMetadataBottomSheet = false
+                    navigationManager.navigateToSearchResultScreen(
+                        searchWord = tag,
+                        isIdSearch = false,
+                        searchMode = AppViewMode.NOVEL
+                    )
+                },
+                onCaptionLinkClick = { url ->
+                    showMetadataBottomSheet = false
+                    when (val target = resolveNovelCaptionLink(url)) {
+                        is NovelCaptionLinkTarget.Illust ->
+                            navigationManager.navigateToSinglePictureScreen(target.id)
 
-    if (showMetadataBottomSheet && state.novel != null && !isNovelBlocked) {
-        NovelMetadataBottomSheet(
-            novel = state.novel,
-            onDismissRequest = { showMetadataBottomSheet = false },
-            onAuthorClick = { userId ->
-                showMetadataBottomSheet = false
-                navigationManager.navigateToProfileDetailScreen(userId)
-            },
-            onSeriesClick = { seriesId ->
-                showMetadataBottomSheet = false
-                navigationManager.navigateToNovelSeriesScreen(seriesId)
-            },
-            onTagClick = { tag ->
-                showMetadataBottomSheet = false
-                navigationManager.navigateToSearchResultScreen(
-                    searchWord = tag,
-                    isIdSearch = false,
-                    searchMode = AppViewMode.NOVEL
-                )
-            },
-            onCaptionLinkClick = { url ->
-                showMetadataBottomSheet = false
-                when (val target = resolveNovelCaptionLink(url)) {
-                    is NovelCaptionLinkTarget.Illust ->
-                        navigationManager.navigateToSinglePictureScreen(target.id)
+                        is NovelCaptionLinkTarget.Novel ->
+                            navigationManager.navigateToNovelDetailScreen(target.id)
 
-                    is NovelCaptionLinkTarget.Novel ->
-                        navigationManager.navigateToNovelDetailScreen(target.id)
+                        is NovelCaptionLinkTarget.User ->
+                            navigationManager.navigateToProfileDetailScreen(target.id)
 
-                    is NovelCaptionLinkTarget.User ->
-                        navigationManager.navigateToProfileDetailScreen(target.id)
+                        is NovelCaptionLinkTarget.External ->
+                            runCatching { uriHandler.openUri(target.url) }
 
-                    is NovelCaptionLinkTarget.External ->
-                        runCatching { uriHandler.openUri(target.url) }
+                        null -> Unit
+                    }
+                },
+                onCommentClick = {
+                    saveReadingProgress()
+                    showMetadataBottomSheet = false
+                    navigationManager.navigateToCommentScreen(
+                        state.novel.id,
+                        CommentType.NOVEL
+                    )
+                },
+            )
+        }
 
-                    null -> Unit
-                }
-            },
-            onCommentClick = {
-                saveReadingProgress()
-                showMetadataBottomSheet = false
-                navigationManager.navigateToCommentScreen(
-                    state.novel.id,
-                    CommentType.NOVEL
-                )
-            },
-        )
-    }
-
-    // BottomSheet
-    OverlayBottomSheet(
-        show = state.showBottomSheet,
-        onDismissRequest = { viewModel.dispatch(NovelIntent.ToggleBottomSheet) },
-    ) {
+        // BottomSheet
+        OverlayBottomSheet(
+            show = state.showBottomSheet,
+            onDismissRequest = { viewModel.dispatch(NovelIntent.ToggleBottomSheet) },
+        ) {
             NovelBottomSheetContent(
                 state = state,
                 onFontSizeChange = {
@@ -875,6 +853,21 @@ fun NovelScreen(
             )
         }
     }
+
+    if (showBookmarkBottomSheet && state.novel != null) {
+        NovelBottomBookmarkSheet(
+            hideBottomSheet = { showBookmarkBottomSheet = false },
+            novel = state.novel,
+            onBookmarkClick = { restrict, tags, isEdit ->
+                if (isEdit || !state.novel.isBookmark) {
+                    BookmarkState.bookmarkNovel(state.novel.id, restrict, tags)
+                } else {
+                    BookmarkState.deleteBookmarkNovel(state.novel.id)
+                }
+            }
+        )
+    }
+}
 
 @Composable
 private fun NovelBottomSheetContent(

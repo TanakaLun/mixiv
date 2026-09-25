@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -71,7 +70,6 @@ private const val MAX_BOOKMARK_TAGS = 10
 fun IllustBottomBookmarkSheet(
     hideBottomSheet: () -> Unit,
     illust: Illust,
-    bottomSheetState: SheetState,
     onBookmarkClick: (Restrict, List<String>?, Boolean) -> Unit,
 ) {
     var selectedRestrict by remember { mutableStateOf(Restrict.PUBLIC) }
@@ -95,7 +93,6 @@ fun IllustBottomBookmarkSheet(
         onRestrictChange = { selectedRestrict = it },
         tags = illustBookmarkDetailTags,
         hideBottomSheet = hideBottomSheet,
-        bottomSheetState = bottomSheetState,
         onBookmarkClick = onBookmarkClick,
         isBookmarked = illust.isBookmark
     )
@@ -105,7 +102,6 @@ fun IllustBottomBookmarkSheet(
 fun NovelBottomBookmarkSheet(
     hideBottomSheet: () -> Unit,
     novel: Novel,
-    bottomSheetState: SheetState,
     onBookmarkClick: (Restrict, List<String>?, Boolean) -> Unit,
 ) {
     var selectedRestrict by remember { mutableStateOf(Restrict.PUBLIC) }
@@ -129,7 +125,6 @@ fun NovelBottomBookmarkSheet(
         onRestrictChange = { selectedRestrict = it },
         tags = novelBookmarkDetailTags,
         hideBottomSheet = hideBottomSheet,
-        bottomSheetState = bottomSheetState,
         onBookmarkClick = onBookmarkClick,
         isBookmarked = novel.isBookmark
     )
@@ -141,7 +136,6 @@ private fun BottomBookmarkSheet(
     onRestrictChange: (Restrict) -> Unit,
     tags: SnapshotStateList<BookmarkDetailTag>,
     hideBottomSheet: () -> Unit,
-    bottomSheetState: SheetState,
     onBookmarkClick: (Restrict, List<String>?, Boolean) -> Unit,
     isBookmarked: Boolean,
 ) {

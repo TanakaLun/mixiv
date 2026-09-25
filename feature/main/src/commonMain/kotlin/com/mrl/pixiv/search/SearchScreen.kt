@@ -167,17 +167,6 @@ fun SearchScreen(
     val softwareKeyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
-    if (pendingLinks.isNotEmpty()) {
-        PixivLinkSelectionDialog(
-            links = pendingLinks,
-            onSelect = { link ->
-                pendingLinks = emptyList()
-                navigationManager.navigate(link.toDestination())
-            },
-            onDismiss = { pendingLinks = emptyList() },
-        )
-    }
-
     val scrollBehavior = MiuixScrollBehavior()
 
     Scaffold(
@@ -363,6 +352,17 @@ fun SearchScreen(
                 }
             }
             item { Spacer(modifier = Modifier.height(12.dp)) }
+        }
+
+        if (pendingLinks.isNotEmpty()) {
+            PixivLinkSelectionDialog(
+                links = pendingLinks,
+                onSelect = { link ->
+                    pendingLinks = emptyList()
+                    navigationManager.navigate(link.toDestination())
+                },
+                onDismiss = { pendingLinks = emptyList() },
+            )
         }
     }
 }
