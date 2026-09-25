@@ -30,7 +30,7 @@
   - [x] 导航栏结构对齐 example：`Row { rail; Box { NavDisplay } }`，bottom bar 放 Main entry 的 `Scaffold(bottomBar = ...)` 内（pushed page 覆盖时随内容被遮挡）
   - [x] `Scaffold` → Miuix `Scaffold`（各业务屏已换）
 - [x] 全局 `TopAppBar` 批量替换（miuix title=String）。
-- [x] 全部可滚动屏接 `MiuixScrollBehavior` 折叠大标题（Scaffold modifier 挂 `pageScrollModifiers`；有意跳过：History 固定搜索栏、NovelReader 动画显隐、Picture 沉浸式、Login 无滚动内容）。
+- [x] 全部可滚动屏接 `MiuixScrollBehavior` 折叠大标题（`pageScrollModifiers` 挂**可滚动内容根**而非 Scaffold，顺序必须在 `.verticalScroll()` 外侧；helper 含 `scrollEndHaptic`；History 亦已接入 `TopAppBar` + `bottomContent` 固定搜索栏。有意跳过：NovelReader 动画显隐、Picture 沉浸式、Login 无滚动内容、Report 表单无滚动源）。
 - [ ] `MainActivity` 动态取色逻辑：Miuix 是否支持 HyperOS 动色；不支持则固定品牌色并记录。
 
 ## Phase 3 — 设置与偏好（miuix-preference）
@@ -62,7 +62,7 @@
 - [x] Theme 已是 `MiuixTheme` 路径
 - [x] 无新增 `androidx.compose.material3` import（存量逐步清）
 - [x] 图标：`Icons.Rounded.*` → `MiuixIcons`（82 个 import 清单见 `UI_STACK.md`）→ mapping 已建（§5.1）；**逐点位替换仍开放**（工作量大，可按屏分批）。
-- [ ] Ripple / pressed 态符合 Miuix
+- [x] Ripple / pressed 态符合 Miuix（`throttleClick` 改用 theme indication；后续新组件沿用）
 - [x] 共享元素屏（IllustItem / Picture / ImagePreview）：方案 A 后 shared element **有意移除**（改 miuix-nav 全局转场）。
 
 ## Phase 5 — 图标与零碎 API
