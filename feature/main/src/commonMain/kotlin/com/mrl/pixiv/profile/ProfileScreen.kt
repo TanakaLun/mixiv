@@ -17,21 +17,16 @@ import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.Bookmarks
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.ImportExport
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material.icons.rounded.Style
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -40,8 +35,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.compose.ui.image.UserAvatar
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
-import com.mrl.pixiv.common.data.setting.SettingTheme
-import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.VersionManager
 import com.mrl.pixiv.common.repository.requireUserInfoFlow
 import com.mrl.pixiv.common.router.NavigationManager
@@ -60,30 +53,17 @@ import com.mrl.pixiv.strings.novel_markers
 import com.mrl.pixiv.strings.preference
 import com.mrl.pixiv.strings.read_later
 import com.mrl.pixiv.strings.sign_out
-import com.mrl.pixiv.strings.theme_dark
-import com.mrl.pixiv.strings.theme_light
-import com.mrl.pixiv.strings.theme_system
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import top.yukonga.miuix.kmp.basic.Badge
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.IconButton
-import top.yukonga.miuix.kmp.basic.ListPopupColumn
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
-import top.yukonga.miuix.kmp.window.WindowListPopup
-
-private val options =
-    mapOf(
-        SettingTheme.SYSTEM to RStrings.theme_system,
-        SettingTheme.LIGHT to RStrings.theme_light,
-        SettingTheme.DARK to RStrings.theme_dark,
-    )
 
 private const val KEY_USER_INFO = "user_info"
 private const val KEY_MAIN_PREFS = "main_prefs"
@@ -104,12 +84,7 @@ fun ProfileScreen(
     val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
         topBar = {
-            ProfileAppBar(
-                scrollBehavior = scrollBehavior,
-                onChangeAppTheme = { theme ->
-                    viewModel.changeAppTheme(theme)
-                },
-            )
+            ProfileAppBar(scrollBehavior = scrollBehavior)
         },
     ) {
         LazyColumn(
@@ -271,42 +246,9 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun ProfileAppBar(
-    scrollBehavior: ScrollBehavior,
-    onChangeAppTheme: (SettingTheme) -> Unit = {},
-) {
-    val userPreference by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle()
-    var expanded by remember { mutableStateOf(false) }
+private fun ProfileAppBar(scrollBehavior: ScrollBehavior) {
     TopAppBar(
         title = "",
         scrollBehavior = scrollBehavior,
-        actions = {
-            IconButton(onClick = { expanded = true }) {
-                Icon(imageVector = Icons.Rounded.Palette, contentDescription = null)
-            }
-            WindowListPopup(
-                show = expanded,
-                onDismissRequest = { expanded = false },
-            ) {
-                ListPopupColumn {
-                    options.forEach { (theme, resId) ->
-                        BasicComponent(
-                            title = stringResource(resId),
-                            onClick = {
-                                onChangeAppTheme(theme)
-                                expanded = false
-                            },
-                            endActions = if (userPreference.theme == theme.name) {
-                                {
-                                    Icon(imageVector = Icons.Rounded.Check, contentDescription = null)
-                                }
-                            } else {
-                                null
-                            },
-                        )
-                    }
-                }
-            }
-        },
     )
 }
