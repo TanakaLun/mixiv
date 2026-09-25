@@ -14,23 +14,17 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.mrl.pixiv.collection.components.FilterDialog
+import com.mrl.pixiv.collection.components.FilterAction
 import com.mrl.pixiv.common.compose.IllustGridDefaults
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
@@ -78,7 +72,6 @@ fun CollectionScreen(
     val userBookmarksIllusts = viewModel.userBookmarksIllusts.collectAsLazyPagingItems()
     val userBookmarksNovels = viewModel.userBookmarksNovels.collectAsLazyPagingItems()
     val dispatch = viewModel::dispatch
-    var showFilterDialog by rememberSaveable { mutableStateOf(false) }
     val lazyGridState = rememberLazyGridState()
     val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -115,7 +108,37 @@ fun CollectionScreen(
             CollectionTopAppBar(
                 scrollBehavior = scrollBehavior,
                 uid = uid,
-                showFilterDialog = { showFilterDialog = true },
+                filterAction = {
+                    if (isIllustPage) {
+                        FilterAction(
+                            restrict = state.restrict,
+                            filterTag = state.filterTag,
+                            userBookmarkTags = state.userBookmarkTagsIllust,
+                            privateBookmarkTags = state.privateBookmarkTagsIllust,
+                            onLoadUserBookmarksTags = {
+                                dispatch(CollectionAction.LoadUserBookmarksTagsIllust(it))
+                            },
+                            onSelected = { restrict, tag ->
+                                viewModel.updateFilterTag(restrict, tag)
+                                userBookmarksIllusts.refresh()
+                            },
+                        )
+                    } else {
+                        FilterAction(
+                            restrict = state.novelRestrict,
+                            filterTag = state.novelFilterTag,
+                            userBookmarkTags = state.userBookmarkTagsNovel,
+                            privateBookmarkTags = state.privateBookmarkTagsNovel,
+                            onLoadUserBookmarksTags = {
+                                dispatch(CollectionAction.LoadUserBookmarksTagsNovel(it))
+                            },
+                            onSelected = { restrict, tag ->
+                                viewModel.updateNovelFilterTag(restrict, tag)
+                                userBookmarksNovels.refresh()
+                            },
+                        )
+                    }
+                },
                 onBack = { navigationManager.popBackStack() },
                 viewModeAction = {
                     ViewModeAction(
@@ -249,40 +272,6 @@ fun CollectionScreen(
                 }
             }
         }
-
-        if (showFilterDialog) {
-            if (isIllustPage) {
-                FilterDialog(
-                    onDismissRequest = { showFilterDialog = false },
-                    userBookmarkTags = state.userBookmarkTagsIllust,
-                    privateBookmarkTags = state.privateBookmarkTagsIllust,
-                    restrict = state.restrict,
-                    filterTag = state.filterTag,
-                    onLoadUserBookmarksTags = {
-                        dispatch(CollectionAction.LoadUserBookmarksTagsIllust(it))
-                    },
-                    onSelected = { restrict, tag ->
-                        viewModel.updateFilterTag(restrict, tag)
-                        userBookmarksIllusts.refresh()
-                    }
-                )
-            } else {
-                FilterDialog(
-                    onDismissRequest = { showFilterDialog = false },
-                    userBookmarkTags = state.userBookmarkTagsNovel,
-                    privateBookmarkTags = state.privateBookmarkTagsNovel,
-                    restrict = state.novelRestrict,
-                    filterTag = state.novelFilterTag,
-                    onLoadUserBookmarksTags = {
-                        dispatch(CollectionAction.LoadUserBookmarksTagsNovel(it))
-                    },
-                    onSelected = { restrict, tag ->
-                        viewModel.updateNovelFilterTag(restrict, tag)
-                        userBookmarksNovels.refresh()
-                    }
-                )
-            }
-        }
     }
 }
 
@@ -290,8 +279,8 @@ fun CollectionScreen(
 private fun CollectionTopAppBar(
     scrollBehavior: ScrollBehavior,
     uid: Long,
-    showFilterDialog: () -> Unit = {},
     onBack: () -> Unit = {},
+    filterAction: @Composable () -> Unit = {},
     viewModeAction: @Composable () -> Unit = {},
 ) {
     TopAppBar(
@@ -306,11 +295,7 @@ private fun CollectionTopAppBar(
         },
         actions = {
             if (uid.isSelf) {
-                IconButton(
-                    onClick = showFilterDialog,
-                ) {
-                    Icon(Icons.Rounded.FilterList, contentDescription = null)
-                }
+                filterAction()
             }
             viewModeAction()
         }
