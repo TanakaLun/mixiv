@@ -65,7 +65,7 @@ fun FileNameFormatScreen(
 
     val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.file_name_format_title),
@@ -101,7 +101,8 @@ fun FileNameFormatScreen(
             modifier = modifier
                 .padding(innerPadding)
                 .padding(vertical = 8.dp)
-                .verticalScroll(rememberScrollState()),
+                .pageScrollModifiers(scrollBehavior)
+                .verticalScroll(rememberScrollState())
         ) {
             Card(modifier = Modifier.padding(horizontal = 12.dp)) {
                 SwitchPreference(

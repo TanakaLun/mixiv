@@ -254,7 +254,7 @@ private fun <T> BlockTextScreen(
     val navigationManager = currentNavigationManager()
 
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = title,
@@ -288,7 +288,8 @@ private fun <T> BlockTextScreen(
         LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .pageScrollModifiers(scrollBehavior),
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
         ) {
             item(key = "block_list_card") {

@@ -104,7 +104,7 @@ fun AppDataScreen(
 
     val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.app_data),
@@ -121,6 +121,7 @@ fun AppDataScreen(
             modifier = Modifier
                 .padding(paddingValues)
                 .padding(vertical = 8.dp)
+                .pageScrollModifiers(scrollBehavior)
                 .verticalScroll(rememberScrollState())
                 .imePadding(),
             verticalArrangement = Arrangement.spacedBy(8.dp),

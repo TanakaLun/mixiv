@@ -45,7 +45,7 @@ fun BookmarkedTagsScreen(
     val scrollBehavior = MiuixScrollBehavior()
 
     Scaffold(
-        modifier = modifier.fillMaxSize().pageScrollModifiers(scrollBehavior),
+        modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.bookmark_tags),
@@ -66,7 +66,8 @@ fun BookmarkedTagsScreen(
         LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .pageScrollModifiers(scrollBehavior),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 8.dp),
         ) {
             if (tags.isNotEmpty()) {

@@ -78,7 +78,7 @@ fun BrowsingSettingScreen(
 
     val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.browsing_setting),
@@ -93,10 +93,11 @@ fun BrowsingSettingScreen(
     ) {
         Column(
             modifier = Modifier
+                .pageScrollModifiers(scrollBehavior)
                 .verticalScroll(rememberScrollState())
                 .padding(it)
                 .imePadding()
-                .padding(vertical = 8.dp),
+                .padding(vertical = 8.dp)
         ) {
             Card(modifier = Modifier.padding(horizontal = 12.dp)) {
                 SpanCountSetting(

@@ -220,7 +220,7 @@ fun SearchResultsScreen(
     val scrollBehavior = MiuixScrollBehavior()
 
     Scaffold(
-        modifier = Modifier.pageScrollModifiers(scrollBehavior),
+        modifier = Modifier,
         topBar = {
             Column {
                 SearchResultAppBar(
@@ -308,7 +308,9 @@ fun SearchResultsScreen(
     ) {
         HorizontalPager(
             state = pagerState,
-            modifier = modifier.padding(it),
+            modifier = modifier
+                .padding(it)
+                .pageScrollModifiers(scrollBehavior),
         ) { index ->
             val navigationBarBottomPadding = 0.dp
 

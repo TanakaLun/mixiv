@@ -75,7 +75,7 @@ fun DownloadScreen(
 
     val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.download_manager),
@@ -88,7 +88,11 @@ fun DownloadScreen(
             )
         }
     ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .pageScrollModifiers(scrollBehavior)
+        ) {
             val selectedIndex =
                 tabs.indexOfFirst { it.first == state.filterStatus }.coerceAtLeast(0)
             TabRow(

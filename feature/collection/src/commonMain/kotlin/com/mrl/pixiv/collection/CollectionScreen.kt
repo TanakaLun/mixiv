@@ -118,7 +118,7 @@ fun CollectionScreen(
     val scrollBehavior = MiuixScrollBehavior()
 
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             Column {
                 CollectionTopAppBar(
@@ -181,7 +181,9 @@ fun CollectionScreen(
     ) { paddingValues ->
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.padding(paddingValues),
+            modifier = Modifier
+                .padding(paddingValues)
+                .pageScrollModifiers(scrollBehavior),
         ) { page ->
             when (page) {
                 0 -> {

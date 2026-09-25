@@ -86,7 +86,7 @@ fun AboutScreen(
 
     val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.about),
@@ -103,6 +103,7 @@ fun AboutScreen(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
+                .pageScrollModifiers(scrollBehavior)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {

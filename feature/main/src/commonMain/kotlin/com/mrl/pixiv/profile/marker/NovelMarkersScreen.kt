@@ -59,7 +59,7 @@ fun NovelMarkersScreen(
     val scrollBehavior = MiuixScrollBehavior()
 
     Scaffold(
-        modifier = modifier.fillMaxSize().pageScrollModifiers(scrollBehavior),
+        modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.novel_markers),
@@ -81,7 +81,8 @@ fun NovelMarkersScreen(
             pullToRefreshState = pullToRefreshState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .pageScrollModifiers(scrollBehavior),
         ) {
             when {
                 refreshState is LoadState.Error && markers.itemCount == 0 -> {

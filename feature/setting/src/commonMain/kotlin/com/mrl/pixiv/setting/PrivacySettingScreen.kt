@@ -64,7 +64,7 @@ fun PrivacySettingScreen(
 
     val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.privacy_setting),
@@ -79,9 +79,10 @@ fun PrivacySettingScreen(
     ) { innerPadding ->
         Column(
             modifier = Modifier
+                .pageScrollModifiers(scrollBehavior)
                 .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
-                .padding(vertical = 8.dp),
+                .padding(vertical = 8.dp)
         ) {
             Card(modifier = Modifier.padding(horizontal = 12.dp)) {
                 SwitchPreference(

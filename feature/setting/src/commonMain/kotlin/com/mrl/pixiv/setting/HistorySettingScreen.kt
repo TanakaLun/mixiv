@@ -80,7 +80,7 @@ fun HistorySettingScreen(
 
     val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.history_setting),
@@ -95,10 +95,11 @@ fun HistorySettingScreen(
     ) { paddingValues ->
         Column(
             modifier = Modifier
+                .pageScrollModifiers(scrollBehavior)
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
                 .imePadding()
-                .padding(vertical = 8.dp),
+                .padding(vertical = 8.dp)
         ) {
             Card(modifier = Modifier.padding(horizontal = 12.dp)) {
                 HistorySwitchItem(

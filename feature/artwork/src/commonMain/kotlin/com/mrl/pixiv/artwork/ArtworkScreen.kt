@@ -122,7 +122,7 @@ fun ArtworkScreen(
     val scrollBehavior = MiuixScrollBehavior()
 
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             CollectionTopAppBar(
                 scrollBehavior = scrollBehavior,
@@ -160,6 +160,7 @@ fun ArtworkScreen(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
+                .pageScrollModifiers(scrollBehavior)
         ) {
             TabRow(
                 tabs = pages.map { page -> stringResource(page.title) },

@@ -72,7 +72,7 @@ fun NovelSeriesScreen(
     val scrollBehavior = MiuixScrollBehavior()
 
     Scaffold(
-        modifier = modifier.fillMaxSize().pageScrollModifiers(scrollBehavior),
+        modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = state.detail?.title ?: stringResource(RStrings.series),
@@ -95,7 +95,8 @@ fun NovelSeriesScreen(
             onRefresh = novels::refresh,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .pageScrollModifiers(scrollBehavior),
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(

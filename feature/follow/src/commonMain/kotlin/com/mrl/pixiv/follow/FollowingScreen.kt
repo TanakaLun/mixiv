@@ -124,7 +124,7 @@ fun FollowingScreen(
     val scrollBehavior = MiuixScrollBehavior()
 
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.followed),
@@ -168,7 +168,8 @@ fun FollowingScreen(
         Column(
             modifier = Modifier
                 .padding(it)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .pageScrollModifiers(scrollBehavior),
         ) {
             if (pages.size > 1) {
                 TabRow(

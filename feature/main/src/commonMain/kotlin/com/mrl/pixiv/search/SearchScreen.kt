@@ -176,7 +176,7 @@ fun SearchScreen(
         ) {
             focusManager.clearFocus()
             softwareKeyboardController?.hide()
-        }.pageScrollModifiers(scrollBehavior),
+        },
         topBar = {
             SearchScreenAppBar(
                 scrollBehavior = scrollBehavior,
@@ -242,7 +242,8 @@ fun SearchScreen(
                 .fillMaxSize()
                 .padding(it)
                 .padding(top = 8.dp)
-                .imePadding(),
+                .imePadding()
+                .pageScrollModifiers(scrollBehavior),
             contentPadding = PaddingValues(horizontal = 8.dp),
             verticalArrangement = 16f.spaceBy
         ) {

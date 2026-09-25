@@ -43,7 +43,7 @@ fun BlockCommentsScreen(
     val scrollBehavior = MiuixScrollBehavior()
 
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.block_comments),
@@ -78,7 +78,8 @@ fun BlockCommentsScreen(
         LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .pageScrollModifiers(scrollBehavior),
             contentPadding = 8.hPadding,
             verticalArrangement = 8.spaceBy
         ) {

@@ -86,7 +86,7 @@ fun SettingScreen(
     val scrollBehavior = MiuixScrollBehavior()
     val monetEnabled by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle { monet }
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.setting),
@@ -101,7 +101,8 @@ fun SettingScreen(
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .pageScrollModifiers(scrollBehavior),
         ) {
             item(key = KEY_LANGUAGE) {
                 Card(modifier = Modifier.padding(horizontal = 12.dp)) {

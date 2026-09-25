@@ -136,8 +136,7 @@ fun CommentScreen(
     Scaffold(
         modifier = modifier
             .fillMaxSize()
-            .imePadding()
-            .pageScrollModifiers(scrollBehavior),
+            .imePadding(),
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.view_comments),
@@ -182,7 +181,8 @@ fun CommentScreen(
             onRefresh = { comments.refresh() },
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .pageScrollModifiers(scrollBehavior),
         ) {
             LazyColumn(
                 state = listState,

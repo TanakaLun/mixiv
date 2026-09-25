@@ -72,8 +72,7 @@ fun ReportScreen(
     Scaffold(
         modifier = modifier
             .fillMaxSize()
-            .imePadding()
-            .pageScrollModifiers(scrollBehavior),
+            .imePadding(),
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.report),
@@ -106,6 +105,7 @@ fun ReportScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
                     .padding(horizontal = 16.dp)
+                    .pageScrollModifiers(scrollBehavior)
             ) {
                 Text(
                     text = stringResource(RStrings.report_reason),

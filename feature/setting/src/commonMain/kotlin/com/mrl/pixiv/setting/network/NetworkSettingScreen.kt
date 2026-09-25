@@ -44,7 +44,7 @@ fun NetworkSettingScreen(
 
     val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.network_setting),
@@ -59,6 +59,7 @@ fun NetworkSettingScreen(
     ) {
         Column(
             modifier = Modifier
+                .pageScrollModifiers(scrollBehavior)
                 .verticalScroll(rememberScrollState())
                 .padding(it)
                 .imePadding()

@@ -72,7 +72,7 @@ fun NovelReadLaterScreen(
     val scrollBehavior = MiuixScrollBehavior()
 
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.read_later),
@@ -104,7 +104,8 @@ fun NovelReadLaterScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues),
+                    .padding(paddingValues)
+                    .pageScrollModifiers(scrollBehavior),
             ) {
                 items(
                     items = items,

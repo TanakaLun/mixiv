@@ -37,7 +37,7 @@ fun BlockSettingsScreen(
 
     val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
-        modifier = modifier.pageScrollModifiers(scrollBehavior),
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.block_settings),
@@ -53,7 +53,8 @@ fun BlockSettingsScreen(
         LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .pageScrollModifiers(scrollBehavior),
         ) {
             item(key = "block_settings") {
                 Card(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
