@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.compose.ui.SearchContentFilterControls
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.search.SearchAiType
 import com.mrl.pixiv.common.data.search.SearchSort
 import com.mrl.pixiv.common.data.search.SearchTarget
@@ -48,6 +49,7 @@ import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
@@ -63,8 +65,9 @@ fun SearchSettingScreen(
     val userPreference by requireUserPreferenceFlow.collectAsStateWithLifecycle()
     val searchSettings = userPreference.searchSettings
 
+    val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.pageScrollModifiers(scrollBehavior),
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.search_setting),
@@ -73,6 +76,7 @@ fun SearchSettingScreen(
                         Icon(MiuixIcons.Back, contentDescription = null)
                     }
                 },
+                scrollBehavior = scrollBehavior,
             )
         },
     ) { paddingValues ->

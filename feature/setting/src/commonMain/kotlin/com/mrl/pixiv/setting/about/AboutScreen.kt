@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mikepenz.markdown.m3.Markdown
 import com.mrl.pixiv.common.compose.rememberThrottleClick
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.Constants
 import com.mrl.pixiv.common.repository.VersionManager
 import com.mrl.pixiv.common.repository.VersionManager.getCurrentFlavorAsset
@@ -62,6 +63,7 @@ import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
@@ -82,8 +84,9 @@ fun AboutScreen(
     val latestVersionInfo by VersionManager.latestVersionInfo.collectAsStateWithLifecycle()
     var showUpdateDialog by retain { mutableStateOf(false) }
 
+    val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.pageScrollModifiers(scrollBehavior),
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.about),
@@ -92,6 +95,7 @@ fun AboutScreen(
                         Icon(MiuixIcons.Back, contentDescription = null)
                     }
                 },
+                scrollBehavior = scrollBehavior,
             )
         }
     ) { paddingValues ->

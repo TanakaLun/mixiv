@@ -32,6 +32,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.mrl.pixiv.comment.components.CommentInput
 import com.mrl.pixiv.comment.components.CommentInputPlaceholder
 import com.mrl.pixiv.comment.components.CommentItem
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.comment.Comment
 import com.mrl.pixiv.common.kts.VSpacer
 import com.mrl.pixiv.common.kts.hPadding
@@ -61,6 +62,7 @@ import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.PullToRefresh
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Text
@@ -129,13 +131,17 @@ fun CommentScreen(
         }
     }
 
+    val scrollBehavior = MiuixScrollBehavior()
+
     Scaffold(
         modifier = modifier
             .fillMaxSize()
-            .imePadding(),
+            .imePadding()
+            .pageScrollModifiers(scrollBehavior),
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.view_comments),
+                scrollBehavior = scrollBehavior,
                 navigationIcon = {
                     IconButton(
                         onClick = { navigationManager.popBackStack() }

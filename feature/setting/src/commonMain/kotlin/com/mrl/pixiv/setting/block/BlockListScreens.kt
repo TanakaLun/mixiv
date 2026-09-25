@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.compose.lightBlue
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.repository.BlockingRepositoryV2
 import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
@@ -47,7 +48,9 @@ import top.yukonga.miuix.kmp.basic.Checkbox
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
@@ -63,6 +66,7 @@ fun BlockIllustScreen(
 ) {
     val blockedIllusts by BlockingRepositoryV2.blockIllustItemsFlow
         .collectAsStateWithLifecycle(emptyList())
+    val scrollBehavior = MiuixScrollBehavior()
     BlockTextScreen(
         title = stringResource(RStrings.block_illust),
         items = blockedIllusts,
@@ -70,6 +74,7 @@ fun BlockIllustScreen(
             BlockingRepositoryV2.removeBlockIllust(item.illustId)
         },
         modifier = modifier,
+        scrollBehavior = scrollBehavior,
         itemContent = {
             Text(
                 text = it.title.ifBlank { it.illustId.toString() },
@@ -86,6 +91,7 @@ fun BlockNovelScreen(
 ) {
     val blockedNovels by BlockingRepositoryV2.blockNovelItemsFlow
         .collectAsStateWithLifecycle(emptyList())
+    val scrollBehavior = MiuixScrollBehavior()
     BlockTextScreen(
         title = stringResource(RStrings.block_novel),
         items = blockedNovels,
@@ -93,6 +99,7 @@ fun BlockNovelScreen(
             BlockingRepositoryV2.removeBlockNovel(item.novelId)
         },
         modifier = modifier,
+        scrollBehavior = scrollBehavior,
         itemContent = {
             Text(
                 text = it.title.ifBlank { it.novelId.toString() },
@@ -109,6 +116,7 @@ fun BlockUserScreen(
 ) {
     val blockedUsers by BlockingRepositoryV2.blockUserItemsFlow
         .collectAsStateWithLifecycle(emptyList())
+    val scrollBehavior = MiuixScrollBehavior()
     BlockTextScreen(
         title = stringResource(RStrings.block_user),
         items = blockedUsers,
@@ -116,6 +124,7 @@ fun BlockUserScreen(
             BlockingRepositoryV2.removeBlockUser(item.userId)
         },
         modifier = modifier,
+        scrollBehavior = scrollBehavior,
         itemContent = {
             Text(
                 text = it.name.ifBlank { it.userId.toString() },
@@ -139,11 +148,13 @@ fun BlockTagScreen(
     val regexValid = !isRegex || normalizedTag.isBlank() || runCatching { Regex(normalizedTag) }.isSuccess
     val canConfirm = normalizedTag.isNotEmpty() && regexValid
 
+    val scrollBehavior = MiuixScrollBehavior()
     BlockTextScreen(
         title = stringResource(RStrings.block_tags),
         items = tags,
         onRemove = { item -> BlockingRepositoryV2.removeBlockTag(item.tag) },
         modifier = modifier,
+        scrollBehavior = scrollBehavior,
         topBarActions = {
             IconButton(
                 onClick = {
@@ -233,6 +244,7 @@ private fun <T> BlockTextScreen(
     title: String,
     items: List<T>,
     onRemove: (T) -> Unit,
+    scrollBehavior: ScrollBehavior,
     topBarActions: @Composable RowScope.() -> Unit = {},
     modifier: Modifier = Modifier,
     itemContent: @Composable RowScope.(T) -> Unit = {},
@@ -240,7 +252,7 @@ private fun <T> BlockTextScreen(
     val navigationManager = currentNavigationManager()
 
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.pageScrollModifiers(scrollBehavior),
         topBar = {
             TopAppBar(
                 title = title,
@@ -249,6 +261,7 @@ private fun <T> BlockTextScreen(
                         Icon(MiuixIcons.Back, contentDescription = null)
                     }
                 },
+                scrollBehavior = scrollBehavior,
                 actions = topBarActions,
             )
         }

@@ -42,6 +42,7 @@ import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.VSpacer
 import com.mrl.pixiv.common.kts.itemIndexKey
@@ -62,8 +63,10 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.PullToRefresh
 import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
@@ -112,11 +115,14 @@ fun CollectionScreen(
     val activeController = if (isIllustPage) illustController else novelController
     KeyEventListener(activeController)
 
+    val scrollBehavior = MiuixScrollBehavior()
+
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.pageScrollModifiers(scrollBehavior),
         topBar = {
             Column {
                 CollectionTopAppBar(
+                    scrollBehavior = scrollBehavior,
                     uid = uid,
                     showFilterDialog = { showFilterDialog = true },
                     onBack = { navigationManager.popBackStack() }
@@ -306,6 +312,7 @@ fun CollectionScreen(
 
 @Composable
 private fun CollectionTopAppBar(
+    scrollBehavior: ScrollBehavior,
     uid: Long,
     showFilterDialog: () -> Unit = {},
     onBack: () -> Unit = {},
@@ -313,6 +320,7 @@ private fun CollectionTopAppBar(
     TopAppBar(
         modifier = Modifier.shadow(4.dp),
         title = stringResource(RStrings.collection),
+        scrollBehavior = scrollBehavior,
         navigationIcon = {
             IconButton(
                 onClick = onBack,

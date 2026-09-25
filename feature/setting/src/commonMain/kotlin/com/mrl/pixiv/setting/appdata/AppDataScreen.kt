@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.rememberThrottleClick
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
@@ -51,6 +52,7 @@ import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
@@ -100,8 +102,9 @@ fun AppDataScreen(
     }
 
 
+    val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.pageScrollModifiers(scrollBehavior),
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.app_data),
@@ -110,6 +113,7 @@ fun AppDataScreen(
                         Icon(MiuixIcons.Back, contentDescription = null)
                     }
                 },
+                scrollBehavior = scrollBehavior,
             )
         }
     ) { paddingValues ->

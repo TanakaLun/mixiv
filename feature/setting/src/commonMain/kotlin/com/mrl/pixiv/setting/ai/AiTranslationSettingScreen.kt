@@ -35,6 +35,7 @@ import com.mrl.pixiv.common.ai.AiEndpointError
 import com.mrl.pixiv.common.ai.AiLocalNetworkAccessGate
 import com.mrl.pixiv.common.ai.AiModelCatalogService
 import com.mrl.pixiv.common.ai.validateAiEndpoint
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.setting.AiProvider
 import com.mrl.pixiv.common.data.setting.AiTranslationConfig
 import com.mrl.pixiv.common.repository.SettingRepository
@@ -90,6 +91,7 @@ import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
@@ -168,8 +170,9 @@ fun AiTranslationSettingScreen(
             it >= AiTranslationConfig.MAX_CONCURRENT_REQUESTS_MIN
         }
     }
+    val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.pageScrollModifiers(scrollBehavior),
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.ai_translation_setting),
@@ -178,6 +181,7 @@ fun AiTranslationSettingScreen(
                         Icon(MiuixIcons.Back, contentDescription = null)
                     }
                 },
+                scrollBehavior = scrollBehavior,
                 actions = {
                     TextButton(
                         text = stringResource(RStrings.save),

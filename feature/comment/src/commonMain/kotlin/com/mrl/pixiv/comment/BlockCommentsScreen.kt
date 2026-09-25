@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.comment.components.CommentItem
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.kts.VSpacer
 import com.mrl.pixiv.common.kts.hPadding
 import com.mrl.pixiv.common.kts.spaceBy
@@ -23,6 +24,7 @@ import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
@@ -38,11 +40,14 @@ fun BlockCommentsScreen(
     val blockedComments by BlockingRepositoryV2.blockCommentsFlow
         .collectAsStateWithLifecycle(emptyList())
 
+    val scrollBehavior = MiuixScrollBehavior()
+
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.pageScrollModifiers(scrollBehavior),
         topBar = {
             TopAppBar(
                 title = stringResource(RStrings.block_comments),
+                scrollBehavior = scrollBehavior,
                 navigationIcon = {
                     IconButton(
                         onClick = navigationManager::popBackStack

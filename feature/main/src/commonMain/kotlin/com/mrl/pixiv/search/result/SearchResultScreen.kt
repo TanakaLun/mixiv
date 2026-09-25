@@ -46,6 +46,7 @@ import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.RectangleIllustItem
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.setting.SearchResultDisplayMode
 import com.mrl.pixiv.common.data.setting.SearchResultIllustLayout
@@ -80,6 +81,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.PullToRefresh
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.TabRow
@@ -215,10 +217,14 @@ fun SearchResultsScreen(
         })
     }
 
+    val scrollBehavior = MiuixScrollBehavior()
+
     Scaffold(
+        modifier = Modifier.pageScrollModifiers(scrollBehavior),
         topBar = {
             Column {
                 SearchResultAppBar(
+                    scrollBehavior = scrollBehavior,
                     searchWords = state.searchWords,
                     bookmarkNumRange = state.bookmarkNumRange,
                     bookmarkStringRange = state.bookmarkStringRange,

@@ -43,6 +43,7 @@ import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.ListPopupColumn
+import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.theme.LocalContentColor
 import top.yukonga.miuix.kmp.theme.MiuixTheme
@@ -53,6 +54,7 @@ import kotlin.time.Instant
 
 @Composable
 internal fun SearchResultAppBar(
+    scrollBehavior: ScrollBehavior,
     searchWords: String,
     bookmarkNumRange: IntRange?,
     bookmarkStringRange: String?,
@@ -73,6 +75,7 @@ internal fun SearchResultAppBar(
     TopAppBar(
         modifier = modifier,
         title = searchWords,
+        scrollBehavior = scrollBehavior,
         navigationIcon = {
             IconButton(onClick = popBack) {
                 Icon(

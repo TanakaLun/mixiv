@@ -50,6 +50,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.VSpacer
 import com.mrl.pixiv.common.kts.spaceBy
@@ -83,7 +84,9 @@ import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.FloatingActionButton
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TopAppBar
@@ -175,6 +178,8 @@ fun SearchScreen(
         )
     }
 
+    val scrollBehavior = MiuixScrollBehavior()
+
     Scaffold(
         modifier = modifier.clickable(
             interactionSource = remember { MutableInteractionSource() },
@@ -182,9 +187,10 @@ fun SearchScreen(
         ) {
             focusManager.clearFocus()
             softwareKeyboardController?.hide()
-        },
+        }.pageScrollModifiers(scrollBehavior),
         topBar = {
             SearchScreenAppBar(
+                scrollBehavior = scrollBehavior,
                 textState = textState,
                 focusRequester = focusRequester,
                 onValueChange = {
@@ -402,6 +408,7 @@ private fun PixivLinkSelectionDialog(
 
 @Composable
 private fun SearchScreenAppBar(
+    scrollBehavior: ScrollBehavior,
     textState: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     focusRequester: FocusRequester,
@@ -412,6 +419,7 @@ private fun SearchScreenAppBar(
     TopAppBar(
         title = "",
         modifier = modifier,
+        scrollBehavior = scrollBehavior,
         actions = {
             Row(
                 modifier = Modifier

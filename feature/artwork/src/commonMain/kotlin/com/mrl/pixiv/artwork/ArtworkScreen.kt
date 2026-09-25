@@ -32,6 +32,7 @@ import com.mrl.pixiv.common.compose.ui.BackToTopButton
 import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.Illust
 import com.mrl.pixiv.common.data.Novel
 import com.mrl.pixiv.common.data.Type
@@ -50,8 +51,10 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.PullToRefresh
 import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
@@ -116,10 +119,15 @@ fun ArtworkScreen(
 
     KeyEventListener(controller)
 
+    val scrollBehavior = MiuixScrollBehavior()
+
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.pageScrollModifiers(scrollBehavior),
         topBar = {
-            CollectionTopAppBar(onBack = navigationManager::popBackStack)
+            CollectionTopAppBar(
+                scrollBehavior = scrollBehavior,
+                onBack = navigationManager::popBackStack,
+            )
         },
         floatingActionButton = {
             val canScrollBackward = when (pages[pagerState.currentPage]) {
@@ -284,11 +292,13 @@ private fun UserNovelPage(
 
 @Composable
 private fun CollectionTopAppBar(
+    scrollBehavior: ScrollBehavior,
     onBack: () -> Unit = {},
 ) {
     TopAppBar(
         modifier = Modifier.shadow(4.dp),
         title = stringResource(RStrings.artworks),
+        scrollBehavior = scrollBehavior,
         navigationIcon = {
             IconButton(
                 onClick = onBack,
