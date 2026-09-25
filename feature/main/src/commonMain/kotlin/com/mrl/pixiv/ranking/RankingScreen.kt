@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -31,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.mrl.pixiv.collection.components.FilterAction
 import com.mrl.pixiv.common.analytics.logEvent
 import com.mrl.pixiv.common.compose.RecommendGridDefaults
 import com.mrl.pixiv.common.compose.layout.AdaptiveVerticalStaggeredGrid
@@ -38,10 +38,10 @@ import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
 import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
-import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
+import com.mrl.pixiv.common.compose.ui.viewModeDropdownEntry
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.HSpacer
 import com.mrl.pixiv.common.kts.itemIndexKey
@@ -61,20 +61,20 @@ import com.mrl.pixiv.strings.ranking
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.PullToRefresh
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Switch
-import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.basic.rememberPullToRefreshState
@@ -89,7 +89,6 @@ fun RankingScreen(
     navigationManager: NavigationManager = currentNavigationManager(),
 ) {
     val state = viewModel.asState()
-    val scope = rememberCoroutineScope()
     val appViewMode by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle { appViewMode }
     val availableModes = state.availableModes(appViewMode)
 
@@ -178,61 +177,58 @@ fun RankingScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            Column {
-                TopAppBar(
-                    title = stringResource(RStrings.ranking),
-                    scrollBehavior = scrollBehavior,
-                    actions = {
-                        val r18Enabled by requireUserPreferenceFlow.collectAsStateWithLifecycle { isR18Enabled }
-                        LaunchedEffect(Unit) {
-                            requireUserPreferenceFlow.map { it.isR18Enabled }.distinctUntilChanged()
-                                .collect { r18Enabled ->
-                                    if (!r18Enabled && state.showR18) {
-                                        viewModel.toggleR18()
-                                    }
+            TopAppBar(
+                title = stringResource(RStrings.ranking),
+                scrollBehavior = scrollBehavior,
+                actions = {
+                    val r18Enabled by requireUserPreferenceFlow.collectAsStateWithLifecycle { isR18Enabled }
+                    LaunchedEffect(Unit) {
+                        requireUserPreferenceFlow.map { it.isR18Enabled }.distinctUntilChanged()
+                            .collect { r18Enabled ->
+                                if (!r18Enabled && state.showR18) {
+                                    viewModel.toggleR18()
                                 }
-                        }
-                        if (r18Enabled) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = stringResource(RStrings.r18))
-                                5.HSpacer
-                                Switch(
-                                    checked = state.showR18,
-                                    onCheckedChange = { viewModel.toggleR18() }
-                                )
-                                8.HSpacer
                             }
-                        }
-                        IconButton(
-                            onClick = { showDatePicker = true }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.EditCalendar,
-                                contentDescription = null
+                    }
+                    if (r18Enabled) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = stringResource(RStrings.r18))
+                            5.HSpacer
+                            Switch(
+                                checked = state.showR18,
+                                onCheckedChange = { viewModel.toggleR18() }
                             )
+                            8.HSpacer
                         }
-                        ViewModeAction(
-                            currentMode = appViewMode,
-                            onModeChange = viewModel::switchViewMode,
+                    }
+                    IconButton(
+                        onClick = { showDatePicker = true }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.EditCalendar,
+                            contentDescription = null
                         )
                     }
-                )
-                TabRow(
-                    tabs = availableModes.map { stringResource(it.title) },
-                    selectedTabIndex = pagerState.currentPage.coerceAtMost(
-                        availableModes.lastIndex.coerceAtLeast(0)
-                    ),
-                    onTabSelected = { index ->
-                        scope.launch {
-                            pagerState.scrollToPage(index)
+                    val modeEntry = DropdownEntry(
+                        availableModes.map { mode ->
+                            DropdownItem(
+                                text = stringResource(mode.title),
+                                selected = mode == state.currentMode,
+                                onClick = { viewModel.selectMode(mode) },
+                            )
                         }
-                    },
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                    minWidth = 64.dp,
-                    maxWidth = 160.dp,
-                    listState = null,
-                )
-            }
+                    )
+                    FilterAction(
+                        entries = listOf(
+                            modeEntry,
+                            viewModeDropdownEntry(
+                                currentMode = appViewMode,
+                                onModeChange = viewModel::switchViewMode,
+                            ),
+                        ),
+                    )
+                }
+            )
         },
         floatingActionButton = {
             Column {
