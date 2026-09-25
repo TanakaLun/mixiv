@@ -30,6 +30,7 @@ import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifec
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
+import com.mrl.pixiv.common.util.isPlatformDynamicColorSupported
 import com.mrl.pixiv.strings.ai_translation_setting
 import com.mrl.pixiv.strings.app_language
 import com.mrl.pixiv.strings.browsing_setting
@@ -113,11 +114,13 @@ fun SettingScreen(
                         startAction = { Icon(Icons.Rounded.Translate, contentDescription = null) },
                         onSelectedIndexChange = { currentLanguage = it },
                     )
-                    SwitchPreference(
-                        checked = monetEnabled,
-                        onCheckedChange = SettingRepository::setMonetEnabled,
-                        title = stringResource(RStrings.monet_dynamic_color),
-                    )
+                    if (isPlatformDynamicColorSupported) {
+                        SwitchPreference(
+                            checked = monetEnabled,
+                            onCheckedChange = SettingRepository::setMonetEnabled,
+                            title = stringResource(RStrings.monet_dynamic_color),
+                        )
+                    }
                     SettingDestinationItem(
                         title = stringResource(RStrings.network_setting),
                         icon = Icons.Rounded.NetworkWifi,

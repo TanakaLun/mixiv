@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import com.mrl.pixiv.common.data.setting.SettingTheme
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
+import com.mrl.pixiv.common.util.isPlatformDynamicColorSupported
 import top.yukonga.miuix.kmp.theme.ColorSchemeMode
 import top.yukonga.miuix.kmp.theme.Colors
 import top.yukonga.miuix.kmp.theme.MiuixTheme
@@ -25,16 +26,19 @@ fun PiPixivTheme(
     val settingTheme = remember(themeMode) {
         SettingTheme.entries.firstOrNull { it.name == themeMode } ?: SettingTheme.SYSTEM
     }
-    val controller = remember(settingTheme, monetEnabled) {
+    // Below Android 12 there are no platform color sources, so the Monet modes would
+    // only produce a fixed seed; let miuix fall back to its default theme colors instead.
+    val useMonet = monetEnabled && isPlatformDynamicColorSupported
+    val controller = remember(settingTheme, useMonet) {
         when (settingTheme) {
             SettingTheme.LIGHT ->
-                if (monetEnabled) ThemeController(ColorSchemeMode.MonetLight)
+                if (useMonet) ThemeController(ColorSchemeMode.MonetLight)
                 else ThemeController(ColorSchemeMode.Light)
             SettingTheme.DARK ->
-                if (monetEnabled) ThemeController(ColorSchemeMode.MonetDark)
+                if (useMonet) ThemeController(ColorSchemeMode.MonetDark)
                 else ThemeController(ColorSchemeMode.Dark)
             SettingTheme.SYSTEM ->
-                if (monetEnabled) ThemeController(ColorSchemeMode.MonetSystem)
+                if (useMonet) ThemeController(ColorSchemeMode.MonetSystem)
                 else ThemeController(ColorSchemeMode.System)
         }
     }
