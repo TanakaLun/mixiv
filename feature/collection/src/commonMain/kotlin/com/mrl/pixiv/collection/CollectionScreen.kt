@@ -16,24 +16,28 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.mrl.pixiv.collection.components.FilterAction
+import com.mrl.pixiv.collection.components.filterDropdownEntries
 import com.mrl.pixiv.common.compose.IllustGridDefaults
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
 import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
-import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
+import com.mrl.pixiv.common.compose.ui.viewModeDropdownEntry
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.itemIndexKey
 import com.mrl.pixiv.common.repository.isSelf
@@ -49,6 +53,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import top.yukonga.miuix.kmp.basic.DropdownEntry
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
@@ -101,53 +106,63 @@ fun CollectionScreen(
     KeyEventListener(activeController)
 
     val scrollBehavior = MiuixScrollBehavior()
+    var filterExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier,
         topBar = {
             CollectionTopAppBar(
                 scrollBehavior = scrollBehavior,
-                uid = uid,
-                filterAction = {
-                    if (isIllustPage) {
-                        FilterAction(
-                            restrict = state.restrict,
-                            filterTag = state.filterTag,
-                            userBookmarkTags = state.userBookmarkTagsIllust,
-                            privateBookmarkTags = state.privateBookmarkTagsIllust,
-                            onLoadUserBookmarksTags = {
-                                dispatch(CollectionAction.LoadUserBookmarksTagsIllust(it))
-                            },
-                            onSelected = { restrict, tag ->
-                                viewModel.updateFilterTag(restrict, tag)
-                                userBookmarksIllusts.refresh()
-                            },
-                        )
-                    } else {
-                        FilterAction(
-                            restrict = state.novelRestrict,
-                            filterTag = state.novelFilterTag,
-                            userBookmarkTags = state.userBookmarkTagsNovel,
-                            privateBookmarkTags = state.privateBookmarkTagsNovel,
-                            onLoadUserBookmarksTags = {
-                                dispatch(CollectionAction.LoadUserBookmarksTagsNovel(it))
-                            },
-                            onSelected = { restrict, tag ->
-                                viewModel.updateNovelFilterTag(restrict, tag)
-                                userBookmarksNovels.refresh()
-                            },
-                        )
-                    }
-                },
                 onBack = { navigationManager.popBackStack() },
-                viewModeAction = {
-                    ViewModeAction(
+                actions = {
+                    val viewModeEntry = viewModeDropdownEntry(
                         currentMode = if (isIllustPage) AppViewMode.ILLUST else AppViewMode.NOVEL,
                         onModeChange = { mode ->
                             scope.launch {
                                 pagerState.scrollToPage(if (mode == AppViewMode.ILLUST) 0 else 1)
                             }
                         },
+                    )
+                    val restrict = if (isIllustPage) state.restrict else state.novelRestrict
+                    LaunchedEffect(filterExpanded, restrict, isIllustPage) {
+                        if (filterExpanded && uid.isSelf) {
+                            dispatch(
+                                if (isIllustPage) {
+                                    CollectionAction.LoadUserBookmarksTagsIllust(restrict)
+                                } else {
+                                    CollectionAction.LoadUserBookmarksTagsNovel(restrict)
+                                }
+                            )
+                        }
+                    }
+                    val filterEntries = if (!uid.isSelf) {
+                        emptyList<DropdownEntry>()
+                    } else if (isIllustPage) {
+                        filterDropdownEntries(
+                            restrict = state.restrict,
+                            filterTag = state.filterTag,
+                            userBookmarkTags = state.userBookmarkTagsIllust,
+                            privateBookmarkTags = state.privateBookmarkTagsIllust,
+                            onSelected = { newRestrict, tag ->
+                                viewModel.updateFilterTag(newRestrict, tag)
+                                userBookmarksIllusts.refresh()
+                            },
+                        )
+                    } else {
+                        filterDropdownEntries(
+                            restrict = state.novelRestrict,
+                            filterTag = state.novelFilterTag,
+                            userBookmarkTags = state.userBookmarkTagsNovel,
+                            privateBookmarkTags = state.privateBookmarkTagsNovel,
+                            onSelected = { newRestrict, tag ->
+                                viewModel.updateNovelFilterTag(newRestrict, tag)
+                                userBookmarksNovels.refresh()
+                            },
+                        )
+                    }
+                    FilterAction(
+                        entries = filterEntries + viewModeEntry,
+                        onExpandedChange = { filterExpanded = it },
                     )
                 },
             )
@@ -278,10 +293,8 @@ fun CollectionScreen(
 @Composable
 private fun CollectionTopAppBar(
     scrollBehavior: ScrollBehavior,
-    uid: Long,
     onBack: () -> Unit = {},
-    filterAction: @Composable () -> Unit = {},
-    viewModeAction: @Composable () -> Unit = {},
+    actions: @Composable () -> Unit = {},
 ) {
     TopAppBar(
         title = stringResource(RStrings.collection),
@@ -294,10 +307,7 @@ private fun CollectionTopAppBar(
             }
         },
         actions = {
-            if (uid.isSelf) {
-                filterAction()
-            }
-            viewModeAction()
+            actions()
         }
     )
 }

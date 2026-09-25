@@ -32,10 +32,36 @@ fun ViewModeAction(
     onModeChange: (AppViewMode) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val entry = viewModeDropdownEntry(currentMode = currentMode, onModeChange = onModeChange)
+    val labels = listOf(stringResource(RStrings.illust), stringResource(RStrings.novel))
+    OverlayIconDropdownMenu(entry = entry, modifier = modifier) {
+        Icon(
+            imageVector = if (currentMode == AppViewMode.ILLUST) {
+                MiuixIcons.Image
+            } else {
+                Icons.Rounded.Book
+            },
+            contentDescription = labels.getOrNull(currentMode.ordinal),
+            tint = MiuixTheme.colorScheme.onBackground,
+        )
+    }
+}
+
+/**
+ * 视图模式切换的下拉分组，供需要把视图模式与其它筛选项合并进同一个菜单的页面复用。
+ *
+ * @param currentMode 当前的视图模式
+ * @param onModeChange 模式切换回调
+ */
+@Composable
+fun viewModeDropdownEntry(
+    currentMode: AppViewMode,
+    onModeChange: (AppViewMode) -> Unit,
+): DropdownEntry {
     val modes = AppViewMode.entries
     val labels = listOf(stringResource(RStrings.illust), stringResource(RStrings.novel))
     val selectedIndex = modes.indexOf(currentMode).coerceAtLeast(0)
-    val entry = remember(currentMode, labels, onModeChange) {
+    return remember(currentMode, labels, onModeChange) {
         DropdownEntry(
             modes.mapIndexed { index, mode ->
                 DropdownItem(
@@ -44,17 +70,6 @@ fun ViewModeAction(
                     onClick = { onModeChange(mode) },
                 )
             }
-        )
-    }
-    OverlayIconDropdownMenu(entry = entry, modifier = modifier) {
-        Icon(
-            imageVector = if (currentMode == AppViewMode.ILLUST) {
-                MiuixIcons.Image
-            } else {
-                Icons.Rounded.Book
-            },
-            contentDescription = labels[selectedIndex],
-            tint = MiuixTheme.colorScheme.onBackground,
         )
     }
 }

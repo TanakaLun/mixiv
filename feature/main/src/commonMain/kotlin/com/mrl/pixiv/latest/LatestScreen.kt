@@ -8,13 +8,12 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Public
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,12 +24,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.collection.CollectionAction
 import com.mrl.pixiv.collection.CollectionViewModel
 import com.mrl.pixiv.collection.components.FilterAction
+import com.mrl.pixiv.collection.components.filterDropdownEntries
 import com.mrl.pixiv.common.analytics.logEvent
 import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
 import com.mrl.pixiv.common.compose.layout.isWidthAtLeastMedium
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
-import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
+import com.mrl.pixiv.common.compose.ui.viewModeDropdownEntry
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.Restrict
 import com.mrl.pixiv.common.repository.SettingRepository
@@ -55,15 +55,10 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import top.yukonga.miuix.kmp.basic.DropdownEntry
 import top.yukonga.miuix.kmp.basic.DropdownItem
-import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.TopAppBar
-import top.yukonga.miuix.kmp.icon.MiuixIcons
-import top.yukonga.miuix.kmp.icon.extended.Filter
-import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
-import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun LatestScreen(
@@ -80,6 +75,7 @@ fun LatestScreen(
     val pagerState = viewModel.pagerStateFor(appViewMode)
     val page = pages[pagerState.currentPage.coerceIn(pages.indices)]
     val uid = userInfo.user.id
+    var filterExpanded by remember { mutableStateOf(false) }
     var selectedFollowingPage by rememberSaveable(uid) { mutableIntStateOf(0) }
     val trendingFilter by viewModel.trendingFilter.collectAsStateWithLifecycle()
     val scrollState = when (page) {
@@ -136,7 +132,11 @@ fun LatestScreen(
                     ),
                     scrollBehavior = scrollBehavior,
                     actions = {
-                        when (page) {
+                        val viewModeEntry = viewModeDropdownEntry(
+                            currentMode = appViewMode,
+                            onModeChange = viewModel::switchViewMode,
+                        )
+                        val filterEntries = when (page) {
                             LatestPage.Trend -> {
                                 val restrictLabels = listOf(
                                     stringResource(RStrings.all),
@@ -169,13 +169,7 @@ fun LatestScreen(
                                         }
                                     )
                                 }
-                                OverlayIconDropdownMenu(entry = restrictEntry) {
-                                    Icon(
-                                        imageVector = MiuixIcons.Filter,
-                                        contentDescription = restrictLabels[selectedRestrictIndex],
-                                        tint = MiuixTheme.colorScheme.onBackground,
-                                    )
-                                }
+                                listOf(restrictEntry, viewModeEntry)
                             }
 
                             LatestPage.Collection -> {
@@ -184,12 +178,24 @@ fun LatestScreen(
                                 }
                                 val collectionState = collectionViewModel.asState()
                                 val isIllust = appViewMode == AppViewMode.ILLUST
-                                FilterAction(
-                                    restrict = if (isIllust) {
-                                        collectionState.restrict
-                                    } else {
-                                        collectionState.novelRestrict
-                                    },
+                                val restrict = if (isIllust) {
+                                    collectionState.restrict
+                                } else {
+                                    collectionState.novelRestrict
+                                }
+                                LaunchedEffect(filterExpanded, restrict) {
+                                    if (filterExpanded) {
+                                        collectionViewModel.dispatch(
+                                            if (isIllust) {
+                                                CollectionAction.LoadUserBookmarksTagsIllust(restrict)
+                                            } else {
+                                                CollectionAction.LoadUserBookmarksTagsNovel(restrict)
+                                            }
+                                        )
+                                    }
+                                }
+                                val entries = filterDropdownEntries(
+                                    restrict = restrict,
                                     filterTag = if (isIllust) {
                                         collectionState.filterTag
                                     } else {
@@ -205,26 +211,18 @@ fun LatestScreen(
                                     } else {
                                         collectionState.privateBookmarkTagsNovel
                                     },
-                                    onLoadUserBookmarksTags = {
-                                        collectionViewModel.dispatch(
-                                            if (isIllust) {
-                                                CollectionAction.LoadUserBookmarksTagsIllust(it)
-                                            } else {
-                                                CollectionAction.LoadUserBookmarksTagsNovel(it)
-                                            }
-                                        )
-                                    },
-                                    onSelected = { restrict, tag ->
+                                    onSelected = { newRestrict, tag ->
                                         if (isIllust) {
-                                            collectionViewModel.updateFilterTag(restrict, tag)
+                                            collectionViewModel.updateFilterTag(newRestrict, tag)
                                         } else {
-                                            collectionViewModel.updateNovelFilterTag(restrict, tag)
+                                            collectionViewModel.updateNovelFilterTag(newRestrict, tag)
                                         }
                                         scope.launch {
                                             refreshFlow.emit(LatestPage.Collection)
                                         }
                                     },
                                 )
+                                entries + viewModeEntry
                             }
 
                             LatestPage.Following -> {
@@ -251,21 +249,17 @@ fun LatestScreen(
                                             }
                                         )
                                     }
-                                    OverlayIconDropdownMenu(entry = restrictEntry) {
-                                        Icon(
-                                            imageVector = Icons.Rounded.Public,
-                                            contentDescription = restrictLabels[pageIndex],
-                                            tint = MiuixTheme.colorScheme.onBackground,
-                                        )
-                                    }
+                                    listOf(restrictEntry, viewModeEntry)
+                                } else {
+                                    listOf(viewModeEntry)
                                 }
                             }
 
-                            LatestPage.NovelNew, LatestPage.NovelWatchlist -> Unit
+                            LatestPage.NovelNew, LatestPage.NovelWatchlist -> listOf(viewModeEntry)
                         }
-                        ViewModeAction(
-                            currentMode = appViewMode,
-                            onModeChange = viewModel::switchViewMode,
+                        FilterAction(
+                            entries = filterEntries,
+                            onExpandedChange = { filterExpanded = it },
                         )
                     },
                 )
