@@ -362,7 +362,6 @@ fun LatestScreen(
                         uid = userInfo.user.id,
                         refreshFlow = refreshFlow,
                         selectedPage = selectedFollowingPage,
-                        onSelectedPageChange = { selectedFollowingPage = it },
                     )
                 }
 
