@@ -8,28 +8,16 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.Icon
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
@@ -43,9 +31,11 @@ import com.mrl.pixiv.common.viewmodel.asState
 import com.mrl.pixiv.search.preview.components.TrendingItem
 import com.mrl.pixiv.strings.enter_keywords
 import com.mrl.pixiv.strings.popular_tags
+import com.mrl.pixiv.strings.search
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.basic.InputField
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.PullToRefresh
 import top.yukonga.miuix.kmp.basic.Scaffold
@@ -61,7 +51,6 @@ fun SearchPreviewScreen(
     navigationManager: NavigationManager = currentNavigationManager(),
 ) {
     val state = viewModel.asState()
-    val textState by remember { mutableStateOf(TextFieldValue()) }
     val lazyGridState = viewModel.lazyGridState
     val pullRefreshState = rememberPullToRefreshState()
     val scope = rememberCoroutineScope()
@@ -72,34 +61,26 @@ fun SearchPreviewScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = "",
+                title = stringResource(RStrings.search),
                 scrollBehavior = scrollBehavior,
-                actions = {
-                    TextField(
-                        value = textState,
-                        onValueChange = {},
+                bottomContent = {
+                    InputField(
+                        query = "",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = false,
+                        onExpandedChange = {},
                         modifier = Modifier
-                            .height(56.dp)
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
+                            .padding(horizontal = 12.dp)
+                            .padding(bottom = 8.dp)
                             .throttleClick {
                                 navigationManager.navigateToSearchScreen()
                             },
-                        placeholder = { Text(stringResource(RStrings.enter_keywords)) },
-                        colors = TextFieldDefaults.colors(
-                            disabledIndicatorColor = Color.Transparent,
-                        ),
-                        singleLine = true,
-                        shape = RoundedCornerShape(28.dp),
+                        label = stringResource(RStrings.enter_keywords),
                         enabled = false,
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Rounded.Search,
-                                contentDescription = null
-                            )
-                        }
                     )
-                }
+                },
             )
         },
         floatingActionButton = {

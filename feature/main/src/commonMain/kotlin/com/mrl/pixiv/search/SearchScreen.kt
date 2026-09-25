@@ -6,9 +6,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,26 +16,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -72,6 +64,7 @@ import com.mrl.pixiv.strings.find_for
 import com.mrl.pixiv.strings.id_search
 import com.mrl.pixiv.strings.illust
 import com.mrl.pixiv.strings.novel
+import com.mrl.pixiv.strings.search
 import com.mrl.pixiv.strings.search_history
 import com.mrl.pixiv.strings.select_pixiv_link
 import com.mrl.pixiv.strings.users
@@ -87,9 +80,14 @@ import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.ScrollBehavior
+import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Clear
 import top.yukonga.miuix.kmp.overlay.OverlayDialog
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
@@ -248,20 +246,15 @@ fun SearchScreen(
             verticalArrangement = 16f.spaceBy
         ) {
             stickyHeader {
-                Row(
+                SmallTitle(
+                    text = if (textState.text.isEmpty())
+                        stringResource(RStrings.search_history)
+                    else
+                        stringResource(RStrings.find_for),
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MiuixTheme.colorScheme.background),
-                ) {
-                    Text(
-                        text = if (textState.text.isEmpty())
-                            stringResource(RStrings.search_history)
-                        else
-                            stringResource(RStrings.find_for),
-                        style = MiuixTheme.textStyles.footnote1,
-                        modifier = Modifier.padding(start = 8.dp, bottom = 8.dp),
-                    )
-                }
+                )
             }
             if (textState.text.isEmpty()) {
                 item(key = "search_history_card") {
@@ -418,70 +411,52 @@ private fun SearchScreenAppBar(
     modifier: Modifier = Modifier,
 ) {
     TopAppBar(
-        title = "",
+        title = stringResource(RStrings.search),
         modifier = modifier,
         scrollBehavior = scrollBehavior,
-        actions = {
-            Row(
-                modifier = Modifier
-                    .height(56.dp)
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
+        navigationIcon = {
+            IconButton(
+                onClick = onBack,
             ) {
-                IconButton(
-                    onClick = onBack,
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
-                androidx.compose.material3.Surface(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .padding(horizontal = 8.dp),
-                    shape = RoundedCornerShape(28.dp)
-                ) {
-                    TextField(
-                        value = textState,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(focusRequester)
-                            .throttleClick {
-                                focusRequester.requestFocus()
-                            },
-                        onValueChange = onValueChange,
-                        placeholder = { Text(stringResource(RStrings.enter_keywords)) },
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                        ),
-                        singleLine = true,
-                        shape = RoundedCornerShape(28.dp),
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                        keyboardActions = KeyboardActions(
-                            onSearch = { onSearch() }
-                        ),
-                        trailingIcon = if (shouldShowSearchInputClearIcon(textState.text)) {
-                            {
-                                IconButton(
-                                    onClick = { onValueChange(TextFieldValue()) },
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Close,
-                                        contentDescription = stringResource(RStrings.clear),
-                                    )
-                                }
-                            }
-                        } else {
-                            null
-                        },
-                    )
-                }
+                Icon(
+                    imageVector = MiuixIcons.Back,
+                    contentDescription = "Back",
+                )
             }
-        }
+        },
+        bottomContent = {
+            TextField(
+                value = textState,
+                onValueChange = onValueChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .padding(bottom = 8.dp)
+                    .focusRequester(focusRequester)
+                    .throttleClick {
+                        focusRequester.requestFocus()
+                    },
+                label = stringResource(RStrings.enter_keywords),
+                useLabelAsPlaceholder = true,
+                singleLine = true,
+                trailingIcon = if (shouldShowSearchInputClearIcon(textState.text)) {
+                    {
+                        IconButton(
+                            onClick = { onValueChange(TextFieldValue()) },
+                        ) {
+                            Icon(
+                                imageVector = MiuixIcons.Clear,
+                                contentDescription = stringResource(RStrings.clear),
+                            )
+                        }
+                    }
+                } else {
+                    null
+                },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(onSearch = { onSearch() }),
+            )
+        },
     )
 }
 

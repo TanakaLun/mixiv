@@ -479,18 +479,25 @@ private fun HistoryAppBar(
             TextField(
                 value = searchValue,
                 onValueChange = onValueChange,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .padding(bottom = 8.dp),
                 label = stringResource(RStrings.search_by_title_author),
                 useLabelAsPlaceholder = true,
-                trailingIcon = {
-                    IconButton(
-                        onClick = { onValueChange(TextFieldValue()) },
-                    ) {
-                        Icon(
-                            imageVector = MiuixIcons.Clear,
-                            contentDescription = "Clear"
-                        )
+                trailingIcon = if (searchValue.text.isNotEmpty()) {
+                    {
+                        IconButton(
+                            onClick = { onValueChange(TextFieldValue()) },
+                        ) {
+                            Icon(
+                                imageVector = MiuixIcons.Clear,
+                                contentDescription = "Clear"
+                            )
+                        }
                     }
+                } else {
+                    null
                 },
                 singleLine = true,
                 keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
