@@ -1,9 +1,9 @@
 package com.mrl.pixiv.search
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
@@ -31,11 +29,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -57,7 +55,6 @@ import com.mrl.pixiv.common.util.readTextFromClipboard
 import com.mrl.pixiv.common.util.throttleClick
 import com.mrl.pixiv.common.viewmodel.asState
 import com.mrl.pixiv.strings.cancel
-import com.mrl.pixiv.strings.clear
 import com.mrl.pixiv.strings.enter_keywords
 import com.mrl.pixiv.strings.find_for
 import com.mrl.pixiv.strings.id_search
@@ -78,16 +75,16 @@ import top.yukonga.miuix.kmp.basic.DropdownEntry
 import top.yukonga.miuix.kmp.basic.DropdownItem
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.InputField
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.ScrollBehavior
+import top.yukonga.miuix.kmp.basic.SearchBar
 import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.TextButton
-import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
-import top.yukonga.miuix.kmp.icon.extended.Clear
 import top.yukonga.miuix.kmp.icon.extended.Tune
 import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
 import top.yukonga.miuix.kmp.overlay.OverlayDialog
@@ -234,15 +231,12 @@ fun SearchScreen(
             contentPadding = PaddingValues(horizontal = 8.dp),
             verticalArrangement = 16f.spaceBy
         ) {
-            stickyHeader {
+            item(key = "search_section_title") {
                 SmallTitle(
                     text = if (textState.text.isEmpty())
                         stringResource(RStrings.search_history)
                     else
                         stringResource(RStrings.find_for),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MiuixTheme.colorScheme.background),
                 )
             }
             if (textState.text.isEmpty()) {
@@ -400,6 +394,7 @@ private fun SearchScreenAppBar(
     modifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
+    var expanded by remember { mutableStateOf(false) }
     TopAppBar(
         title = stringResource(RStrings.search),
         modifier = modifier,
@@ -416,36 +411,30 @@ private fun SearchScreenAppBar(
             }
         },
         bottomContent = {
-            TextField(
-                value = textState,
-                onValueChange = onValueChange,
+            SearchBar(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-                    .padding(bottom = 8.dp)
-                    .focusRequester(focusRequester)
-                    .throttleClick {
-                        focusRequester.requestFocus()
-                    },
-                label = stringResource(RStrings.enter_keywords),
-                useLabelAsPlaceholder = true,
-                singleLine = true,
-                trailingIcon = if (shouldShowSearchInputClearIcon(textState.text)) {
-                    {
-                        IconButton(
-                            onClick = { onValueChange(TextFieldValue()) },
-                        ) {
-                            Icon(
-                                imageVector = MiuixIcons.Clear,
-                                contentDescription = stringResource(RStrings.clear),
-                            )
-                        }
+                    .padding(bottom = 8.dp),
+                expanded = expanded,
+                onExpandedChange = { expanded = it },
+                inputField = {
+                    Box(modifier = Modifier.focusRequester(focusRequester)) {
+                        InputField(
+                            query = textState.text,
+                            onQueryChange = { text ->
+                                onValueChange(TextFieldValue(text, TextRange(text.length)))
+                            },
+                            onSearch = { onSearch() },
+                            expanded = expanded,
+                            onExpandedChange = { expanded = it },
+                            label = stringResource(RStrings.enter_keywords),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onFocusChanged { if (!it.isFocused) expanded = false },
+                        )
                     }
-                } else {
-                    null
                 },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { onSearch() }),
+                content = {},
             )
         },
     )
