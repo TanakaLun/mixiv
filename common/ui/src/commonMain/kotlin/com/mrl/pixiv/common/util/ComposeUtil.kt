@@ -2,6 +2,7 @@ package com.mrl.pixiv.common.util
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Indication
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
@@ -34,7 +35,7 @@ inline fun Modifier.throttleClick(
     val innerInteractionSource = remember { interactionSource ?: MutableInteractionSource() }
     combinedClickable(
         innerInteractionSource,
-        indication,
+        indication ?: LocalIndication.current,
         enabled,
         onClickLabel,
         role,
