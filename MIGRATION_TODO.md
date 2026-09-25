@@ -31,7 +31,7 @@
   - [x] `Scaffold` → Miuix `Scaffold`（各业务屏已换）
 - [x] 全局 `TopAppBar` 批量替换（miuix title=String）。
 - [x] 全部可滚动屏接 `MiuixScrollBehavior` 折叠大标题（`pageScrollModifiers` 挂**可滚动内容根**而非 Scaffold，顺序必须在 `.verticalScroll()` 外侧；helper 含 `scrollEndHaptic`；History 亦已接入 `TopAppBar` + `bottomContent` 固定搜索栏。有意跳过：NovelReader 动画显隐、Picture 沉浸式、Login 无滚动内容、Report 表单无滚动源）。
-- [ ] `MainActivity` 动态取色逻辑：Miuix 是否支持 HyperOS 动色；不支持则固定品牌色并记录。
+- [x] `MainActivity` 动态取色逻辑：Miuix 支持 HyperOS 动色（`platformDynamicColors`：API 33+ 读 `Settings.Secure "theme_customization_overlay_packages"` JSON 取 `system_palette` 种子 → `colorsFromSeed`；API 31–32 读 `android.R.color.system_accent*` 系统 M3 角色；`MainActivity` 无需取色代码，全部交由 miuix）。API 26–30 无平台色源，固定 Material3 紫 `0xFF6750A4` 不可接受 → 已加 `isPlatformDynamicColorSupported`（common/core，SDK ≥ 31）闸门：低于 A12 走 `ColorSchemeMode.Light/Dark/System`（miuix 默认主题色），设置页隐藏「动态取色」开关。
 
 ## Phase 3 — 设置与偏好（miuix-preference）
 
