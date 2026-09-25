@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,15 +37,13 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.compose.rememberThrottleClick
-import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
+import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.AppViewMode
-import com.mrl.pixiv.common.kts.VSpacer
 import com.mrl.pixiv.common.kts.spaceBy
 import com.mrl.pixiv.common.repository.SearchRepository
 import com.mrl.pixiv.common.repository.SettingRepository
@@ -74,20 +73,22 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Card
-import top.yukonga.miuix.kmp.basic.FloatingActionButton
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.SmallTitle
-import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.icon.extended.Clear
+import top.yukonga.miuix.kmp.icon.extended.Tune
+import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
 import top.yukonga.miuix.kmp.overlay.OverlayDialog
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
@@ -191,6 +192,16 @@ fun SearchScreen(
                     }
                 },
                 onBack = { navigationManager.popBackStack() },
+                actions = {
+                    SearchTypeAction(
+                        isIdSearch = state.isIdSearch,
+                        onModeChange = { dispatch(SearchAction.UpdateIsIdSearch(it)) },
+                    )
+                    ViewModeAction(
+                        currentMode = appViewMode,
+                        onModeChange = viewModel::switchViewMode,
+                    )
+                },
                 onSearch = search@{
                     if (handlePixivLinks(textState.text)) {
                         focusRequester.freeFocus()
@@ -210,29 +221,6 @@ fun SearchScreen(
                 }
             )
         },
-        floatingActionButton = {
-            Column(
-                modifier = Modifier.imePadding()
-            ) {
-                FloatingActionButton(
-                    onClick = { dispatch(SearchAction.UpdateIsIdSearch(!state.isIdSearch)) }
-                ) {
-                    Text(
-                        text = stringResource(RStrings.id_search),
-                        modifier = Modifier.padding(horizontal = 8.dp),
-                        textDecoration = if (state.isIdSearch) null else TextDecoration.LineThrough,
-                        style = MiuixTheme.textStyles.footnote1,
-                    )
-                }
-                8.VSpacer
-                ViewModeToggleButton(
-                    currentMode = appViewMode,
-                    onModeChange = { newMode ->
-                        viewModel.switchViewMode(newMode)
-                    }
-                )
-            }
-        }
     ) {
         // 用LazyColumn构造自动补全列表，点击跳转搜索结果页面
         LazyColumn(
@@ -409,11 +397,13 @@ private fun SearchScreenAppBar(
     onBack: () -> Unit,
     onSearch: () -> Unit,
     modifier: Modifier = Modifier,
+    actions: @Composable RowScope.() -> Unit = {},
 ) {
     TopAppBar(
         title = stringResource(RStrings.search),
         modifier = modifier,
         scrollBehavior = scrollBehavior,
+        actions = actions,
         navigationIcon = {
             IconButton(
                 onClick = onBack,
@@ -458,6 +448,36 @@ private fun SearchScreenAppBar(
             )
         },
     )
+}
+
+@Composable
+private fun SearchTypeAction(
+    isIdSearch: Boolean,
+    onModeChange: (Boolean) -> Unit,
+) {
+    val labels = listOf(
+        stringResource(RStrings.keyword_search),
+        stringResource(RStrings.id_search),
+    )
+    val selectedIndex = if (isIdSearch) 1 else 0
+    val entry = remember(isIdSearch, labels, onModeChange) {
+        DropdownEntry(
+            labels.mapIndexed { index, label ->
+                DropdownItem(
+                    text = label,
+                    selected = index == selectedIndex,
+                    onClick = { onModeChange(index == 1) },
+                )
+            }
+        )
+    }
+    OverlayIconDropdownMenu(entry = entry) {
+        Icon(
+            imageVector = MiuixIcons.Tune,
+            contentDescription = labels[selectedIndex],
+            tint = MiuixTheme.colorScheme.onBackground,
+        )
+    }
 }
 
 internal fun shouldShowSearchInputClearIcon(input: String): Boolean = input.isNotEmpty()

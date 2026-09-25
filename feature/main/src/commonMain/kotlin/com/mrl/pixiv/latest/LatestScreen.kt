@@ -21,11 +21,10 @@ import com.mrl.pixiv.common.analytics.logEvent
 import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
 import com.mrl.pixiv.common.compose.layout.isWidthAtLeastMedium
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
-import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
+import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.Restrict
-import com.mrl.pixiv.common.kts.VSpacer
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.repository.requireUserInfoFlow
@@ -163,6 +162,10 @@ fun LatestScreen(
                                 )
                             }
                         }
+                        ViewModeAction(
+                            currentMode = appViewMode,
+                            onModeChange = viewModel::switchViewMode,
+                        )
                     },
                 )
                 key(appViewMode) {
@@ -210,11 +213,6 @@ fun LatestScreen(
                             refreshFlow.emit(page)
                         }
                     }
-                )
-                8.VSpacer
-                ViewModeToggleButton(
-                    currentMode = appViewMode,
-                    onModeChange = viewModel::switchViewMode
                 )
             }
         },

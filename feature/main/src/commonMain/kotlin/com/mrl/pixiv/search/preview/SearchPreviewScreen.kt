@@ -2,7 +2,6 @@ package com.mrl.pixiv.search.preview
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -19,7 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
+import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
@@ -63,6 +62,15 @@ fun SearchPreviewScreen(
             TopAppBar(
                 title = stringResource(RStrings.search),
                 scrollBehavior = scrollBehavior,
+                actions = {
+                    ViewModeAction(
+                        currentMode = appViewMode,
+                        onModeChange = { mode ->
+                            viewModel.switchViewMode(mode)
+                            scope.launch { lazyGridState.scrollToItem(0) }
+                        },
+                    )
+                },
                 bottomContent = {
                     InputField(
                         query = "",
@@ -82,17 +90,6 @@ fun SearchPreviewScreen(
                     )
                 },
             )
-        },
-        floatingActionButton = {
-            Column {
-                ViewModeToggleButton(
-                    currentMode = appViewMode,
-                    onModeChange = { mode ->
-                        viewModel.switchViewMode(mode)
-                        scope.launch { lazyGridState.scrollToItem(0) }
-                    }
-                )
-            }
         },
     ) {
         PullToRefresh(

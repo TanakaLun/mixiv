@@ -221,6 +221,7 @@
     <string name="browser_reason">Before logging in via the web for the first time, an embedded browser needs to be downloaded to provide a complete login experience. This will take up about 300MB of disk space. If you are concerned about the size, you can download the mobile version of PiPixiv, click \"My -> Export Token\", and paste it on your computer to use token login.</string>
     <string name="users">Users</string>
     <string name="illusts">Illustrations</string>
+    <string name="keyword_search">Keyword Search</string>
     <string name="id_search">ID Search</string>
     <string name="max_bookmark_tags_reached">Select up to %1$d tags</string>
     <string name="default_private_bookmark">Default private bookmark</string>

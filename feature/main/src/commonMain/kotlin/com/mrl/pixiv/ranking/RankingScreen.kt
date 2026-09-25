@@ -38,13 +38,12 @@ import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
 import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
-import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
+import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.HSpacer
-import com.mrl.pixiv.common.kts.VSpacer
 import com.mrl.pixiv.common.kts.itemIndexKey
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
@@ -212,6 +211,10 @@ fun RankingScreen(
                                 contentDescription = null
                             )
                         }
+                        ViewModeAction(
+                            currentMode = appViewMode,
+                            onModeChange = viewModel::switchViewMode,
+                        )
                     }
                 )
                 TabRow(
@@ -253,11 +256,6 @@ fun RankingScreen(
                         onRefresh = { viewModel.refresh(mode) }
                     )
                 }
-                8.VSpacer
-                ViewModeToggleButton(
-                    currentMode = appViewMode,
-                    onModeChange = viewModel::switchViewMode
-                )
             }
         },
     ) { paddingValues ->

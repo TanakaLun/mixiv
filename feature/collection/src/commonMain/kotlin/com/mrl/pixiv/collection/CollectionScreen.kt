@@ -33,18 +33,15 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.mrl.pixiv.collection.components.FilterDialog
 import com.mrl.pixiv.common.compose.IllustGridDefaults
-import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
-import com.mrl.pixiv.common.compose.layout.isWidthAtLeastMedium
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
 import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
-import com.mrl.pixiv.common.compose.ui.ViewModeToggleButton
+import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.AppViewMode
-import com.mrl.pixiv.common.kts.VSpacer
 import com.mrl.pixiv.common.kts.itemIndexKey
 import com.mrl.pixiv.common.repository.isSelf
 import com.mrl.pixiv.common.repository.SettingRepository
@@ -55,8 +52,6 @@ import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.viewmodel.asState
 import com.mrl.pixiv.strings.collection
-import com.mrl.pixiv.strings.illusts
-import com.mrl.pixiv.strings.novels
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -67,7 +62,6 @@ import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.PullToRefresh
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.ScrollBehavior
-import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
@@ -100,7 +94,6 @@ fun CollectionScreen(
         }
     }
     val isIllustPage = pagerState.currentPage == 0
-    val useViewModeFab = currentPaneLayoutInfo().sizeClass.isWidthAtLeastMedium
 
     val illustController = remember {
         keyboardScrollerController(lazyGridState) {
@@ -120,29 +113,22 @@ fun CollectionScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            Column {
-                CollectionTopAppBar(
-                    scrollBehavior = scrollBehavior,
-                    uid = uid,
-                    showFilterDialog = { showFilterDialog = true },
-                    onBack = { navigationManager.popBackStack() }
-                )
-                if (!useViewModeFab) {
-                    TabRow(
-                        tabs = listOf(
-                            stringResource(RStrings.illusts),
-                            stringResource(RStrings.novels),
-                        ),
-                        selectedTabIndex = pagerState.currentPage,
-                        onTabSelected = { index ->
-                            scope.launch { pagerState.animateScrollToPage(index) }
+            CollectionTopAppBar(
+                scrollBehavior = scrollBehavior,
+                uid = uid,
+                showFilterDialog = { showFilterDialog = true },
+                onBack = { navigationManager.popBackStack() },
+                viewModeAction = {
+                    ViewModeAction(
+                        currentMode = if (isIllustPage) AppViewMode.ILLUST else AppViewMode.NOVEL,
+                        onModeChange = { mode ->
+                            scope.launch {
+                                pagerState.scrollToPage(if (mode == AppViewMode.ILLUST) 0 else 1)
+                            }
                         },
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                        minWidth = 64.dp,
-                        maxWidth = 160.dp,
                     )
-                }
-            }
+                },
+            )
         },
         floatingActionButton = {
             val canScrollBackward = if (isIllustPage)
@@ -164,17 +150,6 @@ fun CollectionScreen(
                         else userBookmarksNovels.refresh()
                     }
                 )
-                if (useViewModeFab) {
-                    8.VSpacer
-                    ViewModeToggleButton(
-                        currentMode = if (isIllustPage) AppViewMode.ILLUST else AppViewMode.NOVEL,
-                        onModeChange = { mode ->
-                            scope.launch {
-                                pagerState.scrollToPage(if (mode == AppViewMode.ILLUST) 0 else 1)
-                            }
-                        }
-                    )
-                }
             }
         },
         contentWindowInsets = WindowInsets.statusBars,
@@ -318,6 +293,7 @@ private fun CollectionTopAppBar(
     uid: Long,
     showFilterDialog: () -> Unit = {},
     onBack: () -> Unit = {},
+    viewModeAction: @Composable () -> Unit = {},
 ) {
     TopAppBar(
         modifier = Modifier.shadow(4.dp),
@@ -338,6 +314,7 @@ private fun CollectionTopAppBar(
                     Icon(Icons.Rounded.FilterList, contentDescription = null)
                 }
             }
+            viewModeAction()
         }
     )
 }

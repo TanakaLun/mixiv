@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,8 +20,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Book
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,6 +42,7 @@ import com.mrl.pixiv.common.compose.IllustGridDefaults
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
+import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
@@ -64,15 +64,12 @@ import com.mrl.pixiv.strings.history_disabled_empty_title
 import com.mrl.pixiv.strings.local_history
 import com.mrl.pixiv.strings.no_history_records
 import com.mrl.pixiv.strings.search_by_title_author
-import com.mrl.pixiv.strings.switch_to_illust_mode
-import com.mrl.pixiv.strings.switch_to_novel_mode
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
-import top.yukonga.miuix.kmp.basic.FloatingActionButton
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
@@ -85,7 +82,6 @@ import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.icon.extended.Clear
-import top.yukonga.miuix.kmp.icon.extended.Image
 
 private enum class HistorySource {
     Local,
@@ -136,7 +132,13 @@ fun HistoryScreen(
                         searchValue = it
                         viewModel.dispatch(HistoryAction.UpdateSearch(it.text))
                     },
-                    onBack = { navigationManager.popBackStack() }
+                    onBack = { navigationManager.popBackStack() },
+                    actions = {
+                        ViewModeAction(
+                            currentMode = state.mode,
+                            onModeChange = { viewModel.dispatch(HistoryAction.UpdateMode(it)) },
+                        )
+                    },
                 )
                 TabRow(
                     tabs = sources.map { source ->
@@ -156,12 +158,6 @@ fun HistoryScreen(
                     maxWidth = 160.dp,
                 )
             }
-        },
-        floatingActionButton = {
-            HistoryViewModeToggleButton(
-                currentMode = state.mode,
-                onModeChange = { viewModel.dispatch(HistoryAction.UpdateMode(it)) },
-            )
         },
         contentWindowInsets = WindowInsets.statusBars,
     ) { paddingValues ->
@@ -238,39 +234,6 @@ fun HistoryScreen(
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun HistoryViewModeToggleButton(
-    currentMode: AppViewMode,
-    onModeChange: (AppViewMode) -> Unit,
-) {
-    FloatingActionButton(
-        onClick = {
-            onModeChange(
-                when (currentMode) {
-                    AppViewMode.ILLUST -> AppViewMode.NOVEL
-                    AppViewMode.NOVEL -> AppViewMode.ILLUST
-                }
-            )
-        }
-    ) {
-        when (currentMode) {
-            AppViewMode.ILLUST -> {
-                Icon(
-                    imageVector = Icons.Rounded.Book,
-                    contentDescription = stringResource(RStrings.switch_to_novel_mode),
-                )
-            }
-
-            AppViewMode.NOVEL -> {
-                Icon(
-                    imageVector = MiuixIcons.Image,
-                    contentDescription = stringResource(RStrings.switch_to_illust_mode),
-                )
             }
         }
     }
@@ -460,11 +423,13 @@ private fun HistoryAppBar(
     searchValue: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     onBack: () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
     TopAppBar(
         title = stringResource(RStrings.history),
         scrollBehavior = scrollBehavior,
+        actions = actions,
         navigationIcon = {
             IconButton(
                 onClick = onBack,
