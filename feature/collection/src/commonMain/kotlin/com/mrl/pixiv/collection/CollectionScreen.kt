@@ -27,7 +27,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -296,7 +295,6 @@ private fun CollectionTopAppBar(
     viewModeAction: @Composable () -> Unit = {},
 ) {
     TopAppBar(
-        modifier = Modifier.shadow(4.dp),
         title = stringResource(RStrings.collection),
         scrollBehavior = scrollBehavior,
         navigationIcon = {
