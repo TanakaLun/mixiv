@@ -62,6 +62,7 @@ import com.mrl.pixiv.strings.enter_keywords
 import com.mrl.pixiv.strings.find_for
 import com.mrl.pixiv.strings.id_search
 import com.mrl.pixiv.strings.illust
+import com.mrl.pixiv.strings.keyword_search
 import com.mrl.pixiv.strings.novel
 import com.mrl.pixiv.strings.search
 import com.mrl.pixiv.strings.search_history
