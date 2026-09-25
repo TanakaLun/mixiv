@@ -65,8 +65,6 @@ internal fun KotlinMultiplatformExtension.composeDependencies() {
             implementation(libs.findLibrary("compose-jetbrains-ui-tooling-preview").get())
             // KotlinX Collections Immutable
             implementation(libs.findLibrary("kotlinx-collections-immutable").get())
-            // Toast
-            implementation(libs.findLibrary("sonner").get())
         }
         androidMain.dependencies {
             implementation(libs.findBundle("compose-baselibs-android").get())

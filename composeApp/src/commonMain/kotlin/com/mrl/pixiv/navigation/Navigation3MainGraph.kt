@@ -1,21 +1,13 @@
 package com.mrl.pixiv.navigation
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.dokar.sonner.LocalToastContentColor
-import com.dokar.sonner.Toaster
-import com.dokar.sonner.ToasterState
-import com.dokar.sonner.rememberToasterState
 import com.mrl.pixiv.MainNavigationScaffold
 import com.mrl.pixiv.MainScreen
 import com.mrl.pixiv.artwork.ArtworkScreen
@@ -24,7 +16,7 @@ import com.mrl.pixiv.collection.tags.BookmarkedTagsScreen
 import com.mrl.pixiv.comment.BlockCommentsScreen
 import com.mrl.pixiv.comment.CommentScreen
 import com.mrl.pixiv.common.analytics.logEvent
-import com.mrl.pixiv.common.compose.LocalToaster
+import com.mrl.pixiv.common.compose.LocalSnackbarHostState
 import com.mrl.pixiv.common.compose.layout.PaneInputScope
 import com.mrl.pixiv.common.compose.layout.PaneInputState
 import com.mrl.pixiv.common.repository.IllustCacheRepo
@@ -33,7 +25,6 @@ import com.mrl.pixiv.common.router.LocalNavigationManager
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.NavigationRecord
 import com.mrl.pixiv.common.router.rememberNavigationState
-import com.mrl.pixiv.common.toast.ToastMessage
 import com.mrl.pixiv.common.util.ToastUtil
 import com.mrl.pixiv.common.util.result.LocalResultEventBus
 import com.mrl.pixiv.common.util.result.ResultEventBus
@@ -73,10 +64,9 @@ import com.mrl.pixiv.setting.network.NetworkSettingScreen
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
-import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
+import top.yukonga.miuix.kmp.basic.SnackbarHostState
 import top.yukonga.miuix.kmp.nav.core.NavDisplay
 import top.yukonga.miuix.kmp.nav.core.NavDisplayEffects
 import top.yukonga.miuix.kmp.nav.core.rememberNavSystemCornerRadius
@@ -89,8 +79,14 @@ fun Navigation3MainGraph(
     modifier: Modifier = Modifier,
     navigationManager: NavigationManager = koinInject { parametersOf(arrayOf(startDestination)) }
 ) {
-    val toastState = rememberToasterState()
+    val snackbarHostState = remember { SnackbarHostState() }
     val resultBus = remember { ResultEventBus() }
+
+    LaunchedEffect(snackbarHostState) {
+        ToastUtil.toastFlow.collect { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
 
     rememberNavigationState(navigationManager)
     val inputState = remember { PaneInputState() }
@@ -104,10 +100,9 @@ fun Navigation3MainGraph(
     LogScreen(navigationManager)
 
     CompositionLocalProvider(
-        LocalToaster provides toastState,
+        LocalSnackbarHostState provides snackbarHostState,
         LocalResultEventBus provides resultBus,
     ) {
-        ToastMessage(toastState = toastState)
         MainNavigationScaffold(navigationManager) {
             BoxWithConstraints(modifier.fillMaxSize()) {
                 val navCornerRadius = rememberNavSystemCornerRadius()
@@ -228,34 +223,6 @@ fun Navigation3MainGraph(
             }
         }
     }
-}
-
-@Composable
-private fun ToastMessage(toastState: ToasterState) {
-    LaunchedEffect(Unit) {
-        ToastUtil.toastFlow.collect {
-            toastState.show(it)
-        }
-    }
-    Toaster(
-        state = toastState,
-        darkTheme = isSystemInDarkTheme(),
-        richColors = true,
-        alignment = Alignment.TopCenter,
-        showCloseButton = true,
-        messageSlot = {
-            val contentColor = LocalToastContentColor.current
-            when (val message = it.message) {
-                is String -> BasicText(text = message, color = { contentColor })
-                is StringResource -> BasicText(
-                    text = stringResource(message),
-                    color = { contentColor })
-
-                is ToastMessage.Compose -> message.content()
-                else -> BasicText(text = it.message.toString(), color = { contentColor })
-            }
-        }
-    )
 }
 
 @Composable

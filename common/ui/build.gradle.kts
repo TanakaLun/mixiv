@@ -19,8 +19,6 @@ kotlin {
             // Coil3
             implementation(project.dependencies.platform(libs.coil3.bom))
             implementation(libs.bundles.coil3)
-            // Toast
-            implementation(libs.sonner)
             // miuix (api: features compile against miuix types)
             api(libs.bundles.miuix)
         }

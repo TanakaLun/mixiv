@@ -48,8 +48,6 @@ kotlin {
             implementation(libs.bundles.coil3)
             // MMKV
             implementation(libs.mmkv.kotlin)
-            // Toast
-            implementation(libs.sonner)
             // FileKit
             implementation(libs.bundles.filekit)
             implementation(libs.mp.stools)

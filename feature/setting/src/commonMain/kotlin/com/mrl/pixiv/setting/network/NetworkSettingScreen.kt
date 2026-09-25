@@ -11,12 +11,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mrl.pixiv.common.compose.LocalToaster
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.repository.requireUserPreferenceFlow
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
+import com.mrl.pixiv.common.util.ToastUtil
 import com.mrl.pixiv.setting.SettingViewModel
 import com.mrl.pixiv.setting.network.components.BypassSettingEditor
 import com.mrl.pixiv.setting.network.components.PictureSourceWidget
@@ -40,7 +40,6 @@ fun NetworkSettingScreen(
     navigationManager: NavigationManager = currentNavigationManager(),
 ) {
     val userPreference by requireUserPreferenceFlow.collectAsStateWithLifecycle()
-    val toaster = LocalToaster.current
     LocalNetworkPermissionEffect(userPreference.bypassSetting)
 
     val scrollBehavior = MiuixScrollBehavior()
@@ -78,7 +77,7 @@ fun NetworkSettingScreen(
                     currentSelected = userPreference.imageHost,
                     savePictureSourceHost = { host ->
                         viewModel.savePictureSourceHost(host)
-                        toaster.show(RStrings.restart_app_to_take_effect)
+                        ToastUtil.safeShortToast(RStrings.restart_app_to_take_effect)
                     },
                 )
             }

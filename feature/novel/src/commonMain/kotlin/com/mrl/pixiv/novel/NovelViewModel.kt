@@ -213,7 +213,7 @@ class NovelViewModel(
                     )
                 }
                 handleError(e)
-                ToastUtil.safeShortToast(RStrings.load_failed, e.message)
+                ToastUtil.safeShortToast(RStrings.load_failed, e.message.orEmpty())
             }
         ) {
             updateState {

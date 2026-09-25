@@ -16,7 +16,6 @@
 | Navigation3 runtime/ui | `1.1.7` / JB ui `1.1.2` |
 | adaptive-navigation3 | `1.3.0` |
 | markdown renderer (m3) | `0.45.0` (`AboutScreen`) |
-| sonner toast | `0.4.0` |
 | composewebview | `1.0.3` (`feature/login`) |
 
 主题入口：

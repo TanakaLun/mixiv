@@ -3,11 +3,11 @@ package com.mrl.pixiv.common.compose
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.input.key.KeyEvent
-import com.dokar.sonner.ToasterState
 import kotlinx.coroutines.flow.SharedFlow
+import top.yukonga.miuix.kmp.basic.SnackbarHostState
 
-val LocalToaster = staticCompositionLocalOf<ToasterState> {
-    noLocalProvidedFor("LocalToaster")
+val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
+    noLocalProvidedFor("LocalSnackbarHostState")
 }
 
 val LocalKeyEventFlow = staticCompositionLocalOf<SharedFlow<KeyEvent>> {

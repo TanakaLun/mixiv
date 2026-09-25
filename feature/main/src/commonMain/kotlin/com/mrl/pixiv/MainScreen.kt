@@ -5,8 +5,10 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
@@ -23,7 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.analytics.logEvent
+import com.mrl.pixiv.common.compose.LocalSnackbarHostState
 import com.mrl.pixiv.common.repository.VersionManager
+import com.mrl.pixiv.common.router.Destination
 import com.mrl.pixiv.common.router.MainPage
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
@@ -50,6 +54,7 @@ import top.yukonga.miuix.kmp.basic.NavigationBarItem
 import top.yukonga.miuix.kmp.basic.NavigationRail
 import top.yukonga.miuix.kmp.basic.NavigationRailItem
 import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SnackbarHost
 
 /** Spring spec shared by pager tab navigation and snap fling (miuix example). */
 private val PagerNavigationSpringSpec: SpringSpec<Float> = spring(
@@ -92,6 +97,14 @@ fun MainNavigationScaffold(
     val hasNewVersion by VersionManager.hasNewVersion.collectAsStateWithLifecycle()
     val screens = rememberMainScreens()
     val layoutType = NavigationSuiteScaffoldDefaults.navigationSuiteType(currentWindowAdaptiveInfoV2())
+    val snackbarHostState = LocalSnackbarHostState.current
+    val navigationBarsBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val snackbarBottomPadding =
+        navigationBarsBottom + if (!layoutType.isRail() && navigationManager.currentDestination is Destination.Main) {
+            64.dp + 12.dp
+        } else {
+            12.dp
+        }
 
     Row(modifier = Modifier.fillMaxSize()) {
         if (layoutType.isRail()) {
@@ -121,6 +134,12 @@ fun MainNavigationScaffold(
                 .fillMaxHeight()
         ) {
             content()
+            SnackbarHost(
+                state = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = snackbarBottomPadding),
+            )
         }
     }
 }

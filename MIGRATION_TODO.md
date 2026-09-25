@@ -51,7 +51,7 @@
 优先级建议（高使用 → 低）：
 
 - [x] `feature/main`：Home / Ranking / Search / Latest / Profile / ProfileDetail
-- [x] `feature/picture` + `feature/image-preview`：大图、底栏、SnackBar/toast（sonner → 是否换 Miuix toast）
+- [x] `feature/picture` + `feature/image-preview`：大图、底栏、SnackBar/toast（toast 已换 Miuix Snackbar）
 - [x] `feature/login`：WebView 壳、按钮、进度
 - [x] `feature/collection`、`feature/follow`、`feature/history`
 - [x] `feature/novel`、`feature/comment`、`feature/report`、`feature/artwork`
