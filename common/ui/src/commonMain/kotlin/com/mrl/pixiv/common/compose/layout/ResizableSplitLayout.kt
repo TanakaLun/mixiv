@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -59,6 +58,7 @@ import com.mrl.pixiv.strings.split_pane_resize_handle
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.ceil
 import kotlin.math.roundToInt
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 val SplitPaneDividerWidth = 24.dp
 
@@ -165,9 +165,9 @@ private fun SplitPaneHandle(
     val isFocused by interactionSource.collectIsFocusedAsState()
     val color by animateColorAsState(
         targetValue = if (isDragging || isHovered || isFocused) {
-            MaterialTheme.colorScheme.primary
+            MiuixTheme.colorScheme.primary
         } else {
-            MaterialTheme.colorScheme.outline
+            MiuixTheme.colorScheme.outline
         },
         label = "split handle color",
     )

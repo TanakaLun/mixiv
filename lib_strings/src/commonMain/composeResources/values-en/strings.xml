@@ -51,6 +51,7 @@
     <string name="theme_system">Follow System</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
+    <string name="monet_dynamic_color">Dynamic colors</string>
     <string name="illustration_works">Illustration Works</string>
     <string name="illustrations">Illustrations</string>
     <string name="manga">Manga</string>

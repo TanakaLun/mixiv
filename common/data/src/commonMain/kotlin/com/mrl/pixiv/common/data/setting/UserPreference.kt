@@ -10,6 +10,7 @@ import kotlinx.serialization.Serializable
 data class UserPreference(
     val appLanguage: String? = null,
     val theme: String = SettingTheme.SYSTEM.name,
+    val monet: Boolean = true,
     @Deprecated("use bypassSetting")
     val enableBypassSniffing: Boolean = false,
     val bypassSetting: BypassSetting = if (enableBypassSniffing) BypassSetting.SNI() else BypassSetting.None,

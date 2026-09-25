@@ -61,6 +61,10 @@ object SettingRepository : MMKVUser {
         it.copy(theme = theme.toString())
     }
 
+    fun setMonetEnabled(enabled: Boolean) = userPreference.update {
+        it.copy(monet = enabled)
+    }
+
     fun setPictureSourceHost(host: String) = userPreference.update {
         it.copy(imageHost = host)
     }

@@ -3,7 +3,6 @@ package com.mrl.pixiv.common.compose
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -19,6 +18,7 @@ import com.mrl.pixiv.common.compose.layout.isWidthCompact
 import com.mrl.pixiv.common.kts.spaceBy
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.repository.requireUserPreferenceFlow
+import com.mrl.pixiv.common.kts.round
 
 @Stable
 data class GridLayoutParams(
@@ -60,7 +60,7 @@ object RecommendGridDefaults {
             },
             horizontalArrangement = horizontalArrangement,
             verticalArrangement = horizontalArrangement,
-            cardShape = MaterialTheme.shapes.medium
+            cardShape = 12.round
         )
     }
 }
@@ -88,7 +88,7 @@ object IllustGridDefaults {
             },
             horizontalArrangement = horizontalArrangement,
             verticalArrangement = horizontalArrangement,
-            cardShape = MaterialTheme.shapes.medium
+            cardShape = 12.round
         )
     }
 
@@ -107,7 +107,7 @@ object IllustGridDefaults {
             },
             horizontalArrangement = horizontalArrangement,
             verticalArrangement = horizontalArrangement,
-            cardShape = MaterialTheme.shapes.small
+            cardShape = 8.round
         )
     }
 
@@ -128,7 +128,7 @@ object IllustGridDefaults {
             },
             horizontalArrangement = horizontalArrangement,
             verticalArrangement = horizontalArrangement,
-            cardShape = MaterialTheme.shapes.small
+            cardShape = 8.round
         )
     }
 }
@@ -152,7 +152,7 @@ object BlockingGridDefaults {
             },
             horizontalArrangement = horizontalArrangement,
             verticalArrangement = horizontalArrangement,
-            cardShape = MaterialTheme.shapes.small
+            cardShape = 8.round
         )
     }
 }

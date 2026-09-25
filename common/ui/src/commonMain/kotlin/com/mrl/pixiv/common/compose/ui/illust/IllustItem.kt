@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text as MaterialText
@@ -87,7 +86,7 @@ fun SquareIllustItem(
     modifier: Modifier = Modifier,
     elevation: Dp = 5.dp,
     shouldShowTip: Boolean = false,
-    shape: Shape = MaterialTheme.shapes.medium,
+    shape: Shape = 12.round,
     enableTransition: Boolean = !currentWindowAdaptiveInfoV2().isWidthAtLeastExpanded,
 ) {
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }

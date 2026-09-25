@@ -25,6 +25,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
+import com.mrl.pixiv.common.repository.SettingRepository
+import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
@@ -34,6 +36,7 @@ import com.mrl.pixiv.strings.browsing_setting
 import com.mrl.pixiv.strings.file_name_format_title
 import com.mrl.pixiv.strings.history_setting
 import com.mrl.pixiv.strings.label_default
+import com.mrl.pixiv.strings.monet_dynamic_color
 import com.mrl.pixiv.strings.network_setting
 import com.mrl.pixiv.strings.privacy_setting
 import com.mrl.pixiv.strings.search_setting
@@ -49,6 +52,7 @@ import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
+import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 const val KEY_LANGUAGE = "language"
 const val KEY_NETWORK_SETTING = "network_setting"
@@ -80,6 +84,7 @@ fun SettingScreen(
     }
 
     val scrollBehavior = MiuixScrollBehavior()
+    val monetEnabled by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle { monet }
     Scaffold(
         modifier = modifier.pageScrollModifiers(scrollBehavior),
         topBar = {
@@ -106,6 +111,11 @@ fun SettingScreen(
                         title = stringResource(RStrings.app_language),
                         startAction = { Icon(Icons.Rounded.Translate, contentDescription = null) },
                         onSelectedIndexChange = { currentLanguage = it },
+                    )
+                    SwitchPreference(
+                        checked = monetEnabled,
+                        onCheckedChange = SettingRepository::setMonetEnabled,
+                        title = stringResource(RStrings.monet_dynamic_color),
                     )
                     SettingDestinationItem(
                         title = stringResource(RStrings.network_setting),

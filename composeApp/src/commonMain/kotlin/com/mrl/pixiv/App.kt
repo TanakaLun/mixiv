@@ -1,9 +1,5 @@
 package com.mrl.pixiv
 
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.expressiveLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +35,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import okio.Path.Companion.toPath
 import org.koin.compose.viewmodel.koinViewModel
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 import co.touchlab.kermit.Logger as KermitLogger
 import coil3.util.Logger as CoilLogger
 import coil3.util.Logger.Level as CoilLogLevel
@@ -46,20 +43,12 @@ import coil3.util.Logger.Level as CoilLogLevel
 @Composable
 fun App(
     modifier: Modifier = Modifier,
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    colorScheme: ColorScheme = if (darkTheme) darkColorScheme() else expressiveLightColorScheme(),
     imageLoaderBuilder: ImageLoader.Builder.() -> Unit = {},
     splashViewModel: SplashViewModel = koinViewModel()
 ) {
     val appLanguage by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle { appLanguage }
     val aiEndpoint by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle {
         aiTranslationConfig.endpoint
-    }
-    val scrollbarStyle = remember(colorScheme) {
-        defaultScrollbarStyle().copy(
-            unhoverColor = if (platform.isDesktop()) colorScheme.primary.copy(alpha = 0.364f) else Color.Transparent,
-            hoverColor = colorScheme.primary
-        )
     }
 
     SetUpImageLoaderFactory(imageLoaderBuilder)
@@ -69,12 +58,16 @@ fun App(
         VersionManager.checkUpdate()
     }
 
-    CompositionLocalProvider(LocalScrollbarStyle provides scrollbarStyle) {
-        key(appLanguage) {
-            PiPixivTheme(
-                darkTheme = darkTheme,
-                colorScheme = colorScheme
-            ) {
+    PiPixivTheme {
+        val primary = MiuixTheme.colorScheme.primary
+        val scrollbarStyle = remember(primary) {
+            defaultScrollbarStyle().copy(
+                unhoverColor = if (platform.isDesktop()) primary.copy(alpha = 0.364f) else Color.Transparent,
+                hoverColor = primary
+            )
+        }
+        CompositionLocalProvider(LocalScrollbarStyle provides scrollbarStyle) {
+            key(appLanguage) {
                 val state = splashViewModel.asState()
                 state.startDestination?.let {
                     Navigation3MainGraph(

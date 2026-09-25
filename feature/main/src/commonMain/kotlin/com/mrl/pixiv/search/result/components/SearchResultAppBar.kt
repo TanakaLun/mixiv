@@ -12,7 +12,6 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DateRangePickerDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
@@ -187,7 +186,7 @@ internal fun SearchResultAppBar(
                     )
                 },
                 headline = {
-                    ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+                    ProvideTextStyle(MiuixTheme.textStyles.subtitle) {
                         DateRangePickerDefaults.DateRangePickerHeadline(
                             selectedStartDateMillis = dateRangePickerState.selectedStartDateMillis,
                             selectedEndDateMillis = dateRangePickerState.selectedEndDateMillis,
