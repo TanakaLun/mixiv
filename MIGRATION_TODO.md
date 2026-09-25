@@ -26,9 +26,11 @@
 
 - [x] `feature/main/MainScreen.kt`：
   - [x] `NavigationSuiteScaffold` → Miuix `NavigationBar` / `NavigationRail`（保留 adaptive 型别决策 + 换控件）
-  - [x] Tab 内容切换动画保持 `fadeIn(220, delay 90)` / `fadeOut(90)`
+  - [x] Tab 内容切换：`HorizontalPager` + `PagerDefaults.flingBehavior(snapAnimationSpec = PagerNavigationSpringSpec)` 对齐 example（替换旧 `fadeIn`/`fadeOut`）
+  - [x] 导航栏结构对齐 example：`Row { rail; Box { NavDisplay } }`，bottom bar 放 Main entry 的 `Scaffold(bottomBar = ...)` 内（pushed page 覆盖时随内容被遮挡）
   - [x] `Scaffold` → Miuix `Scaffold`（各业务屏已换）
 - [x] 全局 `TopAppBar` 批量替换（miuix title=String）。
+- [x] 全部可滚动屏接 `MiuixScrollBehavior` 折叠大标题（Scaffold modifier 挂 `pageScrollModifiers`；有意跳过：History 固定搜索栏、NovelReader 动画显隐、Picture 沉浸式、Login 无滚动内容）。
 - [ ] `MainActivity` 动态取色逻辑：Miuix 是否支持 HyperOS 动色；不支持则固定品牌色并记录。
 
 ## Phase 3 — 设置与偏好（miuix-preference）
