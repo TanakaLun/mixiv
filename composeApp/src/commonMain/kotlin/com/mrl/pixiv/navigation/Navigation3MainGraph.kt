@@ -78,7 +78,10 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import top.yukonga.miuix.kmp.nav.core.NavDisplay
+import top.yukonga.miuix.kmp.nav.core.NavDisplayEffects
+import top.yukonga.miuix.kmp.nav.core.rememberNavSystemCornerRadius
 import top.yukonga.miuix.kmp.nav.transition.NavTransitions
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun Navigation3MainGraph(
@@ -107,11 +110,20 @@ fun Navigation3MainGraph(
         ToastMessage(toastState = toastState)
         MainNavigationScaffold(navigationManager) {
             BoxWithConstraints(modifier.fillMaxSize()) {
+                val navCornerRadius = rememberNavSystemCornerRadius()
+                val backdropColor = MiuixTheme.colorScheme.surface
+                val navEffects = remember(navCornerRadius, backdropColor) {
+                    NavDisplayEffects(
+                        cornerClipRadius = navCornerRadius,
+                        backdropColor = backdropColor,
+                    )
+                }
                 NavDisplay(
                     backStack = navigationManager.navBackStack,
                     modifier = Modifier.fillMaxSize(),
                     onBack = navigationManager::popBackStack,
                     transition = NavTransitions.MiuixDefault,
+                    effects = navEffects,
                 ) {
                     entry<NavigationRecord> { record ->
                         val destination = record.destination
