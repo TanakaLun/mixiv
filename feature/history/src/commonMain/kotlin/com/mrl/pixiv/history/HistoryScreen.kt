@@ -45,6 +45,7 @@ import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.Illust
 import com.mrl.pixiv.common.data.Novel
@@ -57,6 +58,7 @@ import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.viewmodel.asState
 import com.mrl.pixiv.strings.cloud_history
 import com.mrl.pixiv.strings.enable_history_now
+import com.mrl.pixiv.strings.history
 import com.mrl.pixiv.strings.history_disabled_empty_desc
 import com.mrl.pixiv.strings.history_disabled_empty_title
 import com.mrl.pixiv.strings.local_history
@@ -73,11 +75,13 @@ import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import top.yukonga.miuix.kmp.basic.FloatingActionButton
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.SmallTopAppBar
+import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.icon.extended.Clear
@@ -119,11 +123,14 @@ fun HistoryScreen(
         }
     }
 
+    val scrollBehavior = MiuixScrollBehavior()
+
     Scaffold(
         modifier = modifier,
         topBar = {
             Column {
                 HistoryAppBar(
+                    scrollBehavior = scrollBehavior,
                     searchValue = searchValue,
                     onValueChange = {
                         searchValue = it
@@ -160,7 +167,10 @@ fun HistoryScreen(
     ) { paddingValues ->
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .pageScrollModifiers(scrollBehavior),
             beyondViewportPageCount = sources.lastIndex.coerceAtLeast(0),
         ) { page ->
             val isActivePage = page == selectedTabIndex
@@ -446,13 +456,15 @@ private fun DisabledHistoryShortcut(
 
 @Composable
 private fun HistoryAppBar(
+    scrollBehavior: ScrollBehavior,
     searchValue: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     onBack: () -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
-    SmallTopAppBar(
-        title = "",
+    TopAppBar(
+        title = stringResource(RStrings.history),
+        scrollBehavior = scrollBehavior,
         navigationIcon = {
             IconButton(
                 onClick = onBack,
