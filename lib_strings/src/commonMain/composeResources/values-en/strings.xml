@@ -390,6 +390,7 @@
     <string name="read_later_status_ready">Translation ready</string>
     <string name="read_later_status_failed">Translation failed</string>
     <string name="profile_details">Profile details</string>
+    <string name="profile_comment">About</string>
     <string name="profile_account">Account</string>
     <string name="profile_webpage">Website</string>
     <string name="profile_birthday">Birthday</string>

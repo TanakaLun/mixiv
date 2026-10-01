@@ -1,49 +1,33 @@
 package com.mrl.pixiv.profile.detail
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
-import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PersonOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import be.digitalia.compose.htmlconverter.htmlToAnnotatedString
@@ -52,16 +36,15 @@ import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import com.mrl.pixiv.common.compose.ui.BlockSurface
 import com.mrl.pixiv.common.compose.ui.image.UserAvatar
+import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.Restrict
 import com.mrl.pixiv.common.data.Type
 import com.mrl.pixiv.common.data.user.UserDetailResp
-import com.mrl.pixiv.common.kts.spaceBy
 import com.mrl.pixiv.common.repository.BlockingRepositoryV2
 import com.mrl.pixiv.common.repository.isSelf
 import com.mrl.pixiv.common.repository.viewmodel.follow.isFollowing
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
-import com.mrl.pixiv.common.util.RDrawables
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.allowRgb565
 import com.mrl.pixiv.common.util.copyToClipboard
@@ -73,9 +56,7 @@ import com.mrl.pixiv.profile.detail.components.NovelWorksWidget
 import com.mrl.pixiv.profile.detail.components.shouldShowNovelWorks
 import com.mrl.pixiv.strings.block_user
 import com.mrl.pixiv.strings.cancel_user_blocked
-import com.mrl.pixiv.strings.copy_to_clipboard
 import com.mrl.pixiv.strings.followed
-import com.mrl.pixiv.strings.ic_profile_premium
 import com.mrl.pixiv.strings.illust_and_manga_liked
 import com.mrl.pixiv.strings.illustration_count
 import com.mrl.pixiv.strings.illustration_works
@@ -84,6 +65,7 @@ import com.mrl.pixiv.strings.private_follow
 import com.mrl.pixiv.strings.profile_account
 import com.mrl.pixiv.strings.profile_birthday
 import com.mrl.pixiv.strings.profile_chair
+import com.mrl.pixiv.strings.profile_comment
 import com.mrl.pixiv.strings.profile_desk
 import com.mrl.pixiv.strings.profile_desktop
 import com.mrl.pixiv.strings.profile_details
@@ -108,7 +90,6 @@ import com.mrl.pixiv.strings.user_blocked
 import com.mrl.pixiv.strings.view_all
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import top.yukonga.miuix.kmp.basic.BasicComponent
@@ -124,7 +105,6 @@ import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 import top.yukonga.miuix.kmp.window.WindowListPopup
 
 private const val KEY_USER_INFO = "user_info"
@@ -151,13 +131,11 @@ fun ProfileDetailScreen(
     val isBlocked = BlockingRepositoryV2.collectUserBlockAsState(uid)
 
     Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier.fillMaxSize(),
         topBar = {
             if (isBlocked) {
                 TopAppBar(
-                    title = "",
+                    title = userInfo.user.name,
                     navigationIcon = {
                         IconButton(
                             onClick = { navigationManager.popBackStack() },
@@ -216,90 +194,32 @@ fun ProfileDetailScreen(
                 modifier = Modifier
                     .padding(it)
                     .fillMaxWidth()
-                    .scrollEndHaptic(),
+                    .pageScrollModifiers(scrollBehavior),
                 state = lazyListState,
                 contentPadding = PaddingValues(horizontal = 15.dp)
             ) {
                 item(key = KEY_USER_INFO) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = CenterVertically
-                        ) {
-                            SelectionContainer {
-                                Text(
-                                    text = userInfo.user.name,
-                                    style = MiuixTheme.textStyles.title2,
-                                    fontWeight = FontWeight.SemiBold,
+                    Card {
+                        BasicComponent(
+                            title = userInfo.user.name,
+                            summary = "${userInfo.profile.totalFollowUsers} ${stringResource(RStrings.followed)} • ID: ${userInfo.user.id}",
+                            startAction = {
+                                UserAvatar(
+                                    url = userInfo.user.profileImageUrls.medium,
+                                    modifier = Modifier.size(48.dp),
                                 )
-                            }
-                            if (userInfo.profile.isPremium) {
-                                Image(
-                                    imageVector = vectorResource(RDrawables.ic_profile_premium),
-                                    modifier = Modifier
-                                        .padding(start = 5.dp)
-                                        .size(20.dp),
-                                    contentDescription = null
-                                )
-                            }
-                        }
-                        SelectionContainer {
-                            Text(
-                                text = buildString {
-                                    append(userInfo.profile.totalFollowUsers.toString())
-                                    append(" ")
-                                    append(stringResource(RStrings.followed))
-                                },
-                                modifier = Modifier.throttleClick {
+                            },
+                            modifier = Modifier.throttleClick(
+                                onClick = {
                                     navigationManager.navigateToFollowingScreen(userInfo.user.id)
                                 },
-                                style = MiuixTheme.textStyles.footnote1,
-                                color = MiuixTheme.colorScheme.primary,
-                            )
-                        }
-                        //id点击可复制
-                        Row(
-                            horizontalArrangement = 5f.spaceBy,
-                            verticalAlignment = CenterVertically,
-                        ) {
-                            SelectionContainer {
-                                Text(
-                                    text = "ID: ${userInfo.user.id}",
-                                    style = MiuixTheme.textStyles.footnote2,
-                                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
-                                )
-                            }
-                            Icon(
-                                imageVector = Icons.Rounded.ContentCopy,
-                                contentDescription = stringResource(RStrings.copy_to_clipboard),
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .throttleClick {
-                                        coroutineScope.launch {
-                                            copyToClipboard(userInfo.user.id.toString())
-                                        }
+                                onLongClick = {
+                                    coroutineScope.launch {
+                                        copyToClipboard(userInfo.user.id.toString())
                                     }
-                                    .padding(10.dp),
-                                tint = MiuixTheme.colorScheme.onSurfaceVariantSummary,
-                            )
-                        }
-                        // 个人简介
-                        if (userInfo.user.comment.isNotEmpty()) {
-                            val comment = remember(userInfo.user.comment) {
-                                htmlToAnnotatedString(
-                                    html = userInfo.user.comment,
-                                    compactMode = true,
-                                )
-                            }
-                            SelectionContainer {
-                                Text(
-                                    text = comment,
-                                    style = MiuixTheme.textStyles.body2,
-                                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
-                                )
-                            }
-                        }
+                                },
+                            ),
+                        )
                     }
                 }
                 item(key = KEY_USER_DETAILS) {
@@ -410,6 +330,13 @@ private fun ProfileDetails(
     val profile = userInfo.profile
     val workspace = userInfo.workspace
     val profileDetails = listOf(
+        ProfileDetailItem(
+            stringResource(RStrings.profile_comment),
+            htmlToAnnotatedString(
+                html = userInfo.user.comment,
+                compactMode = true,
+            ).toString(),
+        ),
         ProfileDetailItem(stringResource(RStrings.profile_account), userInfo.user.account),
         ProfileDetailItem(stringResource(RStrings.profile_webpage), profile.webpage),
         ProfileDetailItem(stringResource(RStrings.profile_birthday), profile.birth),
@@ -561,108 +488,61 @@ private fun ProfileDetailAppBar(
     onBlockUser: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val avatarSize = 50.dp
-    val collapsedFraction = scrollBehavior.state.collapsedFraction
-    val statusBarPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    val backgroundHeight = statusBarPadding +
-        avatarSize * 2f +
-        with(LocalDensity.current) { scrollBehavior.state.heightOffset.toDp() }
-    val backgroundUrl = userInfo.profile.backgroundImageURL.ifEmpty {
-        userInfo.user.profileImageUrls.medium
-    }
     var showMenu by rememberSaveable { mutableStateOf(false) }
 
-    Box(modifier = modifier) {
-        if (backgroundUrl.isNotEmpty()) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalPlatformContext.current)
-                    .data(backgroundUrl)
-                    .allowRgb565(true)
-                    .build(),
-                contentScale = ContentScale.FillWidth,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(backgroundHeight)
-                    .blur(10.dp)
-                    .drawWithCache {
-                        val color = Color.Black.copy(alpha = 0.5f)
-                        onDrawWithContent {
-                            drawContent()
-                            drawRect(color)
-                        }
-                    }
-            )
-        }
-        TopAppBar(
-            title = userInfo.user.name,
-            largeTitle = "",
-            color = Color.Transparent,
-            titleColor = Color.White,
-            largeTitleColor = Color.White,
-            navigationIcon = {
-                IconButton(onClick = onBack) {
+    TopAppBar(
+        title = userInfo.user.name,
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos,
+                    contentDescription = null,
+                )
+            }
+        },
+        actions = {
+            if (!isBlocked) {
+                IconButton(onClick = { showMenu = true }) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos,
+                        imageVector = Icons.Rounded.MoreVert,
                         contentDescription = null,
-                        tint = Color.White,
                     )
                 }
-            },
-            actions = {
-                if (!isBlocked) {
-                    IconButton(onClick = { showMenu = true }) {
-                        Icon(
-                            imageVector = Icons.Rounded.MoreVert,
-                            contentDescription = null,
-                            tint = Color.White,
+            }
+            WindowListPopup(
+                show = showMenu,
+                onDismissRequest = { showMenu = false },
+            ) {
+                ListPopupColumn {
+                    val isSelf = userInfo.user.isSelf
+                    if (!userInfo.user.isFollowing && !isSelf) {
+                        BasicComponent(
+                            title = stringResource(RStrings.private_follow),
+                            onClick = {
+                                onPrivateFollow(userInfo.user.id)
+                                showMenu = false
+                            },
+                        )
+                    }
+                    if (!isSelf) {
+                        BasicComponent(
+                            title = stringResource(RStrings.block_user),
+                            onClick = {
+                                onBlockUser(userInfo.user.id)
+                                showMenu = false
+                            },
+                        )
+                        BasicComponent(
+                            title = stringResource(RStrings.report_user),
+                            onClick = {
+                                showMenu = false
+                            },
                         )
                     }
                 }
-                WindowListPopup(
-                    show = showMenu,
-                    onDismissRequest = { showMenu = false },
-                ) {
-                    ListPopupColumn {
-                        val isSelf = userInfo.user.isSelf
-                        if (!userInfo.user.isFollowing && !isSelf) {
-                            BasicComponent(
-                                title = stringResource(RStrings.private_follow),
-                                onClick = {
-                                    onPrivateFollow(userInfo.user.id)
-                                    showMenu = false
-                                },
-                            )
-                        }
-                        if (!isSelf) {
-                            BasicComponent(
-                                title = stringResource(RStrings.block_user),
-                                onClick = {
-                                    onBlockUser(userInfo.user.id)
-                                    showMenu = false
-                                },
-                            )
-                            BasicComponent(
-                                title = stringResource(RStrings.report_user),
-                                onClick = {
-                                    showMenu = false
-                                },
-                            )
-                        }
-                    }
-                }
-            },
-            scrollBehavior = scrollBehavior,
-            defaultWindowInsetsPadding = false,
-            modifier = Modifier.statusBarsPadding(),
-        )
-        UserAvatar(
-            url = userInfo.user.profileImageUrls.medium,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(start = 56.dp)
-                .padding(top = statusBarPadding + 4.dp)
-                .size(avatarSize * (2 - collapsedFraction))
-        )
-    }
+            }
+        },
+        scrollBehavior = scrollBehavior,
+        modifier = modifier,
+    )
 }
