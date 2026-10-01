@@ -68,6 +68,7 @@ import com.mrl.pixiv.strings.profile_chair
 import com.mrl.pixiv.strings.profile_comment
 import com.mrl.pixiv.strings.profile_desk
 import com.mrl.pixiv.strings.profile_desktop
+import com.mrl.pixiv.strings.profile_detail_title
 import com.mrl.pixiv.strings.profile_details
 import com.mrl.pixiv.strings.profile_job
 import com.mrl.pixiv.strings.profile_monitor
@@ -135,7 +136,7 @@ fun ProfileDetailScreen(
         topBar = {
             if (isBlocked) {
                 TopAppBar(
-                    title = userInfo.user.name,
+                    title = stringResource(RStrings.profile_detail_title),
                     navigationIcon = {
                         IconButton(
                             onClick = { navigationManager.popBackStack() },
@@ -491,7 +492,7 @@ private fun ProfileDetailAppBar(
     var showMenu by rememberSaveable { mutableStateOf(false) }
 
     TopAppBar(
-        title = userInfo.user.name,
+        title = stringResource(RStrings.profile_detail_title),
         navigationIcon = {
             IconButton(onClick = onBack) {
                 Icon(
@@ -501,7 +502,7 @@ private fun ProfileDetailAppBar(
             }
         },
         actions = {
-            if (!isBlocked) {
+            if (!isBlocked && !userInfo.user.isSelf) {
                 IconButton(onClick = { showMenu = true }) {
                     Icon(
                         imageVector = Icons.Rounded.MoreVert,

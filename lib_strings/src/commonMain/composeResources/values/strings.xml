@@ -400,6 +400,7 @@
     <string name="read_later_status_running">正在翻译</string>
     <string name="read_later_status_ready">翻译已就绪</string>
     <string name="read_later_status_failed">翻译失败</string>
+    <string name="profile_detail_title">个人详情</string>
     <string name="profile_details">个人资料</string>
     <string name="profile_comment">简介</string>
     <string name="profile_account">账号</string>
