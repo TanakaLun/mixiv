@@ -27,6 +27,7 @@ import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
+import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.itemIndexKey
 import com.mrl.pixiv.common.repository.SettingRepository
@@ -250,6 +251,7 @@ private fun HomeImageFeedPage(
     }
 
     PullToRefresh(
+        refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = recommendImageList::refresh,
         modifier = Modifier.fillMaxSize(),
@@ -303,6 +305,7 @@ private fun NovelMode(
     }
 
     PullToRefresh(
+        refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
         modifier = modifier,

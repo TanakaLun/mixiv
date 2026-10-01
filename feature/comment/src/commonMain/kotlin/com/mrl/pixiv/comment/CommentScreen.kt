@@ -33,6 +33,7 @@ import com.mrl.pixiv.comment.components.CommentInput
 import com.mrl.pixiv.comment.components.CommentInputPlaceholder
 import com.mrl.pixiv.comment.components.CommentItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
+import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
 import com.mrl.pixiv.common.data.comment.Comment
 import com.mrl.pixiv.common.kts.VSpacer
 import com.mrl.pixiv.common.kts.hPadding
@@ -177,6 +178,7 @@ fun CommentScreen(
         }
     ) { innerPadding ->
         PullToRefresh(
+            refreshTexts = rememberRefreshTexts(),
             isRefreshing = comments.loadState.refresh is LoadState.Loading,
             onRefresh = { comments.refresh() },
             modifier = Modifier

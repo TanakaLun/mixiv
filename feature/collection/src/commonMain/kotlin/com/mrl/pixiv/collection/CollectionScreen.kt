@@ -37,6 +37,7 @@ import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
+import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
 import com.mrl.pixiv.common.compose.ui.viewModeDropdownEntry
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.itemIndexKey
@@ -202,6 +203,7 @@ fun CollectionScreen(
                     val layoutParams = IllustGridDefaults.relatedLayoutParameters()
                     val isRefreshing = userBookmarksIllusts.loadState.refresh is LoadState.Loading
                     PullToRefresh(
+                        refreshTexts = rememberRefreshTexts(),
                         isRefreshing = isRefreshing,
                         onRefresh = { userBookmarksIllusts.refresh() },
                     ) {
@@ -237,6 +239,7 @@ fun CollectionScreen(
                     val isNovelRefreshing =
                         userBookmarksNovels.loadState.refresh is LoadState.Loading
                     PullToRefresh(
+                        refreshTexts = rememberRefreshTexts(),
                         isRefreshing = isNovelRefreshing,
                         onRefresh = { userBookmarksNovels.refresh() },
                     ) {

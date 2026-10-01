@@ -32,6 +32,7 @@ import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
+import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
 import com.mrl.pixiv.common.data.Illust
 import com.mrl.pixiv.common.data.Novel
 import com.mrl.pixiv.common.data.Type
@@ -210,6 +211,7 @@ private fun UserIllustPage(
     val isRefreshing = illusts.loadState.refresh is LoadState.Loading
 
     PullToRefresh(
+        refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = { illusts.refresh() },
     ) {
@@ -250,6 +252,7 @@ private fun UserNovelPage(
     val isRefreshing = novels.loadState.refresh is LoadState.Loading
 
     PullToRefresh(
+        refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = { novels.refresh() },
     ) {

@@ -21,6 +21,7 @@ import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.RectangleIllustItem
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
+import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.itemIndexKey
 import com.mrl.pixiv.common.repository.SettingRepository
@@ -96,6 +97,7 @@ private fun TrendingIllustPage(
     }
 
     PullToRefresh(
+        refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = { illustsFollowing.refresh() },
         modifier = modifier.fillMaxSize(),
@@ -176,6 +178,7 @@ private fun TrendingNovelPage(
     }
 
     PullToRefresh(
+        refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = { novelsFollowing.refresh() },
         modifier = modifier.fillMaxSize(),

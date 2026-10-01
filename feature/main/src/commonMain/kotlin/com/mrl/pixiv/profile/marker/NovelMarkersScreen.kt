@@ -20,6 +20,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
+import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
 import com.mrl.pixiv.common.kts.itemIndexKey
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.BookmarkState
 import com.mrl.pixiv.common.router.NavigationManager
@@ -76,6 +77,7 @@ fun NovelMarkersScreen(
         },
     ) { paddingValues ->
         PullToRefresh(
+            refreshTexts = rememberRefreshTexts(),
             isRefreshing = isRefreshing,
             onRefresh = markers::refresh,
             pullToRefreshState = pullToRefreshState,

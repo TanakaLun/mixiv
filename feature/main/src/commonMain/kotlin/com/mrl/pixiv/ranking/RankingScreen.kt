@@ -41,6 +41,7 @@ import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
+import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
 import com.mrl.pixiv.common.compose.ui.viewModeDropdownEntry
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.HSpacer
@@ -319,6 +320,7 @@ private fun IllustMode(
     }
 
     PullToRefresh(
+        refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
         modifier = modifier.fillMaxSize(),
@@ -381,6 +383,7 @@ private fun NovelMode(
     }
 
     PullToRefresh(
+        refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
         modifier = modifier.fillMaxSize(),

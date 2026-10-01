@@ -36,6 +36,7 @@ import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
+import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
 import com.mrl.pixiv.common.data.Novel
 import com.mrl.pixiv.common.data.novel.NovelWatchlistSeries
 import com.mrl.pixiv.common.kts.itemIndexKey
@@ -104,6 +105,7 @@ private fun NovelFeedPage(
     }
 
     PullToRefresh(
+        refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = pagingItems::refresh,
         modifier = modifier.fillMaxSize(),
@@ -194,6 +196,7 @@ fun NovelWatchlistPage(
     }
 
     PullToRefresh(
+        refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = watchlist::refresh,
         modifier = modifier.fillMaxSize(),

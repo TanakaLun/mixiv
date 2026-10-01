@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
+import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.router.NavigationManager
@@ -95,6 +96,7 @@ fun SearchPreviewScreen(
         },
     ) {
         PullToRefresh(
+            refreshTexts = rememberRefreshTexts(),
             isRefreshing = state.refreshing,
             onRefresh = { viewModel.dispatch(SearchPreviewAction.LoadTrendingTags) },
             modifier = Modifier

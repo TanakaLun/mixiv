@@ -45,6 +45,7 @@ import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.SquareIllustItem
 import com.mrl.pixiv.common.compose.ui.image.UserAvatar
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
+import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
 import com.mrl.pixiv.common.data.Illust
 import com.mrl.pixiv.common.data.user.UserPreview
 import com.mrl.pixiv.common.kts.itemIndexKey
@@ -245,6 +246,7 @@ fun FollowingScreenBody(
 
     val isRefreshing = followingUsers.loadState.refresh is LoadState.Loading
     PullToRefresh(
+        refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = { followingUsers.refresh() },
         modifier = modifier,

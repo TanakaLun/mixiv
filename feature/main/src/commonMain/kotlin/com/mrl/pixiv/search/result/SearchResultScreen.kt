@@ -47,6 +47,7 @@ import com.mrl.pixiv.common.compose.ui.illust.RectangleIllustItem
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
+import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.setting.SearchResultDisplayMode
 import com.mrl.pixiv.common.data.setting.SearchResultIllustLayout
@@ -376,6 +377,7 @@ fun SearchResultsScreen(
                                 if (showPagingControls || showPopularPreviewNotice) 88.dp else 0.dp
 
                             PullToRefresh(
+                                refreshTexts = rememberRefreshTexts(),
                                 isRefreshing = isRefreshing,
                                 onRefresh = {
                                     if (manualIllustResults != null) {
@@ -564,6 +566,7 @@ fun SearchResultsScreen(
                                 if (showPagingControls || showPopularPreviewNotice) 88.dp else 0.dp
 
                             PullToRefresh(
+                                refreshTexts = rememberRefreshTexts(),
                                 isRefreshing = isNovelRefreshing,
                                 onRefresh = {
                                     if (manualNovelResults != null) {
@@ -693,6 +696,7 @@ fun SearchResultsScreen(
                         if (showPagingControls) 88.dp else 0.dp
 
                     PullToRefresh(
+                        refreshTexts = rememberRefreshTexts(),
                         isRefreshing = isUserRefreshing,
                         onRefresh = {
                             if (manualUserResults != null) {

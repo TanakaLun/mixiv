@@ -389,6 +389,10 @@
     <string name="read_later_status_running">Translating</string>
     <string name="read_later_status_ready">Translation ready</string>
     <string name="read_later_status_failed">Translation failed</string>
+    <string name="pull_refresh_pull_down">Pull down to refresh</string>
+    <string name="pull_refresh_release">Release to refresh</string>
+    <string name="pull_refresh_refreshing">Refreshing...</string>
+    <string name="pull_refresh_complete">Refreshed successfully</string>
     <string name="profile_detail_title">Profile details</string>
     <string name="profile_details">Profile details</string>
     <string name="profile_comment">About</string>

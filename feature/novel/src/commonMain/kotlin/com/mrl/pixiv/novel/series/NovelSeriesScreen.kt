@@ -25,6 +25,7 @@ import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.image.UserAvatar
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
+import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
 import com.mrl.pixiv.common.kts.HSpacer
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.BookmarkState
 import com.mrl.pixiv.common.router.NavigationManager
@@ -91,6 +92,7 @@ fun NovelSeriesScreen(
         },
     ) { paddingValues ->
         PullToRefresh(
+            refreshTexts = rememberRefreshTexts(),
             isRefreshing = isRefreshing,
             onRefresh = novels::refresh,
             modifier = Modifier
