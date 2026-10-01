@@ -241,254 +241,264 @@ fun AiTranslationSettingScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     ProviderItem(
-                provider = selectedProvider,
-                onProviderChange = change@{ nextProvider ->
-                    if (nextProvider == selectedProvider) return@change
-                    resetModelCatalog()
-                    providerName = nextProvider.name
-                    endpoint = AiTranslationConfig.defaultEndpoint(nextProvider)
-                    model = AiTranslationConfig.defaultModel(nextProvider).modelId
-                    apiKey = ""
-                    extraBody = ""
-                    extraBodyError = false
-                }
-            )
-
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = endpoint,
-                onValueChange = {
-                    resetModelCatalog()
-                    endpoint = it
-                    endpointError = null
-                },
-                label = stringResource(RStrings.ai_endpoint),
-                singleLine = true,
-            )
-            endpointError?.let { error ->
-                Text(
-                    text = error.label(),
-                    color = MiuixTheme.colorScheme.error,
-                )
-            }
-
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = apiKey,
-                onValueChange = {
-                    resetModelCatalog()
-                    apiKey = it
-                },
-                label = stringResource(RStrings.ai_api_key),
-                visualTransformation = PasswordVisualTransformation(),
-                singleLine = true,
-            )
-
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = model,
-                onValueChange = { model = it },
-                label = stringResource(RStrings.ai_model),
-                singleLine = true,
-            )
-
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = generationTimeoutInput,
-                onValueChange = { generationTimeoutInput = it },
-                label = stringResource(RStrings.ai_generation_timeout_seconds),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-            )
-            Text(
-                text = stringResource(
-                    if (generationTimeoutSeconds == null) {
-                        RStrings.ai_generation_timeout_invalid
-                    } else {
-                        RStrings.ai_generation_timeout_desc
-                    },
-                    AiTranslationConfig.GENERATION_TIMEOUT_MIN_SECONDS,
-                    AiTranslationConfig.GENERATION_TIMEOUT_MAX_SECONDS,
-                ),
-                color = if (generationTimeoutSeconds == null) {
-                    MiuixTheme.colorScheme.error
-                } else {
-                    MiuixTheme.colorScheme.onSurfaceVariantSummary
-                },
-                style = MiuixTheme.textStyles.footnote1,
-            )
-
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = maxConcurrentRequestsInput,
-                onValueChange = { maxConcurrentRequestsInput = it },
-                label = stringResource(RStrings.ai_max_concurrent_requests),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-            )
-            Text(
-                text = stringResource(
-                    if (maxConcurrentRequests == null) {
-                        RStrings.ai_max_concurrent_requests_invalid
-                    } else {
-                        RStrings.ai_max_concurrent_requests_desc
-                    },
-                    AiTranslationConfig.MAX_CONCURRENT_REQUESTS_MIN,
-                ),
-                color = if (maxConcurrentRequests == null) {
-                    MiuixTheme.colorScheme.error
-                } else {
-                    MiuixTheme.colorScheme.onSurfaceVariantSummary
-                },
-                style = MiuixTheme.textStyles.footnote1,
-            )
-
-            if (selectedProvider == AiProvider.OPENAI) {
-                CheckboxPreference(
-                    title = stringResource(RStrings.ai_openai_use_response_api),
-                    checked = responseApi,
-                    onCheckedChange = { checked -> responseApi = checked },
-                    checkboxLocation = CheckboxLocation.End,
-                )
-            }
-
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = extraBody,
-                onValueChange = {
-                    extraBody = it
-                    extraBodyError = false
-                },
-                label = stringResource(RStrings.ai_extra_body),
-                useLabelAsPlaceholder = true,
-                minLines = 6,
-                maxLines = 12,
-            )
-            if (extraBodyError) {
-                Text(
-                    text = stringResource(RStrings.ai_extra_body_invalid),
-                    color = MiuixTheme.colorScheme.error,
-                    style = MiuixTheme.textStyles.footnote1,
-                )
-            }
-
-            Text(
-                text = stringResource(RStrings.ai_extra_body_presets),
-                style = MiuixTheme.textStyles.subtitle,
-            )
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                extraBodyPresets(
-                    provider = selectedProvider,
-                    responseApi = responseApi,
-                ).forEach { preset ->
-                    FilterChip(
-                        selected = false,
-                        onClick = {
-                            val merged = extraBody.mergeExtraBodyPreset(preset)
-                            if (merged == null) {
-                                extraBodyError = true
-                            } else {
-                                extraBody = merged
-                                extraBodyError = false
-                            }
-                        },
-                        label = { Text(text = preset.label()) },
+                        provider = selectedProvider,
+                        onProviderChange = change@{ nextProvider ->
+                            if (nextProvider == selectedProvider) return@change
+                            resetModelCatalog()
+                            providerName = nextProvider.name
+                            endpoint = AiTranslationConfig.defaultEndpoint(nextProvider)
+                            model = AiTranslationConfig.defaultModel(nextProvider).modelId
+                            apiKey = ""
+                            extraBody = ""
+                            extraBodyError = false
+                        }
                     )
-                }
-            }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = stringResource(RStrings.ai_model_suggestions),
-                    style = MiuixTheme.textStyles.subtitle,
-                )
-                Button(
-                    onClick = {
-                        val endpointValidation = validateAiEndpoint(endpoint)
-                        if (!endpointValidation.isValid) {
-                            endpointError = endpointValidation.error
-                            return@Button
-                        }
-                        endpointError = null
-                        modelRefreshError = null
-                        isRefreshingModels = true
-                        modelRefreshVersion += 1L
-                        val refreshVersion = modelRefreshVersion
-                        val refreshConfig = AiTranslationConfig(
-                            provider = selectedProvider,
-                            endpoint = requireNotNull(endpointValidation.normalizedEndpoint),
-                            apiKey = apiKey.trim(),
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        TextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = endpoint,
+                            onValueChange = {
+                                resetModelCatalog()
+                                endpoint = it
+                                endpointError = null
+                            },
+                            label = stringResource(RStrings.ai_endpoint),
+                            singleLine = true,
                         )
-                        modelRefreshJob?.cancel()
-                        modelRefreshJob = coroutineScope.launch {
-                            try {
-                                val models = modelCatalogService.fetchModels(refreshConfig)
-                                if (modelRefreshVersion == refreshVersion) {
-                                    fetchedModels = models
-                                }
-                            } catch (cancelled: CancellationException) {
-                                throw cancelled
-                            } catch (error: Throwable) {
-                                if (modelRefreshVersion == refreshVersion) {
-                                    modelRefreshError = error.message ?: error.toString()
-                                }
-                            } finally {
-                                if (modelRefreshVersion == refreshVersion) {
-                                    isRefreshingModels = false
-                                    modelRefreshJob = null
-                                }
-                            }
+                        endpointError?.let { error ->
+                            Text(
+                                text = error.label(),
+                                color = MiuixTheme.colorScheme.error,
+                            )
                         }
-                    },
-                    enabled = !isRefreshingModels,
-                ) {
-                    if (isRefreshingModels) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            strokeWidth = 2.dp,
+
+                        TextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = apiKey,
+                            onValueChange = {
+                                resetModelCatalog()
+                                apiKey = it
+                            },
+                            label = stringResource(RStrings.ai_api_key),
+                            visualTransformation = PasswordVisualTransformation(),
+                            singleLine = true,
                         )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Rounded.Refresh,
-                            contentDescription = null,
+
+                        TextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = model,
+                            onValueChange = { model = it },
+                            label = stringResource(RStrings.ai_model),
+                            singleLine = true,
+                        )
+
+                        TextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = generationTimeoutInput,
+                            onValueChange = { generationTimeoutInput = it },
+                            label = stringResource(RStrings.ai_generation_timeout_seconds),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                        )
+                        Text(
+                            text = stringResource(
+                                if (generationTimeoutSeconds == null) {
+                                    RStrings.ai_generation_timeout_invalid
+                                } else {
+                                    RStrings.ai_generation_timeout_desc
+                                },
+                                AiTranslationConfig.GENERATION_TIMEOUT_MIN_SECONDS,
+                                AiTranslationConfig.GENERATION_TIMEOUT_MAX_SECONDS,
+                            ),
+                            color = if (generationTimeoutSeconds == null) {
+                                MiuixTheme.colorScheme.error
+                            } else {
+                                MiuixTheme.colorScheme.onSurfaceVariantSummary
+                            },
+                            style = MiuixTheme.textStyles.footnote1,
+                        )
+
+                        TextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = maxConcurrentRequestsInput,
+                            onValueChange = { maxConcurrentRequestsInput = it },
+                            label = stringResource(RStrings.ai_max_concurrent_requests),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                        )
+                        Text(
+                            text = stringResource(
+                                if (maxConcurrentRequests == null) {
+                                    RStrings.ai_max_concurrent_requests_invalid
+                                } else {
+                                    RStrings.ai_max_concurrent_requests_desc
+                                },
+                                AiTranslationConfig.MAX_CONCURRENT_REQUESTS_MIN,
+                            ),
+                            color = if (maxConcurrentRequests == null) {
+                                MiuixTheme.colorScheme.error
+                            } else {
+                                MiuixTheme.colorScheme.onSurfaceVariantSummary
+                            },
+                            style = MiuixTheme.textStyles.footnote1,
                         )
                     }
-                    Text(text = stringResource(RStrings.ai_refresh_models))
-                }
-            }
 
-            modelRefreshError?.let { error ->
-                Text(
-                    text = stringResource(RStrings.load_failed, error),
-                    style = MiuixTheme.textStyles.footnote1,
-                    color = MiuixTheme.colorScheme.error,
-                )
-            }
+                    if (selectedProvider == AiProvider.OPENAI) {
+                        CheckboxPreference(
+                            title = stringResource(RStrings.ai_openai_use_response_api),
+                            checked = responseApi,
+                            onCheckedChange = { checked -> responseApi = checked },
+                            checkboxLocation = CheckboxLocation.End,
+                        )
+                    }
 
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                val modelSuggestions = fetchedModels
-                    ?: AiTranslationConfig.suggestedModels(selectedProvider).map { it.modelId }
-                modelSuggestions.forEach { modelId ->
-                    FilterChip(
-                        selected = modelId == model,
-                        onClick = { model = modelId },
-                        label = { Text(text = modelId) },
-                    )
-                }
-            }
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        TextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = extraBody,
+                            onValueChange = {
+                                extraBody = it
+                                extraBodyError = false
+                            },
+                            label = stringResource(RStrings.ai_extra_body),
+                            useLabelAsPlaceholder = true,
+                            minLines = 6,
+                            maxLines = 12,
+                        )
+                        if (extraBodyError) {
+                            Text(
+                                text = stringResource(RStrings.ai_extra_body_invalid),
+                                color = MiuixTheme.colorScheme.error,
+                                style = MiuixTheme.textStyles.footnote1,
+                            )
+                        }
 
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        Text(
+                            text = stringResource(RStrings.ai_extra_body_presets),
+                            style = MiuixTheme.textStyles.subtitle,
+                        )
+
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            extraBodyPresets(
+                                provider = selectedProvider,
+                                responseApi = responseApi,
+                            ).forEach { preset ->
+                                FilterChip(
+                                    selected = false,
+                                    onClick = {
+                                        val merged = extraBody.mergeExtraBodyPreset(preset)
+                                        if (merged == null) {
+                                            extraBodyError = true
+                                        } else {
+                                            extraBody = merged
+                                            extraBodyError = false
+                                        }
+                                    },
+                                    label = { Text(text = preset.label()) },
+                                )
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = stringResource(RStrings.ai_model_suggestions),
+                                style = MiuixTheme.textStyles.subtitle,
+                            )
+                            Button(
+                                onClick = {
+                                    val endpointValidation = validateAiEndpoint(endpoint)
+                                    if (!endpointValidation.isValid) {
+                                        endpointError = endpointValidation.error
+                                        return@Button
+                                    }
+                                    endpointError = null
+                                    modelRefreshError = null
+                                    isRefreshingModels = true
+                                    modelRefreshVersion += 1L
+                                    val refreshVersion = modelRefreshVersion
+                                    val refreshConfig = AiTranslationConfig(
+                                        provider = selectedProvider,
+                                        endpoint = requireNotNull(endpointValidation.normalizedEndpoint),
+                                        apiKey = apiKey.trim(),
+                                    )
+                                    modelRefreshJob?.cancel()
+                                    modelRefreshJob = coroutineScope.launch {
+                                        try {
+                                            val models = modelCatalogService.fetchModels(refreshConfig)
+                                            if (modelRefreshVersion == refreshVersion) {
+                                                fetchedModels = models
+                                            }
+                                        } catch (cancelled: CancellationException) {
+                                            throw cancelled
+                                        } catch (error: Throwable) {
+                                            if (modelRefreshVersion == refreshVersion) {
+                                                modelRefreshError = error.message ?: error.toString()
+                                            }
+                                        } finally {
+                                            if (modelRefreshVersion == refreshVersion) {
+                                                isRefreshingModels = false
+                                                modelRefreshJob = null
+                                            }
+                                        }
+                                    }
+                                },
+                                enabled = !isRefreshingModels,
+                            ) {
+                                if (isRefreshingModels) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        strokeWidth = 2.dp,
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Refresh,
+                                        contentDescription = null,
+                                    )
+                                }
+                                Text(text = stringResource(RStrings.ai_refresh_models))
+                            }
+                        }
+
+                        modelRefreshError?.let { error ->
+                            Text(
+                                text = stringResource(RStrings.load_failed, error),
+                                style = MiuixTheme.textStyles.footnote1,
+                                color = MiuixTheme.colorScheme.error,
+                            )
+                        }
+
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            val modelSuggestions = fetchedModels
+                                ?: AiTranslationConfig.suggestedModels(selectedProvider).map { it.modelId }
+                            modelSuggestions.forEach { modelId ->
+                                FilterChip(
+                                    selected = modelId == model,
+                                    onClick = { model = modelId },
+                                    label = { Text(text = modelId) },
+                                )
+                            }
+                        }
+
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                    }
                 }
             }
         }
