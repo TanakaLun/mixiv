@@ -3,9 +3,6 @@ package com.mrl.pixiv.profile
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.repository.requireUserPreferenceValue
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -27,7 +24,6 @@ import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material.icons.rounded.Style
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -48,6 +44,7 @@ import com.mrl.pixiv.strings.collection
 import com.mrl.pixiv.strings.download_manager
 import com.mrl.pixiv.strings.export_token
 import com.mrl.pixiv.strings.history
+import com.mrl.pixiv.strings.my
 import com.mrl.pixiv.strings.new_version_available
 import com.mrl.pixiv.strings.novel_markers
 import com.mrl.pixiv.strings.preference
@@ -64,6 +61,7 @@ import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.preference.ArrowPreference
 
 private const val KEY_USER_INFO = "user_info"
 private const val KEY_MAIN_PREFS = "main_prefs"
@@ -83,34 +81,33 @@ fun ProfileScreen(
     }
     val scrollBehavior = MiuixScrollBehavior()
     Scaffold(
+        modifier = modifier,
         topBar = {
             ProfileAppBar(scrollBehavior = scrollBehavior)
         },
     ) {
         LazyColumn(
-            modifier = modifier
+            modifier = Modifier
                 .padding(it)
                 .fillMaxSize()
                 .padding(top = 16.dp)
                 .pageScrollModifiers(scrollBehavior),
         ) {
             item(key = KEY_USER_INFO) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    UserAvatar(
-                        url = userInfo.user.profileImageUrls.medium,
-                        modifier = Modifier.size(80.dp),
-                        onClick = {
+                Card(modifier = Modifier.padding(horizontal = 12.dp)) {
+                    ArrowPreference(
+                        title = userInfo.user.name,
+                        summary = "ID: ${userInfo.user.id}",
+                        startAction = {
+                            UserAvatar(
+                                url = userInfo.user.profileImageUrls.medium,
+                                modifier = Modifier.size(48.dp),
+                            )
+                        },
+                        onClick = rememberThrottleClick {
                             navigationManager.navigateToProfileDetailScreen(userInfo.user.id)
                         },
                     )
-                    Column {
-                        Text(text = userInfo.user.name)
-                        Text(text = "ID: ${userInfo.user.id}")
-                    }
                 }
             }
             item(key = KEY_MAIN_PREFS) {
@@ -248,7 +245,7 @@ fun ProfileScreen(
 @Composable
 private fun ProfileAppBar(scrollBehavior: ScrollBehavior) {
     TopAppBar(
-        title = "",
+        title = stringResource(RStrings.my),
         scrollBehavior = scrollBehavior,
     )
 }
