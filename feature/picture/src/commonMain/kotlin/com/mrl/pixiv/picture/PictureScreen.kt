@@ -13,12 +13,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -138,11 +143,13 @@ import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.ListPopupColumn
 import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.basic.TopAppBarDefaults
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.icon.extended.Download
@@ -1187,58 +1194,55 @@ private fun PictureTopBar(
 ) {
     var showBottomMenu by rememberSaveable { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    TopAppBar(
-        title = "",
-        modifier = modifier,
-        color = Color.Transparent,
-        actions = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 15.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.CenterStart),
-                ) {
+    Box(modifier = modifier) {
+        TopAppBar(
+            title = "",
+            color = Color.Transparent,
+            navigationIcon = {
+                IconButton(onClick = onBack) {
                     Icon(
                         imageVector = MiuixIcons.Back,
                         contentDescription = null,
-                        modifier = Modifier.throttleClick { onBack() },
                     )
+                }
+                IconButton(onClick = popBackToHomeScreen) {
                     Icon(
                         imageVector = MiuixIcons.Home,
                         contentDescription = null,
-                        modifier = Modifier
-                            .padding(start = 15.dp)
-                            .throttleClick { popBackToHomeScreen() }
                     )
                 }
+            },
+            actions = {
                 if (!isIllustBlocked && !isUserBlocked) {
-                    // 分享按钮
-                    Icon(
-                        imageVector = MiuixIcons.More,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .throttleClick {
-                                showBottomMenu = true
-                            },
-                    )
-                    androidx.compose.animation.AnimatedVisibility(
-                        modifier = Modifier.align(Alignment.Center),
-                        visible = isBarVisible,
-                        enter = fadeIn(),
-                        exit = fadeOut(),
-                    ) {
-                        Text(
-                            text = "${currPage + 1}/${illust.pageCount}",
+                    IconButton(onClick = { showBottomMenu = true }) {
+                        Icon(
+                            imageVector = MiuixIcons.More,
+                            contentDescription = null,
                         )
                     }
                 }
+            },
+        )
+        if (!isIllustBlocked && !isUserBlocked) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Top))
+                    .height(TopAppBarDefaults.CollapsedHeight),
+                contentAlignment = Alignment.Center,
+            ) {
+                AnimatedVisibility(
+                    visible = isBarVisible,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                ) {
+                    Text(
+                        text = "${currPage + 1}/${illust.pageCount}",
+                    )
+                }
             }
-        },
-    )
+        }
+    }
     if (showBottomMenu) {
         OverlayBottomSheet(
             show = true,
