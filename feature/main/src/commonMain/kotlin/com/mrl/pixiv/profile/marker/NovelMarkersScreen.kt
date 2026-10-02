@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.BookmarkBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -44,6 +43,7 @@ import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.basic.rememberPullToRefreshState
+import top.yukonga.miuix.kmp.icon.MiuixIcons
 
 @Composable
 fun NovelMarkersScreen(
@@ -68,7 +68,7 @@ fun NovelMarkersScreen(
                 navigationIcon = {
                     IconButton(onClick = navigationManager::popBackStack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            imageVector = MiuixIcons.Back,
                             contentDescription = stringResource(RStrings.back),
                         )
                     }

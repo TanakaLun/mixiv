@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PersonOff
 import androidx.compose.runtime.Composable
@@ -105,6 +104,7 @@ import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowListPopup
 
@@ -142,7 +142,7 @@ fun ProfileDetailScreen(
                             onClick = { navigationManager.popBackStack() },
                         ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos,
+                                imageVector = MiuixIcons.Back,
                                 contentDescription = null,
                             )
                         }
@@ -496,7 +496,7 @@ private fun ProfileDetailAppBar(
         navigationIcon = {
             IconButton(onClick = onBack) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos,
+                    imageVector = MiuixIcons.Back,
                     contentDescription = null,
                 )
             }
