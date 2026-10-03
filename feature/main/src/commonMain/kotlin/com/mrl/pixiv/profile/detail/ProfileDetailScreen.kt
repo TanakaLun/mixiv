@@ -57,7 +57,6 @@ import com.mrl.pixiv.strings.block_user
 import com.mrl.pixiv.strings.cancel_user_blocked
 import com.mrl.pixiv.strings.followed
 import com.mrl.pixiv.strings.illust_and_manga_liked
-import com.mrl.pixiv.strings.illustration_count
 import com.mrl.pixiv.strings.illustration_works
 import com.mrl.pixiv.strings.manga
 import com.mrl.pixiv.strings.private_follow
@@ -87,7 +86,6 @@ import com.mrl.pixiv.strings.profile_workspace
 import com.mrl.pixiv.strings.profile_workspace_comment
 import com.mrl.pixiv.strings.report_user
 import com.mrl.pixiv.strings.user_blocked
-import com.mrl.pixiv.strings.view_all
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -233,10 +231,6 @@ fun ProfileDetailScreen(
                         // 插画、漫画网格组件
                         IllustWidget(
                             title = stringResource(RStrings.illustration_works),
-                            endText = stringResource(
-                                RStrings.illustration_count,
-                                userInfo.profile.totalIllusts
-                            ),
                             navToPictureScreen = navigationManager::navigateToPictureScreen,
                             illusts = state.userIllusts,
                             modifier = Modifier.fillMaxWidth(),
@@ -251,7 +245,6 @@ fun ProfileDetailScreen(
                     item(key = KEY_USER_MANGAS) {
                         IllustWidget(
                             title = stringResource(RStrings.manga),
-                            endText = stringResource(RStrings.view_all),
                             navToPictureScreen = navigationManager::navigateToPictureScreen,
                             illusts = state.userMangas,
                             modifier = Modifier.fillMaxWidth(),

@@ -1,6 +1,5 @@
 package com.mrl.pixiv.profile.detail.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,11 +26,8 @@ import com.mrl.pixiv.strings.novel_description
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.icon.MiuixIcons
-import top.yukonga.miuix.kmp.icon.extended.ExpandMore
 import top.yukonga.miuix.kmp.theme.LocalContentColor
 
 private const val MAX_SHOW_NOVEL_COUNT = 3
@@ -98,22 +94,10 @@ private fun NovelItem(
                         contentDescription = novel.title
                     )
                     if (moreOverlay) {
-                        Box(
-                            modifier = Modifier
-                                .matchParentSize()
-                                .background(Color.Black.copy(alpha = 0.35f))
-                                .throttleClick(onClick = onMoreOverlayClick),
-                        )
-                        IconButton(
+                        MoreOverlayCover(
                             onClick = onMoreOverlayClick,
-                            modifier = Modifier.align(Alignment.Center),
-                        ) {
-                            Icon(
-                                imageVector = MiuixIcons.ExpandMore,
-                                contentDescription = null,
-                                tint = Color.White,
-                            )
-                        }
+                            modifier = Modifier.matchParentSize(),
+                        )
                     }
                 }
                 Row(

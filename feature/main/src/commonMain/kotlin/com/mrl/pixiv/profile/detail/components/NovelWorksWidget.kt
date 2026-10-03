@@ -2,16 +2,12 @@ package com.mrl.pixiv.profile.detail.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,10 +17,9 @@ import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.throttleClick
 import com.mrl.pixiv.strings.novel_description
 import com.mrl.pixiv.strings.novels
-import com.mrl.pixiv.strings.view_all
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
-import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.LocalContentColor
 
@@ -44,39 +39,20 @@ fun NovelWorksWidget(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = stringResource(RStrings.novels),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.CenterStart),
-            )
-            Row(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .throttleClick(onClick = onAllClick),
-            ) {
-                Text(
-                    text = stringResource(RStrings.view_all),
-                    fontSize = 12.sp,
-                )
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .size(12.dp),
-                    tint = Color.Blue,
-                )
-            }
-        }
+        SmallTitle(
+            text = stringResource(RStrings.novels),
+            insideMargin = PaddingValues(horizontal = 0.dp),
+        )
         HorizontalDivider(modifier = Modifier.padding(top = 5.dp))
-        previewNovelWorks(novels).forEach { novel ->
+        val shownNovels = previewNovelWorks(novels)
+        shownNovels.forEachIndexed { index, novel ->
             NovelWorkPreviewItem(
                 novel = novel,
                 onNovelClick = onNovelClick,
                 onSeriesClick = onSeriesClick,
                 modifier = Modifier.padding(top = 10.dp),
+                moreOverlay = index == shownNovels.lastIndex,
+                onMoreOverlayClick = onAllClick,
             )
         }
     }
@@ -88,19 +64,29 @@ private fun NovelWorkPreviewItem(
     onNovelClick: (Long) -> Unit,
     onSeriesClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
+    moreOverlay: Boolean = false,
+    onMoreOverlayClick: () -> Unit = {},
 ) {
     val seriesId = novel.series.id?.takeIf { it > 0L }
     val seriesTitle = novel.series.title?.takeIf { it.isNotEmpty() }
 
     Column(modifier = modifier) {
         Row {
-            AsyncImage(
-                modifier = Modifier
-                    .size(width = 64.dp, height = 90.dp)
-                    .throttleClick { onNovelClick(novel.id) },
-                model = novel.imageUrls.medium,
-                contentDescription = novel.title,
-            )
+            Box {
+                AsyncImage(
+                    modifier = Modifier
+                        .size(width = 64.dp, height = 90.dp)
+                        .throttleClick { onNovelClick(novel.id) },
+                    model = novel.imageUrls.medium,
+                    contentDescription = novel.title,
+                )
+                if (moreOverlay) {
+                    MoreOverlayCover(
+                        onClick = onMoreOverlayClick,
+                        modifier = Modifier.matchParentSize(),
+                    )
+                }
+            }
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 if (seriesId != null && seriesTitle != null) {
                     Text(
