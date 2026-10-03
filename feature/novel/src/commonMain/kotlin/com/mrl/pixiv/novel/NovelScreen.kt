@@ -629,7 +629,8 @@ fun NovelScreen(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = stringResource(RStrings.chapter_previous)
+                            contentDescription = stringResource(RStrings.chapter_previous),
+                            tint = MiuixTheme.colorScheme.onPrimary,
                         )
                     }
                 }
@@ -644,7 +645,8 @@ fun NovelScreen(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Rounded.ArrowForward,
-                            contentDescription = stringResource(RStrings.chapter_next)
+                            contentDescription = stringResource(RStrings.chapter_next),
+                            tint = MiuixTheme.colorScheme.onPrimary,
                         )
                     }
                 }

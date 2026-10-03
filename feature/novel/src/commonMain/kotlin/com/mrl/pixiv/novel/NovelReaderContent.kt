@@ -443,13 +443,15 @@ internal fun NovelReaderContent(
             if (canScrollBack) {
                 FloatingActionButton(
                     onClick = { scrollScope.launch { listState.animateScrollToItem(0) } },
-                    minWidth = 48.dp,
-                    minHeight = 48.dp,
                     modifier = Modifier.align(Alignment.BottomEnd)
                         .padding(WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues())
                         .padding(end = 16.dp, bottom = 24.dp),
                 ) {
-                    Icon(Icons.Rounded.ArrowUpward, contentDescription = stringResource(RStrings.back_to_top))
+                    Icon(
+                        Icons.Rounded.ArrowUpward,
+                        contentDescription = stringResource(RStrings.back_to_top),
+                        tint = MiuixTheme.colorScheme.onPrimary,
+                    )
                 }
             }
             ReadingProgressIndicator(

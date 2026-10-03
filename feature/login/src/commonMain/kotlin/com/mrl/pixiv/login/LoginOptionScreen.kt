@@ -34,6 +34,7 @@ import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Settings
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun LoginOptionScreen(
@@ -50,7 +51,8 @@ fun LoginOptionScreen(
             ) {
                 Icon(
                     imageVector = MiuixIcons.Settings,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = MiuixTheme.colorScheme.onPrimary,
                 )
             }
         }

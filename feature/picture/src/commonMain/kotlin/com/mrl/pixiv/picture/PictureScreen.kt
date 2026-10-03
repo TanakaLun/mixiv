@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -47,6 +48,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -75,7 +77,6 @@ import com.mrl.pixiv.common.compose.layout.rememberSplitPaneState
 import com.mrl.pixiv.common.compose.ui.BlockSurface
 import com.mrl.pixiv.common.compose.ui.BookmarkIcon
 import com.mrl.pixiv.common.compose.ui.IllustBottomBookmarkSheet
-import com.mrl.pixiv.common.compose.ui.LongPressIconButton
 import com.mrl.pixiv.common.compose.ui.TagItem
 import com.mrl.pixiv.common.compose.ui.illust.RectangleIllustItem
 import com.mrl.pixiv.common.compose.ui.illust.SquareIllustItem
@@ -141,6 +142,7 @@ import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.FloatingActionButton
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
@@ -160,7 +162,6 @@ import top.yukonga.miuix.kmp.icon.extended.Messages
 import top.yukonga.miuix.kmp.icon.extended.More
 import top.yukonga.miuix.kmp.icon.extended.Share
 import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
-import top.yukonga.miuix.kmp.theme.LocalContentColor
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowListPopup
 import kotlin.time.Duration.Companion.seconds
@@ -782,23 +783,30 @@ internal fun PictureScreen(
             },
             floatingActionButton = {
                 if (!isAnyBlocked && showPreviewControls) {
-                    LongPressIconButton(
-                        onClick = throttleClick {
-                            val restrict =
-                                if (requireUserPreferenceValue.defaultPrivateBookmark) Restrict.PRIVATE else Restrict.PUBLIC
-                            onBookmarkClick(restrict, null)
-                        },
-                        onLongClick = { showAdvancedBookmark = true },
-                        modifier = Modifier
-                            .size(50.dp)
-                            .background(MiuixTheme.colorScheme.surfaceContainer, CircleShape),
+                    FloatingActionButton(
+                        onClick = {},
                     ) {
-                        BookmarkIcon(
-                            isBookmarked = isBookmarked,
-                            isPrivate = illust.isPrivateBookmark,
-                            iconSize = 35.dp,
-                            tint = if (isBookmarked) Color.Red else LocalContentColor.current,
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(CircleShape)
+                                .combinedClickable(
+                                    onClick = throttleClick {
+                                        val restrict =
+                                            if (requireUserPreferenceValue.defaultPrivateBookmark) Restrict.PRIVATE else Restrict.PUBLIC
+                                        onBookmarkClick(restrict, null)
+                                    },
+                                    onLongClick = { showAdvancedBookmark = true },
+                                ),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            BookmarkIcon(
+                                isBookmarked = isBookmarked,
+                                isPrivate = illust.isPrivateBookmark,
+                                iconSize = 35.dp,
+                                tint = if (isBookmarked) Color.Red else MiuixTheme.colorScheme.onPrimary,
+                            )
+                        }
                     }
                 }
             },

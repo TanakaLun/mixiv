@@ -22,6 +22,7 @@ import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import kotlinx.coroutines.launch
 import top.yukonga.miuix.kmp.basic.FloatingActionButton
 import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
 fun BackToTopButton(
@@ -55,7 +56,8 @@ fun BackToTopButton(
             ) {
                 Icon(
                     imageVector = Icons.Rounded.ArrowUpward,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = MiuixTheme.colorScheme.onPrimary,
                 )
             }
         } else {
@@ -65,7 +67,7 @@ fun BackToTopButton(
                     onRefresh()
                 }
             }
-            Spacer(modifier = Modifier.size(56.dp))
+            Spacer(modifier = Modifier.size(60.dp))
         }
     }
 }
