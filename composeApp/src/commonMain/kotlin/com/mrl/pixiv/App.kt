@@ -22,7 +22,7 @@ import com.mrl.pixiv.common.repository.VersionManager
 import com.mrl.pixiv.common.util.isDesktop
 import com.mrl.pixiv.common.util.platform
 import com.mrl.pixiv.common.viewmodel.asState
-import com.mrl.pixiv.navigation.Navigation3MainGraph
+import com.mrl.pixiv.navigation.AppNavGraph
 import com.mrl.pixiv.setting.network.AiLocalNetworkPermissionEffect
 import com.mrl.pixiv.splash.SplashViewModel
 import com.mrl.pixiv.theme.PiPixivTheme
@@ -70,7 +70,7 @@ fun App(
             key(appLanguage) {
                 val state = splashViewModel.asState()
                 state.startDestination?.let {
-                    Navigation3MainGraph(
+                    AppNavGraph(
                         startDestination = it,
                         modifier = modifier
                     )

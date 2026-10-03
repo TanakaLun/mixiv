@@ -549,5 +549,5 @@ val Any.TAG: String
 | 网络常量 | `common/data/.../data/Constants.kt` |
 | 全局 Repository | `common/repository/.../PixivRepository.kt` |
 | 网络客户端 | `common/network/.../KtorClient.kt` |
-| 主导航图 | `app/.../navigation/Navigation3MainGraph.kt` |
+| 主导航图 | `app/.../navigation/AppNavGraph.kt` |
 | 主界面 | `feature/main/.../MainScreen.kt` |

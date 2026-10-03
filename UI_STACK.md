@@ -85,7 +85,7 @@
 
 | 文件 | 职责 |
 |---|---|
-| `composeApp/.../navigation/Navigation3MainGraph.kt` | miuix `NavDisplay` 全局 entry 图（文件名沿用，内部已换） |
+| `composeApp/.../navigation/AppNavGraph.kt` | miuix `NavDisplay` 全局 entry 图（原名 Navigation3MainGraph，已改名） |
 | `common/core/.../router/Navigation.kt` / `NavigationRecord.kt` | `NavKey` 路由 + 唯一 contentKey |
 | `common/core/.../router/NavigationManager.kt` | `navBackStack`（`SnapshotStateList<NavKey>`）+ `replaceRecords` |
 | ~~`AdaptiveScene.kt`~~ | **已删除**（方案 A 取舍：失去 split-pane / shared element） |
@@ -106,7 +106,7 @@
 - exit: `fadeOut(tween(140))`
 - `suppressAnimation` 时为 `None`
 
-### 3.3 Entry 级覆盖（`Navigation3MainGraph.kt`）
+### 3.3 Entry 级覆盖（`AppNavGraph.kt`）
 
 | Destination | transitionSpec | predictivePop |
 |---|---|---|

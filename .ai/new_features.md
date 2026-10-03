@@ -153,7 +153,7 @@ fun navigateToNewFeatureScreen(someId: Long) {
 }
 ```
 
-**Step 3**：在 `app/.../navigation/Navigation3MainGraph.kt` 中注册 entry：
+**Step 3**：在 `app/.../navigation/AppNavGraph.kt` 中注册 entry：
 
 ```kotlin
 entry<Destination.NewFeature> {
@@ -363,7 +363,7 @@ val lazyItems = viewModel.items.collectAsLazyPagingItems()
 - [ ] Feature 模块结构正确（Screen / ViewModel / components 分离）
 - [ ] ViewModel 继承 `BaseMviViewModel`，使用 `@KoinViewModel` 注解
 - [ ] State 使用 `ImmutableList` 存储列表数据
-- [ ] 路由在 `Navigation.kt` 中定义，在 `NavigationManager` 中封装，在 `Navigation3MainGraph.kt` 中注册
+- [ ] 路由在 `Navigation.kt` 中定义，在 `NavigationManager` 中封装，在 `AppNavGraph.kt` 中注册
 
 ### 8.2 网络层
 - [ ] 新 API 接口定义在 `PixivApi.kt` 中

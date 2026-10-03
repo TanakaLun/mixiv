@@ -74,7 +74,7 @@ import top.yukonga.miuix.kmp.nav.transition.NavTransitions
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
-fun Navigation3MainGraph(
+fun AppNavGraph(
     startDestination: Destination,
     modifier: Modifier = Modifier,
     navigationManager: NavigationManager = koinInject { parametersOf(arrayOf(startDestination)) }
