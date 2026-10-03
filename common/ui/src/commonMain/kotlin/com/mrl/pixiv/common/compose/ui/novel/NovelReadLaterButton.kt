@@ -53,7 +53,7 @@ fun rememberNovelReadLaterController(
     }
     val item by itemFlow.collectAsStateWithLifecycle(initialValue = null)
     val scope = rememberCoroutineScope()
-    val toggle = {
+    val toggle: () -> Unit = {
         scope.launch {
             try {
                 if (item == null) {
@@ -119,7 +119,7 @@ fun NovelReadLaterButton(
     val resolvedTint = tint ?: if (controller.isAdded) {
         MiuixTheme.colorScheme.primary
     } else {
-        MiuixTheme.colorScheme.onSurfaceVariant
+        MiuixTheme.colorScheme.onSurfaceVariantSummary
     }
     IconButton(
         modifier = modifier,
