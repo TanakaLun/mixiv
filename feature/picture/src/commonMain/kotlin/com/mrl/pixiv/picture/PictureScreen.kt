@@ -788,7 +788,7 @@ internal fun PictureScreen(
                     ) {
                         Box(
                             modifier = Modifier
-                                .fillMaxSize()
+                                .size(60.dp)
                                 .clip(CircleShape)
                                 .combinedClickable(
                                     onClick = throttleClick {
