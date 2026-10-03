@@ -1,9 +1,5 @@
 package com.mrl.pixiv.novel
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterExitState
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,9 +35,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.dropShadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.TextLayoutResult
@@ -67,7 +60,6 @@ import com.mrl.pixiv.common.router.CommentType
 import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
-import com.mrl.pixiv.common.util.StatusBarVisibilityEffect
 import com.mrl.pixiv.common.viewmodel.asState
 import com.mrl.pixiv.strings.ai_translation_setting
 import com.mrl.pixiv.strings.back
@@ -214,14 +206,6 @@ fun NovelScreen(
         }
     }
 
-    // 沉浸逻辑: 滚动到正文区域时隐藏TopBar和FAB
-    val isContentVisible by remember(listState) {
-        derivedStateOf {
-            listState.layoutInfo.visibleItemsInfo.firstOrNull()?.key is Int // index
-        }
-    }
-    var manuallyShowTopBar by remember { mutableStateOf(false) }
-    val showBar = !isContentVisible || manuallyShowTopBar
     val readingProgressFraction by remember(
         state.novel?.id,
         state.paragraphs,
@@ -257,17 +241,6 @@ fun NovelScreen(
                 ?.let { it.index - paragraphStartIndex }
                 ?: 0
             markerPages.getOrElse(paragraphIndex) { 1 }
-        }
-    }
-
-    if (!paneInfo.isSplit) {
-        StatusBarVisibilityEffect(hidden = state.novel != null && !isNovelBlocked && !showBar)
-    }
-
-    LaunchedEffect(manuallyShowTopBar) {
-        if (manuallyShowTopBar) {
-            delay(3000.milliseconds) // 3秒后自动隐藏
-            manuallyShowTopBar = false
         }
     }
 
@@ -482,45 +455,147 @@ fun NovelScreen(
         )
     }
 
+    val scrollBehavior = MiuixScrollBehavior()
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        topBar = {
+            if (state.novel != null) {
+                TopAppBar(
+                    title = "",
+                    scrollBehavior = scrollBehavior,
+                    navigationIcon = {
+                        IconButton(onClick = navigationManager::popBackStack) {
+                            Icon(
+                                MiuixIcons.Back,
+                                contentDescription = stringResource(RStrings.back)
+                            )
+                        }
+                    },
+                    actions = {
+                        if (!isNovelBlocked) {
+                            if (state.isTranslating) {
+                                IconButton(
+                                    onClick = {
+                                        viewModel.dispatch(NovelIntent.CancelTranslation)
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = MiuixIcons.Close,
+                                        contentDescription = stringResource(RStrings.cancel)
+                                    )
+                                }
+                            } else if (!state.isTranslated) {
+                                IconButton(onClick = requestTranslation) {
+                                    Icon(
+                                        imageVector = MiuixIcons.Translate,
+                                        contentDescription = stringResource(
+                                            RStrings.translate_novel
+                                        )
+                                    )
+                                }
+                            }
+                            LongPressIconButton(
+                                onClick = { viewModel.dispatch(NovelIntent.ToggleBookmark) },
+                                onLongClick = { showBookmarkBottomSheet = true }
+                            ) {
+                                val isBookmark = state.novel.isBookmark
+                                BookmarkIcon(
+                                    isBookmarked = isBookmark,
+                                    isPrivate = state.novel.isPrivateBookmark,
+                                    bookmarkedImageVector = Icons.Rounded.Favorite,
+                                    unbookmarkedImageVector = Icons.Rounded.FavoriteBorder,
+                                    tint = LocalContentColor.current,
+                                    contentDescription = stringResource(RStrings.novel_collection),
+                                )
+                            }
+                            IconButton(
+                                onClick = {
+                                    viewModel.dispatch(
+                                        NovelIntent.ToggleMarker(currentMarkerPage)
+                                    )
+                                },
+                                enabled = !state.markerUpdating && !state.isTranslating,
+                            ) {
+                                if (state.markerUpdating) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(20.dp),
+                                        strokeWidth = 2.dp,
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = if (
+                                            state.markerPage == currentMarkerPage
+                                        ) {
+                                            Icons.Rounded.Bookmark
+                                        } else {
+                                            Icons.Rounded.BookmarkBorder
+                                        },
+                                        contentDescription = if (state.markerPage != null) {
+                                            stringResource(
+                                                RStrings.novel_marker_page,
+                                                state.markerPage,
+                                            )
+                                        } else {
+                                            stringResource(RStrings.novel_marker)
+                                        },
+                                    )
+                                }
+                            }
+                            IconButton(
+                                onClick = { showMetadataBottomSheet = true }
+                            ) {
+                                Icon(
+                                    MiuixIcons.Info,
+                                    contentDescription = stringResource(
+                                        RStrings.novel_work_information
+                                    )
+                                )
+                            }
+                            IconButton(
+                                onClick = { viewModel.dispatch(NovelIntent.ToggleBottomSheet) }
+                            ) {
+                                Icon(
+                                    MiuixIcons.More,
+                                    contentDescription = stringResource(RStrings.more)
+                                )
+                            }
+                        }
+                    },
+                )
+            }
+        },
         floatingActionButton = {
-            AnimatedVisibility(
-                visible = showBar,
-                enter = slideInVertically(initialOffsetY = { it }),
-                exit = slideOutVertically(targetOffsetY = { it })
+            Row(
+                horizontalArrangement = 8.spaceBy
             ) {
-                Row(
-                    horizontalArrangement = 8.spaceBy
-                ) {
-                    // 上一章按钮
-                    if (state.prevNovelId != null) {
-                        FloatingActionButton(
-                            onClick = {
-                                saveReadingProgress()
-                                viewModel.dispatch(NovelIntent.NavigateToChapter(state.prevNovelId))
-                            }
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Rounded.ArrowBack,
-                                contentDescription = stringResource(RStrings.chapter_previous)
-                            )
+                // 上一章按钮
+                if (state.prevNovelId != null) {
+                    FloatingActionButton(
+                        onClick = {
+                            saveReadingProgress()
+                            viewModel.dispatch(NovelIntent.NavigateToChapter(state.prevNovelId))
                         }
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Rounded.ArrowBack,
+                            contentDescription = stringResource(RStrings.chapter_previous)
+                        )
                     }
+                }
 
-                    // 下一章按钮
-                    if (state.nextNovelId != null) {
-                        FloatingActionButton(
-                            onClick = {
-                                saveReadingProgress()
-                                viewModel.dispatch(NovelIntent.NavigateToChapter(state.nextNovelId))
-                            }
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Rounded.ArrowForward,
-                                contentDescription = stringResource(RStrings.chapter_next)
-                            )
+                // 下一章按钮
+                if (state.nextNovelId != null) {
+                    FloatingActionButton(
+                        onClick = {
+                            saveReadingProgress()
+                            viewModel.dispatch(NovelIntent.NavigateToChapter(state.nextNovelId))
                         }
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Rounded.ArrowForward,
+                            contentDescription = stringResource(RStrings.chapter_next)
+                        )
                     }
                 }
             }
@@ -540,7 +615,7 @@ fun NovelScreen(
 
             state.novel != null -> {
                 Box(
-                    modifier = Modifier.padding(paddingValues),
+                    modifier = Modifier.padding(paddingValues).pageScrollModifiers(scrollBehavior),
                 ) {
                     if (isNovelBlocked) {
                         BlockSurface(
@@ -596,9 +671,6 @@ fun NovelScreen(
                                     readerContentWidthPx = width
                                 }
                             },
-                            onContentClick = {
-                                manuallyShowTopBar = !manuallyShowTopBar
-                            },
                             onTagClick = { tag ->
                                 navigationManager.navigateToSearchResultScreen(
                                     searchWord = tag,
@@ -639,122 +711,6 @@ fun NovelScreen(
                                     CommentType.NOVEL
                                 )
                             }
-                        )
-                    }
-                    AnimatedVisibility(
-                        visible = showBar,
-                        enter = slideInVertically(initialOffsetY = { -it }),
-                        exit = slideOutVertically(targetOffsetY = { -it })
-                    ) {
-                        val topBarColor = MiuixTheme.colorScheme.surface
-                        TopAppBar(
-                            title = "",
-                            modifier = Modifier.dropShadow(RectangleShape) {
-                                radius = 2f
-                                color = topBarColor
-                                val isExit = transition.currentState == EnterExitState.Visible &&
-                                        transition.targetState == EnterExitState.PostExit
-                                alpha = if (isContentVisible && !isExit) 1f else 0f
-                            },
-                            navigationIcon = {
-                                IconButton(onClick = navigationManager::popBackStack) {
-                                    Icon(
-                                        MiuixIcons.Back,
-                                        contentDescription = stringResource(RStrings.back)
-                                    )
-                                }
-                            },
-                            actions = {
-                                if (!isNovelBlocked) {
-                                    if (state.isTranslating) {
-                                        IconButton(
-                                            onClick = {
-                                                viewModel.dispatch(NovelIntent.CancelTranslation)
-                                            }
-                                        ) {
-                                            Icon(
-                                                imageVector = MiuixIcons.Close,
-                                                contentDescription = stringResource(RStrings.cancel)
-                                            )
-                                        }
-                                    } else if (!state.isTranslated) {
-                                        IconButton(onClick = requestTranslation) {
-                                            Icon(
-                                                imageVector = MiuixIcons.Translate,
-                                                contentDescription = stringResource(
-                                                    RStrings.translate_novel
-                                                )
-                                            )
-                                        }
-                                    }
-                                    LongPressIconButton(
-                                        onClick = { viewModel.dispatch(NovelIntent.ToggleBookmark) },
-                                        onLongClick = { showBookmarkBottomSheet = true }
-                                    ) {
-                                        val isBookmark = state.novel.isBookmark
-                                        BookmarkIcon(
-                                            isBookmarked = isBookmark,
-                                            isPrivate = state.novel.isPrivateBookmark,
-                                            bookmarkedImageVector = Icons.Rounded.Favorite,
-                                            unbookmarkedImageVector = Icons.Rounded.FavoriteBorder,
-                                            tint = LocalContentColor.current,
-                                            contentDescription = stringResource(RStrings.novel_collection),
-                                        )
-                                    }
-                                    IconButton(
-                                        onClick = {
-                                            viewModel.dispatch(
-                                                NovelIntent.ToggleMarker(currentMarkerPage)
-                                            )
-                                        },
-                                        enabled = !state.markerUpdating && !state.isTranslating,
-                                    ) {
-                                        if (state.markerUpdating) {
-                                            CircularProgressIndicator(
-                                                modifier = Modifier.size(20.dp),
-                                                strokeWidth = 2.dp,
-                                            )
-                                        } else {
-                                            Icon(
-                                                imageVector = if (
-                                                    state.markerPage == currentMarkerPage
-                                                ) {
-                                                    Icons.Rounded.Bookmark
-                                                } else {
-                                                    Icons.Rounded.BookmarkBorder
-                                                },
-                                                contentDescription = if (state.markerPage != null) {
-                                                    stringResource(
-                                                        RStrings.novel_marker_page,
-                                                        state.markerPage,
-                                                    )
-                                                } else {
-                                                    stringResource(RStrings.novel_marker)
-                                                },
-                                            )
-                                        }
-                                    }
-                                    IconButton(
-                                        onClick = { showMetadataBottomSheet = true }
-                                    ) {
-                                        Icon(
-                                            MiuixIcons.Info,
-                                            contentDescription = stringResource(
-                                                RStrings.novel_work_information
-                                            )
-                                        )
-                                    }
-                                    IconButton(
-                                        onClick = { viewModel.dispatch(NovelIntent.ToggleBottomSheet) }
-                                    ) {
-                                        Icon(
-                                            MiuixIcons.More,
-                                            contentDescription = stringResource(RStrings.more)
-                                        )
-                                    }
-                                }
-                            },
-                            color = Color.Transparent,
                         )
                     }
                 }
