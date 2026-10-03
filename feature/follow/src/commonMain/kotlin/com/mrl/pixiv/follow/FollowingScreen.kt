@@ -41,7 +41,6 @@ import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
-import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.SquareIllustItem
 import com.mrl.pixiv.common.compose.ui.image.UserAvatar
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
@@ -286,10 +285,6 @@ fun FollowingScreenBody(
                         )
                     }
                 }
-                VerticalScrollbar(
-                    state = lazyGridState,
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                )
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -321,10 +316,6 @@ fun FollowingScreenBody(
                         )
                     }
                 }
-                VerticalScrollbar(
-                    state = lazyListState,
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                )
             }
         }
     }

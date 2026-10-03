@@ -42,7 +42,6 @@ import com.mrl.pixiv.common.compose.layout.AdaptiveVerticalStaggeredGrid
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
-import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.RectangleIllustItem
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
@@ -421,10 +420,6 @@ fun SearchResultsScreen(
                                                 )
                                             }
                                         }
-                                        VerticalScrollbar(
-                                            state = squareIllustGridState,
-                                            modifier = Modifier.align(Alignment.CenterEnd),
-                                        )
                                     }
 
                                     SearchResultIllustLayout.ORIGINAL_ASPECT_RATIO -> {
@@ -490,10 +485,6 @@ fun SearchResultsScreen(
                                                 }
                                             }
                                         }
-                                        VerticalScrollbar(
-                                            state = originalAspectRatioIllustGridState,
-                                            modifier = Modifier.align(Alignment.CenterEnd),
-                                        )
                                     }
                                 }
                                 if (manualIllustResults != null && showPagingControls) {
@@ -629,10 +620,6 @@ fun SearchResultsScreen(
                                         }
                                     }
                                 }
-                                VerticalScrollbar(
-                                    state = novelsListState,
-                                    modifier = Modifier.align(Alignment.CenterEnd)
-                                )
                                 if (manualNovelResults != null && showPagingControls) {
                                     ManualPagingToolbar(
                                         state = manualNovelResults,
@@ -752,10 +739,6 @@ fun SearchResultsScreen(
                                 }
                             }
                         }
-                        VerticalScrollbar(
-                            state = usersListState,
-                            modifier = Modifier.align(Alignment.CenterEnd)
-                        )
                         if (manualUserResults != null && showPagingControls) {
                             ManualPagingToolbar(
                                 state = manualUserResults,

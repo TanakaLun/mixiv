@@ -41,7 +41,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.mrl.pixiv.common.compose.IllustGridDefaults
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
-import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
@@ -284,10 +283,6 @@ private fun IllustHistoryPage(
             showDisabledShortcut = showDisabledShortcut,
             onOpenHistorySettings = onOpenHistorySettings,
         )
-        VerticalScrollbar(
-            state = lazyGridState,
-            modifier = Modifier.align(Alignment.CenterEnd)
-        )
     }
 }
 
@@ -344,10 +339,6 @@ private fun NovelHistoryPage(
             isEmpty = novels.itemCount == 0,
             showDisabledShortcut = showDisabledShortcut,
             onOpenHistorySettings = onOpenHistorySettings,
-        )
-        VerticalScrollbar(
-            state = lazyListState,
-            modifier = Modifier.align(Alignment.CenterEnd)
         )
     }
 }

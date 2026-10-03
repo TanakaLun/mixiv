@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
@@ -172,10 +171,6 @@ fun NovelMarkersScreen(
                                 }
                             }
                         }
-                        VerticalScrollbar(
-                            state = listState,
-                            modifier = Modifier.align(Alignment.CenterEnd),
-                        )
                     }
                 }
             }

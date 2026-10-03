@@ -15,7 +15,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -23,7 +22,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
-import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
@@ -266,10 +264,6 @@ private fun HomeImageFeedPage(
                 recommendImageList = recommendImageList,
                 navToPictureScreen = navigateToPictureScreen,
                 lazyStaggeredGridState = lazyStaggeredGridState,
-            )
-            VerticalScrollbar(
-                state = lazyStaggeredGridState,
-                modifier = Modifier.align(Alignment.CenterEnd)
             )
         }
     }

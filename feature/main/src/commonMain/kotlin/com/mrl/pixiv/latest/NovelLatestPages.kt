@@ -34,7 +34,6 @@ import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
-import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
 import com.mrl.pixiv.common.data.Novel
@@ -160,10 +159,6 @@ private fun NovelFeedPage(
                     onRetry = pagingItems::retry,
                 )
             }
-            VerticalScrollbar(
-                state = listState,
-                modifier = Modifier.align(Alignment.CenterEnd),
-            )
         }
     }
 }
@@ -262,10 +257,6 @@ fun NovelWatchlistPage(
                     onRetry = watchlist::retry,
                 )
             }
-            VerticalScrollbar(
-                state = listState,
-                modifier = Modifier.align(Alignment.CenterEnd),
-            )
         }
     }
 }

@@ -37,7 +37,6 @@ import com.mrl.pixiv.common.compose.layout.AdaptiveVerticalStaggeredGrid
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
-import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
@@ -341,10 +340,6 @@ private fun IllustMode(
                 navToPictureScreen = navigateToPictureScreen
             )
         }
-        VerticalScrollbar(
-            state = lazyStaggeredGridState,
-            modifier = Modifier.align(Alignment.CenterEnd)
-        )
         }
     }
 }
@@ -416,10 +411,6 @@ private fun NovelMode(
                 }
             }
         }
-        VerticalScrollbar(
-            state = lazyListState,
-            modifier = Modifier.align(Alignment.CenterEnd)
-        )
         }
     }
 }

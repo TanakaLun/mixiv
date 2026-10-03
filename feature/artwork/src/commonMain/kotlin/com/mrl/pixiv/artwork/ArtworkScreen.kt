@@ -28,7 +28,6 @@ import com.mrl.pixiv.common.compose.IllustGridDefaults
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
-import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
@@ -234,10 +233,6 @@ private fun UserIllustPage(
                     navToPictureScreen = navToPictureScreen,
                 )
             }
-            VerticalScrollbar(
-                state = gridState,
-                modifier = Modifier.align(androidx.compose.ui.Alignment.CenterEnd)
-            )
         }
     }
 }
@@ -285,10 +280,6 @@ private fun UserNovelPage(
                     }
                 }
             }
-            VerticalScrollbar(
-                state = listState,
-                modifier = Modifier.align(androidx.compose.ui.Alignment.CenterEnd)
-            )
         }
     }
 }

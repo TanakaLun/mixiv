@@ -21,7 +21,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.image.UserAvatar
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
@@ -274,10 +273,6 @@ fun NovelSeriesScreen(
                         else -> Unit
                     }
                 }
-                VerticalScrollbar(
-                    state = listState,
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                )
             }
         }
     }

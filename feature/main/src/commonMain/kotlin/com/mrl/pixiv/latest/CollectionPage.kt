@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -18,7 +17,6 @@ import com.mrl.pixiv.common.compose.RecommendGridDefaults
 import com.mrl.pixiv.common.compose.layout.AdaptiveVerticalStaggeredGrid
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
-import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.RectangleIllustItem
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
@@ -145,10 +143,6 @@ private fun CollectionIllustPage(
                     )
                 }
             }
-            VerticalScrollbar(
-                state = lazyGridState,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            )
         }
     }
 }
@@ -217,10 +211,6 @@ private fun CollectionNovelPage(
                     }
                 }
             }
-            VerticalScrollbar(
-                state = lazyListState,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            )
         }
     }
 }

@@ -1,26 +1,19 @@
 package com.mrl.pixiv
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import co.touchlab.kermit.Severity
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
-import com.mrl.pixiv.common.compose.ui.LocalScrollbarStyle
-import com.mrl.pixiv.common.compose.ui.defaultScrollbarStyle
 import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.repository.VersionManager
-import com.mrl.pixiv.common.util.isDesktop
-import com.mrl.pixiv.common.util.platform
 import com.mrl.pixiv.common.viewmodel.asState
 import com.mrl.pixiv.navigation.AppNavGraph
 import com.mrl.pixiv.setting.network.AiLocalNetworkPermissionEffect
@@ -35,7 +28,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import okio.Path.Companion.toPath
 import org.koin.compose.viewmodel.koinViewModel
-import top.yukonga.miuix.kmp.theme.MiuixTheme
 import co.touchlab.kermit.Logger as KermitLogger
 import coil3.util.Logger as CoilLogger
 import coil3.util.Logger.Level as CoilLogLevel
@@ -59,22 +51,13 @@ fun App(
     }
 
     PiPixivTheme {
-        val primary = MiuixTheme.colorScheme.primary
-        val scrollbarStyle = remember(primary) {
-            defaultScrollbarStyle().copy(
-                unhoverColor = if (platform.isDesktop()) primary.copy(alpha = 0.364f) else Color.Transparent,
-                hoverColor = primary
-            )
-        }
-        CompositionLocalProvider(LocalScrollbarStyle provides scrollbarStyle) {
-            key(appLanguage) {
-                val state = splashViewModel.asState()
-                state.startDestination?.let {
-                    AppNavGraph(
-                        startDestination = it,
-                        modifier = modifier
-                    )
-                }
+        key(appLanguage) {
+            val state = splashViewModel.asState()
+            state.startDestination?.let {
+                AppNavGraph(
+                    startDestination = it,
+                    modifier = modifier
+                )
             }
         }
     }

@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -33,7 +32,6 @@ import com.mrl.pixiv.common.compose.IllustGridDefaults
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
-import com.mrl.pixiv.common.compose.ui.VerticalScrollbar
 import com.mrl.pixiv.common.compose.ui.illust.illustGrid
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
@@ -227,10 +225,6 @@ fun CollectionScreen(
                                     navToPictureScreen = navigationManager::navigateToPictureScreen,
                                 )
                             }
-                            VerticalScrollbar(
-                                state = lazyGridState,
-                                modifier = Modifier.align(Alignment.CenterEnd)
-                            )
                         }
                     }
                 }
@@ -281,10 +275,6 @@ fun CollectionScreen(
                                     }
                                 }
                             }
-                            VerticalScrollbar(
-                                state = lazyListState,
-                                modifier = Modifier.align(Alignment.CenterEnd)
-                            )
                         }
                     }
                 }
