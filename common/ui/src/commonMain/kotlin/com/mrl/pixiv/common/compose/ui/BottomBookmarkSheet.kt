@@ -30,7 +30,6 @@ import com.mrl.pixiv.common.data.Novel
 import com.mrl.pixiv.common.data.Restrict
 import com.mrl.pixiv.common.data.illust.BookmarkDetailTag
 import com.mrl.pixiv.common.kts.HSpacer
-import com.mrl.pixiv.common.kts.spaceBy
 import com.mrl.pixiv.common.repository.PixivRepository
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.BookmarkState
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.isBookmark
@@ -269,12 +268,11 @@ private fun BottomBookmarkSheet(
                     }
                 }
 
-                Row(
+                Column(
                     modifier = Modifier
-                        .align(Alignment.End)
+                        .fillMaxWidth()
                         .padding(8.dp),
-                    horizontalArrangement = 8f.spaceBy,
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Button(
                         onClick = throttleClick {
@@ -285,7 +283,7 @@ private fun BottomBookmarkSheet(
                             )
                             hideBottomSheet()
                         },
-                        modifier = Modifier,
+                        modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColorsPrimary(),
                     ) {
                         BookmarkIcon(
@@ -306,6 +304,7 @@ private fun BottomBookmarkSheet(
                                 onBookmarkClick(Restrict.PUBLIC, null, false)
                                 hideBottomSheet()
                             },
+                            modifier = Modifier.padding(top = 4.dp),
                         )
                     }
                 }

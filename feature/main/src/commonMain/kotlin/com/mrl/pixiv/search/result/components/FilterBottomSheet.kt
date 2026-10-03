@@ -35,7 +35,10 @@ import com.mrl.pixiv.strings.tags_partially_match
 import com.mrl.pixiv.strings.title_and_description
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.Card
-import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Ok
 import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
 import top.yukonga.miuix.kmp.preference.RadioButtonPreference
 import top.yukonga.miuix.kmp.preference.SwitchPreference
@@ -58,13 +61,17 @@ internal fun FilterBottomSheet(
         backgroundColor = MiuixTheme.colorScheme.background,
         title = stringResource(RStrings.filter),
         endAction = {
-            TextButton(
-                text = stringResource(RStrings.apply),
+            IconButton(
                 onClick = {
                     onUpdateFilter(innerSearchFilter)
                     onDismissRequest()
                 },
-            )
+            ) {
+                Icon(
+                    imageVector = MiuixIcons.Ok,
+                    contentDescription = stringResource(RStrings.apply),
+                )
+            }
         },
     ) {
         val searchTargetMap = remember(isNovelMode) {
