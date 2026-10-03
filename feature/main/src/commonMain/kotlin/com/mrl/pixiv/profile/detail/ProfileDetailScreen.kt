@@ -280,7 +280,6 @@ item(key = KEY_USER_BOOKMARKS_ILLUSTS) {
                         onAllClick = {
                             navigationManager.navigateToCollectionScreen(uid)
                         },
-                        moreOverlayInLastCell = true,
                     )
                 }
                 }
