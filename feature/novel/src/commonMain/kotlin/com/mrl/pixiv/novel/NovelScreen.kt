@@ -101,7 +101,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
@@ -110,7 +109,6 @@ import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.Slider
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
@@ -126,6 +124,8 @@ import top.yukonga.miuix.kmp.icon.extended.Settings
 import top.yukonga.miuix.kmp.icon.extended.Share
 import top.yukonga.miuix.kmp.icon.extended.Translate
 import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
+import top.yukonga.miuix.kmp.preference.ArrowPreference
+import top.yukonga.miuix.kmp.preference.SliderPreference
 import top.yukonga.miuix.kmp.theme.LocalContentColor
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import kotlin.math.roundToInt
@@ -900,37 +900,27 @@ private fun NovelBottomSheetContent(
             .verticalScroll(rememberScrollState()),
     ) {
         Card(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-            // 字号调整
-            BasicComponent(
+            SliderPreference(
                 title = stringResource(RStrings.font_size_value, state.fontSize),
-                bottomAction = {
-                    Slider(
-                        value = state.fontSize.toFloat(),
-                        onValueChange = { onFontSizeChange(it.roundToInt()) },
-                        valueRange = 10f..32f,
-                        steps = 21
-                    )
-                },
+                value = state.fontSize.toFloat(),
+                onValueChange = { onFontSizeChange(it.roundToInt()) },
+                valueRange = 10f..32f,
+                steps = 21,
             )
-
-            // 行间距调整
-            BasicComponent(
+            SliderPreference(
                 title = stringResource(
                     RStrings.line_spacing_value,
                     (if (state.lineSpacingSp >= 0) "+" else "") + state.lineSpacingSp.toString()
                 ),
-                bottomAction = {
-                    Slider(
-                        value = state.lineSpacingSp.toFloat(),
-                        onValueChange = { onLineSpacingChange(it.roundToInt()) },
-                        valueRange = -10f..10f,
-                        steps = 19
-                    )
-                },
+                value = state.lineSpacingSp.toFloat(),
+                onValueChange = { onLineSpacingChange(it.roundToInt()) },
+                valueRange = -10f..10f,
+                steps = 19,
             )
+        }
 
-            // 导出按钮
-            BasicComponent(
+        Card(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+            ArrowPreference(
                 title = stringResource(RStrings.export_txt_button),
                 startAction = {
                     Icon(
@@ -940,9 +930,7 @@ private fun NovelBottomSheetContent(
                 },
                 onClick = rememberThrottleClick(onClick = onExport),
             )
-
-            // 分享按钮
-            BasicComponent(
+            ArrowPreference(
                 title = stringResource(RStrings.share_link),
                 startAction = {
                     Icon(
@@ -952,9 +940,8 @@ private fun NovelBottomSheetContent(
                 },
                 onClick = rememberThrottleClick(onClick = onShare),
             )
-
             state.novel?.let { novel ->
-                BasicComponent(
+                ArrowPreference(
                     title = stringResource(RStrings.read_later),
                     endActions = {
                         NovelReadLaterButton(
@@ -964,9 +951,8 @@ private fun NovelBottomSheetContent(
                     },
                 )
             }
-
             if (state.isTranslated && !state.isTranslating) {
-                BasicComponent(
+                ArrowPreference(
                     title = stringResource(RStrings.regenerate_translation),
                     startAction = {
                         Icon(
@@ -976,8 +962,7 @@ private fun NovelBottomSheetContent(
                     },
                     onClick = rememberThrottleClick(onClick = onRegenerateTranslation),
                 )
-
-                BasicComponent(
+                ArrowPreference(
                     title = stringResource(
                         if (state.isShowingOriginalText) {
                             RStrings.show_translated_text
@@ -1003,8 +988,7 @@ private fun NovelBottomSheetContent(
                     },
                     onClick = rememberThrottleClick(onClick = onToggleDisplayedText),
                 )
-
-                BasicComponent(
+                ArrowPreference(
                     title = stringResource(RStrings.delete_translation),
                     startAction = {
                         Icon(
@@ -1015,8 +999,7 @@ private fun NovelBottomSheetContent(
                     onClick = rememberThrottleClick(onClick = onDeleteTranslation),
                 )
             }
-
-            BasicComponent(
+            ArrowPreference(
                 title = stringResource(
                     if (isNovelBlocked) RStrings.show_novel else RStrings.hide_novel
                 ),
@@ -1030,8 +1013,7 @@ private fun NovelBottomSheetContent(
                 },
                 onClick = rememberThrottleClick(onClick = onBlockNovel),
             )
-
-            BasicComponent(
+            ArrowPreference(
                 title = stringResource(RStrings.ai_translation_setting),
                 startAction = {
                     Icon(
