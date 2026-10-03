@@ -1,5 +1,6 @@
 package com.mrl.pixiv.novel
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +37,11 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.TextLayoutResult
@@ -42,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import co.touchlab.kermit.Logger
+import com.mrl.pixiv.common.animation.DefaultFloatAnimationSpec
 import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.compose.ui.BlockSurface
@@ -459,12 +467,52 @@ fun NovelScreen(
 
     val scrollBehavior = MiuixScrollBehavior()
 
+    var isTopAppBarHidden by remember(state.novel?.id) { mutableStateOf(false) }
+    var scrollAccum by remember(state.novel?.id) { mutableFloatStateOf(0f) }
+    val topAppBarFadeThresholdPx = with(density) { 8.dp.toPx() }
+    val appBarAlpha by animateFloatAsState(
+        targetValue = if (isTopAppBarHidden) 0f else 1f,
+        animationSpec = DefaultFloatAnimationSpec,
+    )
+    val topAppBarFadeConnection = remember(state.novel?.id) {
+        object : NestedScrollConnection {
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource,
+            ): Offset {
+                if (source == NestedScrollSource.Fling || source == NestedScrollSource.UserInput) {
+                    if (consumed.y > 0f) {
+                        scrollAccum = if (scrollAccum >= 0f) scrollAccum + consumed.y else consumed.y
+                        if (scrollAccum >= topAppBarFadeThresholdPx) isTopAppBarHidden = true
+                    } else if (consumed.y < 0f) {
+                        scrollAccum = if (scrollAccum <= 0f) scrollAccum + consumed.y else consumed.y
+                        if (scrollAccum <= -topAppBarFadeThresholdPx) isTopAppBarHidden = false
+                    }
+                }
+                return Offset.Zero
+            }
+        }
+    }
+
+    LaunchedEffect(listState, state.novel?.id) {
+        snapshotFlow {
+            listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
+        }.collect { atTop ->
+            if (atTop) {
+                scrollAccum = 0f
+                isTopAppBarHidden = false
+            }
+        }
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             if (state.novel != null) {
                 TopAppBar(
                     title = "",
+                    modifier = Modifier.graphicsLayer { alpha = appBarAlpha },
                     scrollBehavior = scrollBehavior,
                     navigationIcon = {
                         IconButton(onClick = navigationManager::popBackStack) {
@@ -617,7 +665,9 @@ fun NovelScreen(
 
             state.novel != null -> {
                 Box(
-                    modifier = Modifier.padding(paddingValues).pageScrollModifiers(scrollBehavior),
+                    modifier = Modifier.padding(paddingValues)
+                        .pageScrollModifiers(scrollBehavior)
+                        .nestedScroll(topAppBarFadeConnection),
                 ) {
                     if (isNovelBlocked) {
                         BlockSurface(
