@@ -1199,17 +1199,19 @@ private fun PictureTopBar(
             title = "",
             color = Color.Transparent,
             navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        imageVector = MiuixIcons.Back,
-                        contentDescription = null,
-                    )
-                }
-                IconButton(onClick = popBackToHomeScreen) {
-                    Icon(
-                        imageVector = MiuixIcons.Home,
-                        contentDescription = null,
-                    )
+                Row {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = MiuixIcons.Back,
+                            contentDescription = null,
+                        )
+                    }
+                    IconButton(onClick = popBackToHomeScreen) {
+                        Icon(
+                            imageVector = MiuixIcons.Home,
+                            contentDescription = null,
+                        )
+                    }
                 }
             },
             actions = {
