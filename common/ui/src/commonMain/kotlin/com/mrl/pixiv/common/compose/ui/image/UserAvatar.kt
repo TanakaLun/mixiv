@@ -1,7 +1,9 @@
 package com.mrl.pixiv.common.compose.ui.image
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -20,7 +22,12 @@ fun UserAvatar(
     contentScale: ContentScale = ContentScale.Crop,
 ) {
     if (url.isEmpty()) {
-        CircularProgressIndicator(modifier)
+        Box(
+            modifier = modifier,
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator()
+        }
     } else {
         LoadingImage(
             model = ImageRequest.Builder(LocalPlatformContext.current)
@@ -33,7 +40,9 @@ fun UserAvatar(
                 .clip(CircleShape)
                 .throttleClick(onClick = onClick),
             loadingContent = {
-                CircularProgressIndicator(modifier)
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                )
             }
         )
     }
