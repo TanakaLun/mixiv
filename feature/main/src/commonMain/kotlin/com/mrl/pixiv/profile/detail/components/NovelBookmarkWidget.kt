@@ -1,14 +1,15 @@
 package com.mrl.pixiv.profile.detail.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,11 +24,14 @@ import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.throttleClick
 import com.mrl.pixiv.strings.novel_collection
 import com.mrl.pixiv.strings.novel_description
-import com.mrl.pixiv.strings.view_all
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.ExpandMore
 import top.yukonga.miuix.kmp.theme.LocalContentColor
 
 private const val MAX_SHOW_NOVEL_COUNT = 3
@@ -43,45 +47,23 @@ fun NovelBookmarkWidget(
     Column(
         modifier = modifier
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 20.dp)
-        ) {
-            Text(
-                text = stringResource(RStrings.novel_collection),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.CenterStart)
-            )
-            Row(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .throttleClick(onClick = onAllClick)
-            ) {
-                Text(
-                    text = stringResource(RStrings.view_all),
-                    fontSize = 12.sp,
-                )
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .size(12.dp),
-                    tint = Color.Blue
-                )
-            }
-        }
+        SmallTitle(
+            text = stringResource(RStrings.novel_collection),
+            modifier = Modifier.padding(top = 20.dp),
+            insideMargin = PaddingValues(horizontal = 0.dp),
+        )
         HorizontalDivider(
             modifier = Modifier.padding(top = 5.dp)
         )
-        novels.take(MAX_SHOW_NOVEL_COUNT).forEach {
+        val shownNovels = novels.take(MAX_SHOW_NOVEL_COUNT)
+        shownNovels.forEachIndexed { index, novel ->
             NovelItem(
-                novel = it,
+                novel = novel,
                 onNovelClick = onNovelClick,
                 onSeriesClick = onSeriesClick,
-                modifier = Modifier.padding(top = 10.dp)
+                modifier = Modifier.padding(top = 10.dp),
+                moreOverlay = index == shownNovels.lastIndex,
+                onMoreOverlayClick = onAllClick,
             )
         }
     }
@@ -92,7 +74,9 @@ private fun NovelItem(
     novel: Novel,
     onNovelClick: (Long) -> Unit,
     onSeriesClick: (Long) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    moreOverlay: Boolean = false,
+    onMoreOverlayClick: () -> Unit = {},
 ) {
     val seriesId = novel.series.id?.takeIf { it > 0L }
     val seriesTitle = novel.series.title?.takeIf { it.isNotEmpty() }
@@ -107,11 +91,31 @@ private fun NovelItem(
                 modifier = Modifier.padding(start = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                AsyncImage(
-                    modifier = Modifier.height(90.dp),
-                    model = novel.imageUrls.medium,
-                    contentDescription = novel.title
-                )
+                Box {
+                    AsyncImage(
+                        modifier = Modifier.height(90.dp),
+                        model = novel.imageUrls.medium,
+                        contentDescription = novel.title
+                    )
+                    if (moreOverlay) {
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .background(Color.Black.copy(alpha = 0.35f))
+                                .throttleClick(onClick = onMoreOverlayClick),
+                        )
+                        IconButton(
+                            onClick = onMoreOverlayClick,
+                            modifier = Modifier.align(Alignment.Center),
+                        ) {
+                            Icon(
+                                imageVector = MiuixIcons.ExpandMore,
+                                contentDescription = null,
+                                tint = Color.White,
+                            )
+                        }
+                    }
+                }
                 Row(
                     modifier = Modifier.padding(top = 5.dp),
                     verticalAlignment = Alignment.CenterVertically

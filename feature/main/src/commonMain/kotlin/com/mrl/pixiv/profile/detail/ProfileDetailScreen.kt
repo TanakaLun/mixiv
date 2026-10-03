@@ -277,19 +277,19 @@ fun ProfileDetailScreen(
                     }
                 }
                 if (state.userBookmarksIllusts.isNotEmpty()) {
-                    item(key = KEY_USER_BOOKMARKS_ILLUSTS) {
-                        // 插画、漫画收藏网格组件
-                        IllustWidget(
-                            title = stringResource(RStrings.illust_and_manga_liked),
-                            endText = stringResource(RStrings.view_all),
-                            navToPictureScreen = navigationManager::navigateToPictureScreen,
-                            illusts = state.userBookmarksIllusts,
-                            modifier = Modifier.fillMaxWidth(),
-                            onAllClick = {
-                                navigationManager.navigateToCollectionScreen(uid)
-                            }
-                        )
-                    }
+item(key = KEY_USER_BOOKMARKS_ILLUSTS) {
+                    // 插画、漫画收藏网格组件
+                    IllustWidget(
+                        title = stringResource(RStrings.illust_and_manga_liked),
+                        navToPictureScreen = navigationManager::navigateToPictureScreen,
+                        illusts = state.userBookmarksIllusts,
+                        modifier = Modifier.fillMaxWidth(),
+                        onAllClick = {
+                            navigationManager.navigateToCollectionScreen(uid)
+                        },
+                        moreOverlayInLastCell = true,
+                    )
+                }
                 }
                 item(key = KEY_USER_BOOKMARKS_NOVELS) {
                     if (state.userBookmarksNovels.isNotEmpty()) {
