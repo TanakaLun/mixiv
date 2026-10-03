@@ -61,7 +61,8 @@ import com.mrl.pixiv.common.compose.ui.BlockSurface
 import com.mrl.pixiv.common.compose.ui.BookmarkIcon
 import com.mrl.pixiv.common.compose.ui.LongPressIconButton
 import com.mrl.pixiv.common.compose.ui.NovelBottomBookmarkSheet
-import com.mrl.pixiv.common.compose.ui.novel.NovelReadLaterButton
+import com.mrl.pixiv.common.compose.ui.novel.NovelReadLaterIcon
+import com.mrl.pixiv.common.compose.ui.novel.rememberNovelReadLaterController
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.kts.spaceBy
@@ -946,14 +947,20 @@ private fun NovelBottomSheetContent(
                 onClick = rememberThrottleClick(onClick = onShare),
             )
             state.novel?.let { novel ->
+                val readLater = rememberNovelReadLaterController(novel)
                 ArrowPreference(
                     title = stringResource(RStrings.read_later),
-                    endActions = {
-                        NovelReadLaterButton(
-                            novel = novel,
-                            tint = LocalContentColor.current,
+                    startAction = {
+                        NovelReadLaterIcon(
+                            isAdded = readLater.isAdded,
+                            tint = if (readLater.isAdded) {
+                                MiuixTheme.colorScheme.primary
+                            } else {
+                                LocalContentColor.current
+                            },
                         )
                     },
+                    onClick = readLater.toggle,
                 )
             }
             if (state.isTranslated && !state.isTranslating) {

@@ -1,10 +1,13 @@
 package com.mrl.pixiv.setting.download
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,19 +16,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Error
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.datasource.local.entity.DownloadEntity
 import com.mrl.pixiv.common.datasource.local.entity.DownloadStatus
@@ -35,6 +39,7 @@ import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.throttleClick
 import com.mrl.pixiv.common.viewmodel.asState
 import com.mrl.pixiv.strings.delete
+import com.mrl.pixiv.strings.deleted
 import com.mrl.pixiv.strings.download_manager
 import com.mrl.pixiv.strings.retry
 import com.mrl.pixiv.strings.status_all
@@ -54,6 +59,9 @@ import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Delete
+import top.yukonga.miuix.kmp.icon.extended.Ok
+import top.yukonga.miuix.kmp.icon.extended.Refresh
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
@@ -140,12 +148,43 @@ fun DownloadItem(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AsyncImage(
-                model = item.thumbnailUrl,
-                contentDescription = null,
-                modifier = Modifier.size(100.dp),
-                contentScale = ContentScale.Crop
-            )
+            Box(modifier = Modifier.size(100.dp)) {
+                val isSuccess = item.status == DownloadStatus.SUCCESS.value
+                val model = remember(isSuccess, item.fileUri, item.filePath) {
+                    when {
+                        isSuccess && item.fileUri.isNotBlank() -> item.fileUri
+                        isSuccess && item.filePath.isNotBlank() -> item.filePath
+                        else -> item.thumbnailUrl
+                    }
+                }
+                var loadFailed by remember(model) { mutableStateOf(false) }
+                AsyncImage(
+                    model = model,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                    onState = { state ->
+                        val failed = state is AsyncImagePainter.State.Error
+                        if (failed != loadFailed) {
+                            loadFailed = failed
+                        }
+                    }
+                )
+                if (isSuccess && loadFailed) {
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(Color.Black.copy(alpha = 0.5f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = stringResource(RStrings.deleted),
+                            color = Color.White,
+                            style = MiuixTheme.textStyles.footnote2,
+                        )
+                    }
+                }
+            }
             Spacer(modifier = Modifier.width(8.dp))
             Column(
                 modifier = Modifier
@@ -173,9 +212,9 @@ fun DownloadItem(
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         val (icon, tint) = when (item.status) {
-                            DownloadStatus.SUCCESS.value -> Icons.Rounded.CheckCircle to MiuixTheme.colorScheme.primary
+                            DownloadStatus.SUCCESS.value -> MiuixIcons.Ok to MiuixTheme.colorScheme.primary
                             DownloadStatus.FAILED.value -> Icons.Rounded.Error to MiuixTheme.colorScheme.error
-                            else -> Icons.Rounded.CheckCircle to MiuixTheme.colorScheme.onSurface
+                            else -> MiuixIcons.Ok to MiuixTheme.colorScheme.onSurface
                         }
                         Icon(
                             imageVector = icon,
@@ -202,14 +241,14 @@ fun DownloadItem(
                 if (item.status == DownloadStatus.FAILED.value) {
                     IconButton(onClick = onRetry) {
                         Icon(
-                            imageVector = Icons.Rounded.Refresh,
+                            imageVector = MiuixIcons.Refresh,
                             contentDescription = stringResource(RStrings.retry)
                         )
                     }
                 }
                 IconButton(onClick = onDelete) {
                     Icon(
-                        imageVector = Icons.Rounded.Delete,
+                        imageVector = MiuixIcons.Delete,
                         contentDescription = stringResource(RStrings.delete)
                     )
                 }

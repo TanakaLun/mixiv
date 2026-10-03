@@ -28,14 +28,19 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.theme.LocalContentColor
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+
+data class NovelReadLaterController(
+    val isAdded: Boolean,
+    val toggle: () -> Unit,
+)
 
 @Composable
-fun NovelReadLaterButton(
+fun rememberNovelReadLaterController(
     novel: Novel,
-    modifier: Modifier = Modifier,
-    tint: Color = Color.Unspecified,
     repository: NovelReadLaterRepository = koinInject(),
-) {
+): NovelReadLaterController {
     val preference by requireUserPreferenceFlow.collectAsStateWithLifecycle()
     val targetLanguage = preference.appLanguage
         ?.takeIf { it.isNotBlank() }
@@ -48,56 +53,88 @@ fun NovelReadLaterButton(
     }
     val item by itemFlow.collectAsStateWithLifecycle(initialValue = null)
     val scope = rememberCoroutineScope()
-    IconButton(
-        modifier = modifier,
-        onClick = {
-            scope.launch {
-                try {
-                    if (item == null) {
-                        repository.enqueue(
-                            novel = novel,
-                            targetLanguage = targetLanguage,
-                        )
-                    } else {
-                        repository.remove(
-                            novelId = novel.id,
-                            targetLanguage = targetLanguage,
-                        )
-                    }
-                    ToastUtil.safeShortToast(
-                        if (item == null) {
-                            RStrings.read_later_added
-                        } else {
-                            RStrings.read_later_removed
-                        }
+    val toggle = {
+        scope.launch {
+            try {
+                if (item == null) {
+                    repository.enqueue(
+                        novel = novel,
+                        targetLanguage = targetLanguage,
                     )
-                } catch (cancellation: CancellationException) {
-                    throw cancellation
-                } catch (_: IllegalArgumentException) {
-                    ToastUtil.safeShortToast(RStrings.ai_translation_config_required)
-                } catch (throwable: Throwable) {
-                    ToastUtil.safeShortToast(
-                        RStrings.ai_translation_failed,
-                        throwable.message.orEmpty(),
+                } else {
+                    repository.remove(
+                        novelId = novel.id,
+                        targetLanguage = targetLanguage,
                     )
                 }
+                ToastUtil.safeShortToast(
+                    if (item == null) {
+                        RStrings.read_later_added
+                    } else {
+                        RStrings.read_later_removed
+                    }
+                )
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: IllegalArgumentException) {
+                ToastUtil.safeShortToast(RStrings.ai_translation_config_required)
+            } catch (throwable: Throwable) {
+                ToastUtil.safeShortToast(
+                    RStrings.ai_translation_failed,
+                    throwable.message.orEmpty(),
+                )
             }
         }
+    }
+    return NovelReadLaterController(isAdded = item != null, toggle = toggle)
+}
+
+@Composable
+fun NovelReadLaterIcon(
+    isAdded: Boolean,
+    modifier: Modifier = Modifier,
+    tint: Color = LocalContentColor.current,
+    contentDescription: String? = null,
+) {
+    Icon(
+        imageVector = if (isAdded) {
+            Icons.Rounded.WatchLater
+        } else {
+            Icons.Outlined.WatchLater
+        },
+        contentDescription = contentDescription,
+        tint = tint,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun NovelReadLaterButton(
+    novel: Novel,
+    modifier: Modifier = Modifier,
+    tint: Color? = null,
+    repository: NovelReadLaterRepository = koinInject(),
+) {
+    val controller = rememberNovelReadLaterController(novel, repository)
+    val resolvedTint = tint ?: if (controller.isAdded) {
+        MiuixTheme.colorScheme.primary
+    } else {
+        MiuixTheme.colorScheme.onSurfaceVariant
+    }
+    IconButton(
+        modifier = modifier,
+        onClick = controller.toggle,
     ) {
-        Icon(
-            imageVector = if (item == null) {
-                Icons.Outlined.WatchLater
-            } else {
-                Icons.Rounded.WatchLater
-            },
+        NovelReadLaterIcon(
+            isAdded = controller.isAdded,
             contentDescription = stringResource(
-                if (item == null) {
-                    RStrings.add_to_read_later
-                } else {
+                if (controller.isAdded) {
                     RStrings.remove_from_read_later
+                } else {
+                    RStrings.add_to_read_later
                 }
             ),
-            tint = tint,
+            tint = resolvedTint,
         )
     }
 }
