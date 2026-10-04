@@ -4,9 +4,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CalendarMonth
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.CollectionsBookmark
-import androidx.compose.material.icons.rounded.FilterAlt
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
@@ -45,6 +43,8 @@ import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Filter
+import top.yukonga.miuix.kmp.icon.extended.Ok
 import top.yukonga.miuix.kmp.theme.LocalContentColor
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowListPopup
@@ -117,7 +117,7 @@ internal fun SearchResultAppBar(
                 }
                 IconButton(onClick = showBottomSheet) {
                     Icon(
-                        imageVector = Icons.Rounded.FilterAlt,
+                        imageVector = MiuixIcons.Filter,
                         contentDescription = "Filter",
                     )
                 }
@@ -240,7 +240,7 @@ private fun PremiumBookmarkRangeSelector(
                     endActions = if (isSelected) {
                         {
                             Icon(
-                                imageVector = Icons.Rounded.Check,
+                                imageVector = MiuixIcons.Ok,
                                 contentDescription = null,
                             )
                         }
@@ -290,7 +290,7 @@ private fun NonPremiumBookmarkRangeSelector(
                     endActions = if (isSelected) {
                         {
                             Icon(
-                                imageVector = Icons.Rounded.Check,
+                                imageVector = MiuixIcons.Ok,
                                 contentDescription = null,
                             )
                         }

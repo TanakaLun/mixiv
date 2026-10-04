@@ -14,9 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.state.ToggleableState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,7 +53,9 @@ import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Add
 import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Delete
 import top.yukonga.miuix.kmp.overlay.OverlayDialog
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
@@ -164,7 +163,7 @@ fun BlockTagScreen(
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.Add,
+                    imageVector = MiuixIcons.Add,
                     contentDescription = stringResource(RStrings.add_tags),
                 )
             }
@@ -305,7 +304,7 @@ private fun <T> BlockTextScreen(
                             itemContent(item)
                             IconButton(onClick = { onRemove(item) }) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Delete,
+                                    imageVector = MiuixIcons.Delete,
                                     contentDescription = null
                                 )
                             }

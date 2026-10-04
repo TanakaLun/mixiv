@@ -13,7 +13,6 @@ import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ErrorOutline
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,6 +41,8 @@ import com.mrl.pixiv.strings.ai_translation_in_progress
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Refresh
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 private data class ParagraphRenderData(
@@ -187,7 +188,7 @@ private fun buildParagraphRenderData(
                                 .build(),
                             contentDescription = span.token,
                             contentScale = ContentScale.FillBounds,
-                            placeholder = rememberVectorPainter(Icons.Rounded.Refresh),
+                            placeholder = rememberVectorPainter(MiuixIcons.Refresh),
                             error = rememberVectorPainter(Icons.Rounded.ErrorOutline),
                             modifier = Modifier
                                 .fillMaxSize()
@@ -217,7 +218,7 @@ private fun buildParagraphRenderData(
                             .build(),
                         contentDescription = span.url,
                         contentScale = ContentScale.FillBounds,
-                        placeholder = rememberVectorPainter(Icons.Rounded.Refresh),
+                        placeholder = rememberVectorPainter(MiuixIcons.Refresh),
                         error = rememberVectorPainter(Icons.Rounded.ErrorOutline),
                         modifier = Modifier
                             .fillMaxSize()

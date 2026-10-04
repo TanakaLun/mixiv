@@ -14,10 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.History
-import androidx.compose.material.icons.automirrored.rounded.ViewList
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,6 +62,9 @@ import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Delete
+import top.yukonga.miuix.kmp.icon.extended.ListView
+import top.yukonga.miuix.kmp.icon.extended.Recent
 import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 @Composable
@@ -106,7 +105,7 @@ fun HistorySettingScreen(
                     title = stringResource(RStrings.enable_history),
                     description = stringResource(RStrings.enable_history_desc),
                     checked = historySettings.enabled,
-                    icon = { Icon(Icons.Rounded.History, contentDescription = null) },
+                    icon = { Icon(MiuixIcons.Recent, contentDescription = null) },
                     onCheckedChange = { checked ->
                         SettingRepository.setHistorySettings(historySettings.copy(enabled = checked))
                     },
@@ -158,7 +157,7 @@ fun HistorySettingScreen(
                         BasicComponent(
                             title = stringResource(RStrings.clear_local_history),
                             summary = stringResource(RStrings.clear_local_history_desc),
-                            startAction = { Icon(Icons.Rounded.Delete, contentDescription = null) },
+                            startAction = { Icon(MiuixIcons.Delete, contentDescription = null) },
                             onClick = rememberThrottleClick {
                                 scope.launch {
                                     browsingHistoryRepository.clearAllLocalHistory()
@@ -207,7 +206,7 @@ private fun HistoryLimitSetting(
             validLimitRange.first,
             validLimitRange.last,
         ),
-        startAction = { Icon(Icons.AutoMirrored.Rounded.ViewList, contentDescription = null) },
+        startAction = { Icon(MiuixIcons.ListView, contentDescription = null) },
         endActions = {
             TextField(
                 modifier = Modifier.width(128.dp),

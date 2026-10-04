@@ -4,14 +4,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Equalizer
 import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.Type
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Home
+import top.yukonga.miuix.kmp.icon.extended.Search
 import top.yukonga.miuix.kmp.nav.core.NavKey
 
 @Serializable
@@ -174,11 +175,11 @@ sealed class Destination : NavKey {
 @Serializable
 sealed class MainPage(
     @Transient
-    val icon: ImageVector = Icons.Rounded.Home,
+    val icon: ImageVector = MiuixIcons.Home,
 ) {
     @Serializable
     data object Home : MainPage(
-        icon = Icons.Rounded.Home
+        icon = MiuixIcons.Home
     )
 
     @Serializable
@@ -193,7 +194,7 @@ sealed class MainPage(
 
     @Serializable
     data object Search : MainPage(
-        icon = Icons.Rounded.Search
+        icon = MiuixIcons.Search
     )
 
     @Serializable

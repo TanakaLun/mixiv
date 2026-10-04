@@ -7,10 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.FilterAlt
-import androidx.compose.material.icons.rounded.ViewModule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -54,6 +51,9 @@ import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Filter
+import top.yukonga.miuix.kmp.icon.extended.GridView
+import top.yukonga.miuix.kmp.icon.extended.Sort
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
 import top.yukonga.miuix.kmp.preference.SwitchPreference
 
@@ -164,7 +164,7 @@ private fun DefaultSearchTargetSetting(
         selectedIndex = selectedIndex,
         title = stringResource(RStrings.default_search_target),
         modifier = modifier,
-        startAction = { Icon(Icons.Rounded.FilterAlt, contentDescription = null) },
+        startAction = { Icon(MiuixIcons.Filter, contentDescription = null) },
         onSelectedIndexChange = { index ->
             selectedIndex = index
             onTargetChange(targets[index])
@@ -196,7 +196,7 @@ private fun DefaultSearchSortSetting(
         selectedIndex = selectedIndex,
         title = stringResource(RStrings.default_search_sort),
         modifier = modifier,
-        startAction = { Icon(Icons.AutoMirrored.Rounded.Sort, contentDescription = null) },
+        startAction = { Icon(MiuixIcons.Sort, contentDescription = null) },
         onSelectedIndexChange = { index ->
             selectedIndex = index
             onSortChange(sorts[index])
@@ -246,7 +246,7 @@ private fun SearchResultDisplayModeSetting(
         selectedIndex = selectedIndex,
         title = stringResource(RStrings.search_result_display_mode),
         modifier = modifier,
-        startAction = { Icon(Icons.Rounded.ViewModule, contentDescription = null) },
+        startAction = { Icon(MiuixIcons.GridView, contentDescription = null) },
         onSelectedIndexChange = { index ->
             selectedIndex = index
             onModeChange(modes[index])

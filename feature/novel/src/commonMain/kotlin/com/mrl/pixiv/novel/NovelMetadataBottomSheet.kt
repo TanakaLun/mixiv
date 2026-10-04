@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.TextFields
 import androidx.compose.material3.AssistChip
 import androidx.compose.runtime.Composable
@@ -38,6 +37,8 @@ import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Show
 import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
@@ -166,7 +167,7 @@ internal fun NovelMetadataBottomSheet(
                     )
                     Spacer(modifier = Modifier.size(16.dp))
                     Icon(
-                        imageVector = Icons.Rounded.Visibility,
+                        imageVector = MiuixIcons.Show,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
                         tint = MiuixTheme.colorScheme.onSurfaceVariantActions,

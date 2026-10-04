@@ -18,8 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -85,6 +83,7 @@ import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Close
 import top.yukonga.miuix.kmp.icon.extended.Tune
 import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
 import top.yukonga.miuix.kmp.overlay.OverlayDialog
@@ -262,7 +261,7 @@ fun SearchScreen(
                                                 .throttleClick {
                                                     viewModel.deleteSearchIdHistory(historyItem)
                                                 },
-                                            imageVector = Icons.Rounded.Close,
+                                            imageVector = MiuixIcons.Close,
                                             contentDescription = "delete"
                                         )
                                     },
@@ -288,7 +287,7 @@ fun SearchScreen(
                                                 .throttleClick {
                                                     dispatch(SearchAction.DeleteSearchHistory(item.keyword))
                                                 },
-                                            imageVector = Icons.Rounded.Close,
+                                            imageVector = MiuixIcons.Close,
                                             contentDescription = "delete"
                                         )
                                     },

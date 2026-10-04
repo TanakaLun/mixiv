@@ -14,12 +14,8 @@ import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.Bookmarks
-import androidx.compose.material.icons.rounded.Download
-import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.ImportExport
-import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Schedule
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material.icons.rounded.Style
 import androidx.compose.runtime.Composable
@@ -61,6 +57,11 @@ import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Download
+import top.yukonga.miuix.kmp.icon.extended.Info
+import top.yukonga.miuix.kmp.icon.extended.Recent
+import top.yukonga.miuix.kmp.icon.extended.Settings
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 
 private const val KEY_USER_INFO = "user_info"
@@ -115,7 +116,7 @@ fun ProfileScreen(
                     BasicComponent(
                         title = stringResource(RStrings.preference),
                         startAction = {
-                            Icon(imageVector = Icons.Rounded.Settings, contentDescription = null)
+                            Icon(imageVector = MiuixIcons.Settings, contentDescription = null)
                         },
                         onClick = rememberThrottleClick {
                             navigationManager.navigateToSettingScreen()
@@ -124,7 +125,7 @@ fun ProfileScreen(
                     BasicComponent(
                         title = stringResource(RStrings.history),
                         startAction = {
-                            Icon(imageVector = Icons.Rounded.History, contentDescription = null)
+                            Icon(imageVector = MiuixIcons.Recent, contentDescription = null)
                         },
                         onClick = rememberThrottleClick {
                             navigationManager.navigateToHistoryScreen()
@@ -181,7 +182,7 @@ fun ProfileScreen(
                     BasicComponent(
                         title = stringResource(RStrings.download_manager),
                         startAction = {
-                            Icon(imageVector = Icons.Rounded.Download, contentDescription = null)
+                            Icon(imageVector = MiuixIcons.Download, contentDescription = null)
                         },
                         onClick = rememberThrottleClick {
                             navigationManager.navigateToDownloadScreen()
@@ -212,7 +213,7 @@ fun ProfileScreen(
                     BasicComponent(
                         title = stringResource(RStrings.about),
                         startAction = {
-                            Icon(imageVector = Icons.Rounded.Info, contentDescription = null)
+                            Icon(imageVector = MiuixIcons.Info, contentDescription = null)
                         },
                         endActions = {
                             if (hasNewVersion) {

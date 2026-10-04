@@ -8,12 +8,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.FilterAlt
-import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.Tag
 import androidx.compose.material.icons.rounded.TouchApp
-import androidx.compose.material.icons.rounded.ViewModule
-import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -65,6 +61,10 @@ import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Filter
+import top.yukonga.miuix.kmp.icon.extended.GridView
+import top.yukonga.miuix.kmp.icon.extended.Hide
+import top.yukonga.miuix.kmp.icon.extended.Image
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
 import top.yukonga.miuix.kmp.preference.SwitchPreference
 
@@ -135,7 +135,7 @@ fun BrowsingSettingScreen(
                     },
                     title = stringResource(RStrings.auto_hide_preview_controls),
                     summary = stringResource(RStrings.auto_hide_preview_controls_desc),
-                    startAction = { Icon(Icons.Rounded.VisibilityOff, contentDescription = null) },
+                    startAction = { Icon(MiuixIcons.Hide, contentDescription = null) },
                 )
                 SwitchPreference(
                     checked = browsingSettings.tapImageToOpenFullResolutionPreview,
@@ -157,7 +157,7 @@ fun BrowsingSettingScreen(
                     },
                     title = stringResource(RStrings.filter_long_novel_tags),
                     summary = stringResource(RStrings.filter_long_novel_tags_desc),
-                    startAction = { Icon(Icons.Rounded.FilterAlt, contentDescription = null) },
+                    startAction = { Icon(MiuixIcons.Filter, contentDescription = null) },
                 )
                 if (browsingSettings.filterLongNovelTags) {
                     NovelTagLimitSetting(
@@ -202,7 +202,7 @@ private fun SearchResultIllustLayoutSetting(
         selectedIndex = selectedIndex,
         title = stringResource(RStrings.search_result_illust_layout),
         modifier = modifier,
-        startAction = { Icon(Icons.Rounded.ViewModule, contentDescription = null) },
+        startAction = { Icon(MiuixIcons.GridView, contentDescription = null) },
         onSelectedIndexChange = { index ->
             selectedIndex = index
             onLayoutChange(layouts[index])
@@ -243,7 +243,7 @@ private fun SpanCountSetting(
         selectedIndex = selectedIndex,
         title = title,
         modifier = modifier,
-        startAction = { Icon(Icons.Rounded.ViewModule, contentDescription = null) },
+        startAction = { Icon(MiuixIcons.GridView, contentDescription = null) },
         onSelectedIndexChange = { index ->
             onSpanCountChange(options[index].first)
         },
@@ -300,7 +300,7 @@ private fun PreviewImageQualitySetting(
         selectedIndex = selectedIndex,
         title = stringResource(RStrings.preview_image_quality),
         modifier = modifier,
-        startAction = { Icon(Icons.Rounded.Image, contentDescription = null) },
+        startAction = { Icon(MiuixIcons.Image, contentDescription = null) },
         onSelectedIndexChange = { index ->
             selectedIndex = index
             onQualityChange(qualities[index])

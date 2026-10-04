@@ -13,8 +13,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Folder
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -52,6 +50,8 @@ import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Folder
+import top.yukonga.miuix.kmp.icon.extended.Refresh
 import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -83,7 +83,7 @@ fun FileNameFormatScreen(
                             }
                         },
                     ) {
-                        Icon(imageVector = Icons.Rounded.Refresh, contentDescription = null)
+                        Icon(imageVector = MiuixIcons.Refresh, contentDescription = null)
                     }
                     IconButton(
                         onClick = {
@@ -110,7 +110,7 @@ fun FileNameFormatScreen(
                     onCheckedChange = SettingRepository::setDownloadSubFolderByUser,
                     title = stringResource(RStrings.download_single_folder_by_user_title),
                     summary = stringResource(RStrings.download_single_folder_by_user_desc),
-                    startAction = { Icon(imageVector = Icons.Rounded.Folder, contentDescription = null) },
+                    startAction = { Icon(imageVector = MiuixIcons.Folder, contentDescription = null) },
                 )
                 TextField(
                     state = format,

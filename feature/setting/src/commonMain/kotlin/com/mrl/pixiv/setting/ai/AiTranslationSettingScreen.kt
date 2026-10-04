@@ -12,9 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.runtime.Composable
@@ -99,6 +96,8 @@ import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Refresh
+import top.yukonga.miuix.kmp.icon.extended.Translate
 import top.yukonga.miuix.kmp.preference.CheckboxLocation
 import top.yukonga.miuix.kmp.preference.CheckboxPreference
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
@@ -466,7 +465,7 @@ fun AiTranslationSettingScreen(
                                     )
                                 } else {
                                     Icon(
-                                        imageVector = Icons.Rounded.Refresh,
+                                        imageVector = MiuixIcons.Refresh,
                                         contentDescription = null,
                                     )
                                 }
@@ -687,7 +686,7 @@ private fun ProviderItem(
         selectedIndex = selectedIndex,
         title = stringResource(RStrings.ai_provider),
         startAction = {
-            Icon(imageVector = Icons.Rounded.Translate, contentDescription = null)
+            Icon(imageVector = MiuixIcons.Translate, contentDescription = null)
         },
         onSelectedIndexChange = { index ->
             providers.getOrNull(index)?.let(onProviderChange)

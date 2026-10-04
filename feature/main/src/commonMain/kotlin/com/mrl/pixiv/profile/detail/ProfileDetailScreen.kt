@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PersonOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -104,6 +103,7 @@ import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.More
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowListPopup
 
@@ -498,7 +498,7 @@ private fun ProfileDetailAppBar(
             if (!isBlocked && !userInfo.user.isSelf) {
                 IconButton(onClick = { showMenu = true }) {
                     Icon(
-                        imageVector = Icons.Rounded.MoreVert,
+                        imageVector = MiuixIcons.More,
                         contentDescription = null,
                     )
                 }

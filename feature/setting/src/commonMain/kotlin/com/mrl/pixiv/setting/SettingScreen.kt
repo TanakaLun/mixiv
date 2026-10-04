@@ -6,14 +6,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.History
-import androidx.compose.material.icons.rounded.Image
-import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.NetworkWifi
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Save
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -58,6 +53,11 @@ import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Image
+import top.yukonga.miuix.kmp.icon.extended.Lock
+import top.yukonga.miuix.kmp.icon.extended.Recent
+import top.yukonga.miuix.kmp.icon.extended.Search
+import top.yukonga.miuix.kmp.icon.extended.Translate
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
 
@@ -143,7 +143,7 @@ fun SettingScreen(
                         items = languages.map { it.displayName },
                         selectedIndex = currentLanguage,
                         title = stringResource(RStrings.app_language),
-                        startAction = { Icon(Icons.Rounded.Translate, contentDescription = null) },
+                        startAction = { Icon(MiuixIcons.Translate, contentDescription = null) },
                         onSelectedIndexChange = { currentLanguage = it },
                     )
                     OverlayDropdownPreference(
@@ -170,22 +170,22 @@ fun SettingScreen(
                     )
                     SettingDestinationItem(
                         title = stringResource(RStrings.browsing_setting),
-                        icon = Icons.Rounded.Image,
+                        icon = MiuixIcons.Image,
                         onClick = navigationManager::navigateToBrowsingSettingScreen,
                     )
                     SettingDestinationItem(
                         title = stringResource(RStrings.search_setting),
-                        icon = Icons.Rounded.Search,
+                        icon = MiuixIcons.Search,
                         onClick = navigationManager::navigateToSearchSettingScreen,
                     )
                     SettingDestinationItem(
                         title = stringResource(RStrings.history_setting),
-                        icon = Icons.Rounded.History,
+                        icon = MiuixIcons.Recent,
                         onClick = navigationManager::navigateToHistorySettingScreen,
                     )
                     SettingDestinationItem(
                         title = stringResource(RStrings.privacy_setting),
-                        icon = Icons.Rounded.Lock,
+                        icon = MiuixIcons.Lock,
                         onClick = navigationManager::navigateToPrivacySettingScreen,
                     )
                     SettingDestinationItem(
@@ -195,7 +195,7 @@ fun SettingScreen(
                     )
                     SettingDestinationItem(
                         title = stringResource(RStrings.ai_translation_setting),
-                        icon = Icons.Rounded.Translate,
+                        icon = MiuixIcons.Translate,
                         onClick = navigationManager::navigateToAiTranslationSettingScreen,
                     )
                     AppLinkItem()

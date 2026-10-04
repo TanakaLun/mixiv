@@ -24,9 +24,7 @@ import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.TextFields
-import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -70,6 +68,9 @@ import top.yukonga.miuix.kmp.basic.FloatingActionButton
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Refresh
+import top.yukonga.miuix.kmp.icon.extended.Show
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 private const val KEY_COVER = "cover"
@@ -160,7 +161,7 @@ internal fun NovelReaderContent(
                         .padding(top = 56.dp)
                         .fillMaxWidth(if (isWidthAtLeastMedium) 0.2f else 0.4f),
                     contentScale = ContentScale.FillWidth,
-                    placeholder = rememberVectorPainter(Icons.Rounded.Refresh),
+                    placeholder = rememberVectorPainter(MiuixIcons.Refresh),
                     error = rememberVectorPainter(Icons.Rounded.ErrorOutline),
                 )
             }
@@ -252,7 +253,7 @@ internal fun NovelReaderContent(
                         16.HSpacer
 
                         Icon(
-                            Icons.Rounded.Visibility,
+                            MiuixIcons.Show,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                             tint = MiuixTheme.colorScheme.onSurfaceVariantSummary

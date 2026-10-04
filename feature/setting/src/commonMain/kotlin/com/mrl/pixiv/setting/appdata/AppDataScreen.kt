@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Upload
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,6 +57,8 @@ import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.icon.extended.Delete
+import top.yukonga.miuix.kmp.icon.extended.Download
 import top.yukonga.miuix.kmp.overlay.OverlayDialog
 import kotlin.time.Clock
 
@@ -154,7 +154,7 @@ fun AppDataScreen(
                     title = stringResource(RStrings.import_data),
                     startAction = {
                         Icon(
-                            imageVector = Icons.Rounded.Download,
+                            imageVector = MiuixIcons.Download,
                             contentDescription = null
                         )
                     },
@@ -165,7 +165,7 @@ fun AppDataScreen(
                     title = stringResource(RStrings.clear_cache, viewModel.cacheDirSize),
                     startAction = {
                         Icon(
-                            imageVector = Icons.Rounded.Delete,
+                            imageVector = MiuixIcons.Delete,
                             contentDescription = null
                         )
                     },
