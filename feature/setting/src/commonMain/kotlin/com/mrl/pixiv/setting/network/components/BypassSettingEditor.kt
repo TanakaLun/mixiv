@@ -143,8 +143,7 @@ fun BypassSettingEditor(
         AnimatedContent(
             targetState = bypassSetting::class,
             transitionSpec = {
-                slideInVertically { -it / 3 } + expandVertically(expandFrom = Alignment.Top) + fadeIn()
-                    togetherWith
+                slideInVertically { -it / 3 } + expandVertically(expandFrom = Alignment.Top) + fadeIn() togetherWith
                     slideOutVertically { -it / 3 } + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
             },
             label = "bypass_setting_content"
