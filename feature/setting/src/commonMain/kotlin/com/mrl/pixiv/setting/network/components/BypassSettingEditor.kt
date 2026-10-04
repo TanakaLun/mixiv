@@ -1,6 +1,10 @@
 package com.mrl.pixiv.setting.network.components
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
@@ -138,7 +142,11 @@ fun BypassSettingEditor(
 
         AnimatedContent(
             targetState = bypassSetting::class,
-            transitionSpec = { slideInVertically() togetherWith slideOutVertically() },
+            transitionSpec = {
+                slideInVertically { -it / 3 } + expandVertically(expandFrom = Alignment.Top) + fadeIn()
+                    togetherWith
+                    slideOutVertically { -it / 3 } + shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
+            },
             label = "bypass_setting_content"
         ) {
             when (bypassSetting) {
