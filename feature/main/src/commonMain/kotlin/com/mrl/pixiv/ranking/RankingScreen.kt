@@ -9,13 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EditCalendar
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.SelectableDates
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,17 +47,12 @@ import com.mrl.pixiv.common.router.NavigationManager
 import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.viewmodel.asState
-import com.mrl.pixiv.strings.cancel
-import com.mrl.pixiv.strings.confirm
+import com.mrl.pixiv.components.date.MiuixDatePickerSheet
 import com.mrl.pixiv.strings.r18
 import com.mrl.pixiv.strings.ranking
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atTime
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import top.yukonga.miuix.kmp.basic.DropdownEntry
@@ -78,9 +66,8 @@ import top.yukonga.miuix.kmp.basic.Switch
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.basic.rememberPullToRefreshState
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Instant
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Months
 
 @Composable
 fun RankingScreen(
@@ -94,52 +81,18 @@ fun RankingScreen(
 
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
 
-    if (showDatePicker) {
-        val selectableDates = remember {
-            object : SelectableDates {
-                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                    return utcTimeMillis <= Clock.System.now().minus(1.days).toEpochMilliseconds()
-                }
-
-                override fun isSelectableYear(year: Int): Boolean {
-                    return year <= Clock.System.now()
-                        .toLocalDateTime(TimeZone.currentSystemDefault()).year
-                }
-            }
-        }
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = when (appViewMode) {
-                AppViewMode.ILLUST -> viewModel.getIllustRankingDate(state.currentMode)
-                AppViewMode.NOVEL -> viewModel.getNovelRankingDate(state.currentMode)
-            }?.atTime(0, 0)?.toInstant(TimeZone.UTC)?.toEpochMilliseconds(),
-            selectableDates = selectableDates
-        )
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            val date = Instant.fromEpochMilliseconds(millis)
-                                .toLocalDateTime(TimeZone.UTC)
-                                .date
-                            viewModel.changeDate(date, appViewMode)
-                        }
-                        showDatePicker = false
-                    }
-                ) {
-                    Text(text = stringResource(RStrings.confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text(text = stringResource(RStrings.cancel))
-                }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
+    MiuixDatePickerSheet(
+        show = showDatePicker,
+        initialDate = when (appViewMode) {
+            AppViewMode.ILLUST -> viewModel.getIllustRankingDate(state.currentMode)
+            AppViewMode.NOVEL -> viewModel.getNovelRankingDate(state.currentMode)
+        },
+        onDismissRequest = { showDatePicker = false },
+        onConfirm = { date ->
+            viewModel.changeDate(date, appViewMode)
+            showDatePicker = false
+        },
+    )
 
     val pagerState = key(availableModes) {
         rememberPagerState(
@@ -205,7 +158,7 @@ fun RankingScreen(
                         onClick = { showDatePicker = true }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.EditCalendar,
+                            imageVector = MiuixIcons.Months,
                             contentDescription = null
                         )
                     }

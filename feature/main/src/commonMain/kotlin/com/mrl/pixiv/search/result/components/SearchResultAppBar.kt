@@ -1,39 +1,22 @@
 package com.mrl.pixiv.search.result.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.CollectionsBookmark
-import androidx.compose.material3.DatePickerDefaults
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DateRangePicker
-import androidx.compose.material3.DateRangePickerDefaults
-import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.SelectableDates
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.repository.requireUserInfoFlow
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.throttleClick
-import com.mrl.pixiv.strings.cancel
-import com.mrl.pixiv.strings.confirm
+import com.mrl.pixiv.components.date.MiuixDateRangePickerSheet
 import com.mrl.pixiv.strings.label_default
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDateRange
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Icon
@@ -44,13 +27,11 @@ import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.icon.extended.Filter
+import top.yukonga.miuix.kmp.icon.extended.Months
 import top.yukonga.miuix.kmp.icon.extended.Ok
 import top.yukonga.miuix.kmp.theme.LocalContentColor
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowListPopup
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Instant
 
 @Composable
 internal fun SearchResultAppBar(
@@ -88,7 +69,7 @@ internal fun SearchResultAppBar(
             if (showFilterAction) {
                 IconButton(onClick = { showDateRangePicker = true }) {
                     Icon(
-                        imageVector = Icons.Rounded.CalendarMonth,
+                        imageVector = MiuixIcons.Months,
                         contentDescription = "Date Range",
                         tint = if (searchDateRange != null) MiuixTheme.colorScheme.primary else LocalContentColor.current,
                     )
@@ -124,84 +105,17 @@ internal fun SearchResultAppBar(
             }
         },
     )
-    if (showDateRangePicker) {
-        val selectableDates = remember {
-            object : SelectableDates {
-                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                    return utcTimeMillis <= Clock.System.now().minus(1.days).toEpochMilliseconds()
-                }
-
-                override fun isSelectableYear(year: Int): Boolean {
-                    return year <= Clock.System.now()
-                        .toLocalDateTime(TimeZone.currentSystemDefault()).year
-                }
-            }
-        }
-        val dateRangePickerState = rememberDateRangePickerState(
-            initialSelectedStartDateMillis = searchDateRange?.start?.atStartOfDayIn(TimeZone.UTC)
-                ?.toEpochMilliseconds(),
-            initialSelectedEndDateMillis = searchDateRange?.endInclusive?.atStartOfDayIn(TimeZone.UTC)
-                ?.toEpochMilliseconds(),
-            selectableDates = selectableDates,
-        )
-        DatePickerDialog(
-            onDismissRequest = { showDateRangePicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val startDate = dateRangePickerState.selectedStartDateMillis?.let {
-                            Instant.fromEpochMilliseconds(it).toLocalDateTime(TimeZone.UTC).date
-                        }
-                        val endDate = dateRangePickerState.selectedEndDateMillis?.let {
-                            Instant.fromEpochMilliseconds(it).toLocalDateTime(TimeZone.UTC).date
-                        }
-                        if (startDate != null && endDate != null) {
-                            onSearchDateRangeChanged(LocalDateRange(startDate, endDate))
-                        } else {
-                            onSearchDateRangeChanged(null)
-                        }
-                        showDateRangePicker = false
-                    },
-                ) {
-                    Text(text = stringResource(RStrings.confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDateRangePicker = false }) {
-                    Text(text = stringResource(RStrings.cancel))
-                }
-            },
-        ) {
-            val datePickerFormatter = remember { DatePickerDefaults.dateFormatter() }
-            val colors = DatePickerDefaults.colors()
-            DateRangePicker(
-                state = dateRangePickerState,
-                modifier = Modifier.padding(top = 20.dp),
-                dateFormatter = datePickerFormatter,
-                colors = colors,
-                title = {
-                    DateRangePickerDefaults.DateRangePickerTitle(
-                        displayMode = dateRangePickerState.displayMode,
-                        modifier = Modifier.padding(start = 12.dp, end = 12.dp),
-                        contentColor = colors.titleContentColor,
-                    )
-                },
-                headline = {
-                    ProvideTextStyle(MiuixTheme.textStyles.subtitle) {
-                        DateRangePickerDefaults.DateRangePickerHeadline(
-                            selectedStartDateMillis = dateRangePickerState.selectedStartDateMillis,
-                            selectedEndDateMillis = dateRangePickerState.selectedEndDateMillis,
-                            displayMode = dateRangePickerState.displayMode,
-                            dateFormatter = datePickerFormatter,
-                            modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp),
-                            contentColor = colors.headlineContentColor,
-                        )
-                    }
-                },
-            )
-        }
+    MiuixDateRangePickerSheet(
+        show = showDateRangePicker,
+        initialStart = searchDateRange?.start,
+        initialEnd = searchDateRange?.endInclusive,
+        onDismissRequest = { showDateRangePicker = false },
+        onClear = { onSearchDateRangeChanged(null) },
+        onConfirm = { start, end ->
+            onSearchDateRangeChanged(LocalDateRange(start, end))
+        },
+    )
     }
-}
 
 @Composable
 private fun PremiumBookmarkRangeSelector(
