@@ -24,7 +24,6 @@ import com.mrl.pixiv.strings.start_date
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.lengthOfMonth
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
@@ -78,7 +77,7 @@ internal fun MiuixDateRangePickerSheet(
         if (year == today.year && month == today.monthNumber) {
             yesterday.dayOfMonth
         } else {
-            LocalDate(year, month, 1).lengthOfMonth()
+            lastDayOfMonth(year, month)
         }
 
     val startMaxMonth = maxMonthOf(startYear)

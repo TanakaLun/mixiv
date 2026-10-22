@@ -18,8 +18,8 @@ import com.mrl.pixiv.strings.select_date
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.lengthOfMonth
 import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.Icon
@@ -35,6 +35,10 @@ import kotlin.time.Clock
 
 /** 排行榜/搜索结果可选的日期下界（pixiv 排行历史足够早）。 */
 internal const val DatePickerMinYear = 2015
+
+/** 该月最后一天（该月 1 号 +1 月 -1 天）。 */
+internal fun lastDayOfMonth(year: Int, month: Int): Int =
+    LocalDate(year, month, 1).plus(1, DateTimeUnit.MONTH).minus(1, DateTimeUnit.DAY).dayOfMonth
 
 @Composable
 internal fun MiuixDatePickerSheet(
@@ -62,7 +66,7 @@ internal fun MiuixDatePickerSheet(
         if (year == today.year && month == today.monthNumber) {
             yesterday.dayOfMonth
         } else {
-            LocalDate(year, month, 1).lengthOfMonth()
+            lastDayOfMonth(year, month)
         }
     }
     LaunchedEffect(maxMonth) {
