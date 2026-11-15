@@ -39,9 +39,5 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.conscrypt.android)
         }
-
-        jvmMain.dependencies {
-            implementation(libs.conscrypt.openjdk)
-        }
     }
 }
