@@ -54,6 +54,7 @@ import com.mrl.pixiv.profile.detail.components.NovelWorksWidget
 import com.mrl.pixiv.profile.detail.components.shouldShowNovelWorks
 import com.mrl.pixiv.strings.block_user
 import com.mrl.pixiv.strings.cancel_user_blocked
+import com.mrl.pixiv.strings.follow
 import com.mrl.pixiv.strings.followed
 import com.mrl.pixiv.strings.illust_and_manga_liked
 import com.mrl.pixiv.strings.illustration_works
@@ -91,7 +92,9 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
@@ -208,6 +211,21 @@ fun ProfileDetailScreen(
                                     url = userInfo.user.profileImageUrls.medium,
                                     modifier = Modifier.size(48.dp),
                                 )
+                            },
+                            endActions = {
+                                if (!userInfo.user.isSelf) {
+                                    ProfileFollowAction(
+                                        isFollowing = userInfo.user.isFollowing,
+                                        isUpdating = state.isUpdatingFollow,
+                                        onToggleFollow = {
+                                            if (userInfo.user.isFollowing) {
+                                                viewModel.unFollowUser(userInfo.user.id)
+                                            } else {
+                                                viewModel.followUser(userInfo.user.id)
+                                            }
+                                        },
+                                    )
+                                }
                             },
                             modifier = Modifier.throttleClick(
                                 onClick = {
@@ -469,6 +487,28 @@ private fun ProfileDetailRow(label: String, value: String) {
             text = value,
             style = MiuixTheme.textStyles.body2,
         )
+    }
+}
+
+@Composable
+private fun ProfileFollowAction(
+    isFollowing: Boolean,
+    isUpdating: Boolean,
+    onToggleFollow: () -> Unit,
+) {
+    if (isUpdating) {
+        CircularProgressIndicator(modifier = Modifier.size(20.dp))
+    } else {
+        Button(
+            onClick = onToggleFollow,
+            colors = if (isFollowing) ButtonDefaults.buttonColors() else ButtonDefaults.buttonColorsPrimary(),
+        ) {
+            Text(
+                text = stringResource(
+                    if (isFollowing) RStrings.followed else RStrings.follow
+                )
+            )
+        }
     }
 }
 

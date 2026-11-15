@@ -39,6 +39,7 @@ import com.mrl.pixiv.strings.bookmark_tags
 import com.mrl.pixiv.strings.collection
 import com.mrl.pixiv.strings.download_manager
 import com.mrl.pixiv.strings.export_token
+import com.mrl.pixiv.strings.followed
 import com.mrl.pixiv.strings.history
 import com.mrl.pixiv.strings.my
 import com.mrl.pixiv.strings.new_version_available
@@ -58,6 +59,7 @@ import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.extended.Contacts
 import top.yukonga.miuix.kmp.icon.extended.Download
 import top.yukonga.miuix.kmp.icon.extended.Info
 import top.yukonga.miuix.kmp.icon.extended.Recent
@@ -129,6 +131,15 @@ fun ProfileScreen(
                         },
                         onClick = rememberThrottleClick {
                             navigationManager.navigateToHistoryScreen()
+                        },
+                    )
+                    BasicComponent(
+                        title = stringResource(RStrings.followed),
+                        startAction = {
+                            Icon(imageVector = MiuixIcons.Contacts, contentDescription = null)
+                        },
+                        onClick = rememberThrottleClick {
+                            navigationManager.navigateToFollowingScreen(userInfo.user.id)
                         },
                     )
                     BasicComponent(
