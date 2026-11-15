@@ -101,10 +101,10 @@ fun MainNavigationScaffold(
     val snackbarHostState = LocalSnackbarHostState.current
     val navigationBarsBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val snackbarBottomPadding =
-        navigationBarsBottom + if (!layoutType.isRail() && navigationManager.currentDestination is Destination.Main) {
-            64.dp + 12.dp
-        } else {
-            12.dp
+        navigationBarsBottom + when {
+            !layoutType.isRail() && navigationManager.currentDestination is Destination.Main -> 64.dp + 12.dp
+            navigationManager.currentDestination is Destination.LoginOption -> 60.dp + 12.dp
+            else -> 12.dp
         }
 
     Row(modifier = Modifier.fillMaxSize()) {
