@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -104,10 +105,15 @@ fun FollowingScreen(
     val isWidthAtLeastMedium = paneSizeClass.isWidthAtLeastMedium
     val lazyListStates = viewModel.lazyListState
     val lazyGridStates = viewModel.lazyGridState
-    val page = pages[pagerState.currentPage]
-    val followingUsers = when (page) {
-        FollowingPage.Public -> viewModel.publicFollowingPageSource.collectAsLazyPagingItems()
-        FollowingPage.Private -> viewModel.privateFollowingPageSource.collectAsLazyPagingItems()
+    // 在稳定的调用点为每个分页源分别收集，避免切换页签后丢失已加载的数据。
+    val followingUsers = pages.map { page ->
+        key(page) {
+            val source = when (page) {
+                FollowingPage.Public -> viewModel.publicFollowingPageSource
+                FollowingPage.Private -> viewModel.privateFollowingPageSource
+            }
+            source.collectAsLazyPagingItems()
+        }
     }
     val controller = remember(isWidthAtLeastMedium, pagerState.currentPage) {
         if (isWidthAtLeastMedium) {
@@ -196,7 +202,7 @@ fun FollowingScreen(
                     }
                 },
                 onRefresh = {
-                    followingUsers.refresh()
+                    followingUsers[pagerState.currentPage].refresh()
                 }
             )
         },
@@ -220,7 +226,7 @@ fun FollowingScreen(
                 modifier = modifier.weight(1f),
             ) { index ->
                 FollowingScreenBody(
-                    followingUsers = followingUsers,
+                    followingUsers = followingUsers[index],
                     navToPictureScreen = navigationManager::navigateToPictureScreen,
                     navToUserProfile = navigationManager::navigateToProfileDetailScreen,
                     lazyListState = lazyListStates[index],

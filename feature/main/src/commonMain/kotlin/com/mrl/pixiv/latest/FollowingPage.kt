@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -16,6 +17,7 @@ import com.mrl.pixiv.common.repository.SettingRepository
 import com.mrl.pixiv.common.repository.SettingRepository.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.router.currentNavigationManager
 import com.mrl.pixiv.follow.FollowingScreenBody
+import com.mrl.pixiv.follow.FollowingPage as FollowingTab
 import com.mrl.pixiv.follow.FollowingViewModel
 import kotlinx.coroutines.flow.SharedFlow
 import org.koin.compose.viewmodel.koinViewModel
@@ -34,8 +36,16 @@ fun FollowingPage(
     val isWidthAtLeastMedium = paneSizeClass.isWidthAtLeastMedium
     val appViewMode by SettingRepository.userPreferenceFlow.collectAsStateWithLifecycle { appViewMode }
     val pageIndex = selectedPage.coerceIn(viewModel.pages.indices)
-    val followingUsers = (if (pageIndex == 0) viewModel.publicFollowingPageSource
-        else viewModel.privateFollowingPageSource).collectAsLazyPagingItems()
+    val followingUsersByPage = viewModel.pages.map { page ->
+        key(page) {
+            val source = when (page) {
+                FollowingTab.Public -> viewModel.publicFollowingPageSource
+                FollowingTab.Private -> viewModel.privateFollowingPageSource
+            }
+            source.collectAsLazyPagingItems()
+        }
+    }
+    val followingUsers = followingUsersByPage[pageIndex]
     val listState = viewModel.lazyListState[pageIndex]
     val gridState = viewModel.lazyGridState[pageIndex]
     val controller = remember(isWidthAtLeastMedium, pageIndex) {
