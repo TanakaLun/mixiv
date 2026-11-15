@@ -416,4 +416,21 @@
     <string name="search_series_only">سلاسل الروايات فقط</string>
     <string name="search_show_r18">عرض محتوى R-18</string>
     <string name="search_r18_only">R-18 فقط</string>
+    <string name="start_date">تاريخ البدء</string>
+    <string name="select_date">اختيار التاريخ</string>
+    <string name="pull_refresh_release">أفلت للتحديث</string>
+    <string name="pull_refresh_refreshing">جارٍ التحديث</string>
+    <string name="pull_refresh_pull_down">اسحب لأسفل للتحديث</string>
+    <string name="pull_refresh_complete">اكتمل التحديث</string>
+    <string name="profile_detail_title">تفاصيل الملف الشخصي</string>
+    <string name="profile_comment">نبذة</string>
+    <string name="monet_system">لون ديناميكي (اتباع النظام)</string>
+    <string name="monet_light">لون ديناميكي (فاتح)</string>
+    <string name="monet_dark">لون ديناميكي (داكن)</string>
+    <string name="keyword_search">البحث بالكلمات المفتاحية</string>
+    <string name="end_date">تاريخ الانتهاء</string>
+    <string name="deleted">محذوف</string>
+    <string name="color_mode">وضع الألوان</string>
+    <string name="collection_visibility">الظهور</string>
+    <string name="clear_date_range">مسح نطاق التاريخ</string>
 </resources>

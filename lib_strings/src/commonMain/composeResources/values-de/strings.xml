@@ -416,4 +416,21 @@
     <string name="search_series_only">Nur Romanserien</string>
     <string name="search_show_r18">R-18-Inhalte anzeigen</string>
     <string name="search_r18_only">Nur R-18</string>
+    <string name="start_date">Startdatum</string>
+    <string name="select_date">Datum auswählen</string>
+    <string name="pull_refresh_release">Zum Aktualisieren loslassen</string>
+    <string name="pull_refresh_refreshing">Wird aktualisiert</string>
+    <string name="pull_refresh_pull_down">Zum Aktualisieren nach unten ziehen</string>
+    <string name="pull_refresh_complete">Aktualisierung abgeschlossen</string>
+    <string name="profile_detail_title">Profildetails</string>
+    <string name="profile_comment">Biografie</string>
+    <string name="monet_system">Dynamische Farbe (System folgen)</string>
+    <string name="monet_light">Dynamische Farbe (hell)</string>
+    <string name="monet_dark">Dynamische Farbe (dunkel)</string>
+    <string name="keyword_search">Stichwortsuche</string>
+    <string name="end_date">Enddatum</string>
+    <string name="deleted">Gelöscht</string>
+    <string name="color_mode">Farbmodus</string>
+    <string name="collection_visibility">Sichtbarkeit</string>
+    <string name="clear_date_range">Datumsbereich löschen</string>
 </resources>

@@ -416,4 +416,21 @@
     <string name="search_series_only">Только серии романов</string>
     <string name="search_show_r18">Показывать контент R-18</string>
     <string name="search_r18_only">Только R-18</string>
+    <string name="start_date">Дата начала</string>
+    <string name="select_date">Выбрать дату</string>
+    <string name="pull_refresh_release">Отпустите для обновления</string>
+    <string name="pull_refresh_refreshing">Обновление…</string>
+    <string name="pull_refresh_pull_down">Потяните вниз для обновления</string>
+    <string name="pull_refresh_complete">Обновление завершено</string>
+    <string name="profile_detail_title">Детали профиля</string>
+    <string name="profile_comment">О себе</string>
+    <string name="monet_system">Динамический цвет (как в системе)</string>
+    <string name="monet_light">Динамический цвет (светлая)</string>
+    <string name="monet_dark">Динамический цвет (тёмная)</string>
+    <string name="keyword_search">Поиск по ключевому слову</string>
+    <string name="end_date">Дата окончания</string>
+    <string name="deleted">Удалено</string>
+    <string name="color_mode">Цветовой режим</string>
+    <string name="collection_visibility">Видимость</string>
+    <string name="clear_date_range">Очистить диапазон дат</string>
 </resources>

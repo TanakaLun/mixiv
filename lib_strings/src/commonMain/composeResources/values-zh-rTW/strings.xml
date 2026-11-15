@@ -416,4 +416,21 @@
     <string name="search_series_only">只看系列小說</string>
     <string name="search_show_r18">顯示 R-18 內容</string>
     <string name="search_r18_only">只看 R-18</string>
+    <string name="start_date">開始日期</string>
+    <string name="select_date">選擇日期</string>
+    <string name="pull_refresh_release">放開以重新整理</string>
+    <string name="pull_refresh_refreshing">重新整理中</string>
+    <string name="pull_refresh_pull_down">下拉以重新整理</string>
+    <string name="pull_refresh_complete">重新整理完成</string>
+    <string name="profile_detail_title">個人詳情</string>
+    <string name="profile_comment">簡介</string>
+    <string name="monet_system">動態取色（跟隨系統）</string>
+    <string name="monet_light">動態取色（淺色）</string>
+    <string name="monet_dark">動態取色（深色）</string>
+    <string name="keyword_search">關鍵字搜尋</string>
+    <string name="end_date">結束日期</string>
+    <string name="deleted">已刪除</string>
+    <string name="color_mode">顏色模式</string>
+    <string name="collection_visibility">可見性</string>
+    <string name="clear_date_range">清除日期範圍</string>
 </resources>

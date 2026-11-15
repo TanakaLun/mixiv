@@ -416,4 +416,21 @@
     <string name="search_series_only">Yalnızca roman serileri</string>
     <string name="search_show_r18">R-18 içeriğini göster</string>
     <string name="search_r18_only">Yalnızca R-18</string>
+    <string name="start_date">Başlangıç tarihi</string>
+    <string name="select_date">Tarih seç</string>
+    <string name="pull_refresh_release">Yenilemek için bırakın</string>
+    <string name="pull_refresh_refreshing">Yenileniyor</string>
+    <string name="pull_refresh_pull_down">Yenilemek için aşağı çekin</string>
+    <string name="pull_refresh_complete">Yenileme tamamlandı</string>
+    <string name="profile_detail_title">Profil ayrıntıları</string>
+    <string name="profile_comment">Biyografi</string>
+    <string name="monet_system">Dinamik renk (sistemi izle)</string>
+    <string name="monet_light">Dinamik renk (açık)</string>
+    <string name="monet_dark">Dinamik renk (koyu)</string>
+    <string name="keyword_search">Anahtar kelime araması</string>
+    <string name="end_date">Bitiş tarihi</string>
+    <string name="deleted">Silindi</string>
+    <string name="color_mode">Renk modu</string>
+    <string name="collection_visibility">Görünürlük</string>
+    <string name="clear_date_range">Tarih aralığını temizle</string>
 </resources>

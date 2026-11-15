@@ -416,4 +416,21 @@
     <string name="search_series_only">시리즈 소설만 보기</string>
     <string name="search_show_r18">R-18 콘텐츠 표시</string>
     <string name="search_r18_only">R-18만 보기</string>
+    <string name="start_date">시작 날짜</string>
+    <string name="select_date">날짜 선택</string>
+    <string name="pull_refresh_release">놓아서 새로고침</string>
+    <string name="pull_refresh_refreshing">새로고침 중</string>
+    <string name="pull_refresh_pull_down">아래로 당겨 새로고침</string>
+    <string name="pull_refresh_complete">새로고침 완료</string>
+    <string name="profile_detail_title">프로필 상세</string>
+    <string name="profile_comment">자기소개</string>
+    <string name="monet_system">다이내믹 컬러(시스템 따름)</string>
+    <string name="monet_light">다이내믹 컬러(라이트)</string>
+    <string name="monet_dark">다이내믹 컬러(다크)</string>
+    <string name="keyword_search">키워드 검색</string>
+    <string name="end_date">종료 날짜</string>
+    <string name="deleted">삭제됨</string>
+    <string name="color_mode">색상 모드</string>
+    <string name="collection_visibility">공개 범위</string>
+    <string name="clear_date_range">날짜 범위 지우기</string>
 </resources>

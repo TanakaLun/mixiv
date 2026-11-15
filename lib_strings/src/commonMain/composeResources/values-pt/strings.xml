@@ -416,4 +416,21 @@
     <string name="search_series_only">Apenas séries de romances</string>
     <string name="search_show_r18">Mostrar conteúdo R-18</string>
     <string name="search_r18_only">Apenas R-18</string>
+    <string name="start_date">Data de início</string>
+    <string name="select_date">Selecionar data</string>
+    <string name="pull_refresh_release">Solte para atualizar</string>
+    <string name="pull_refresh_refreshing">Atualizando</string>
+    <string name="pull_refresh_pull_down">Puxe para baixo para atualizar</string>
+    <string name="pull_refresh_complete">Atualização concluída</string>
+    <string name="profile_detail_title">Detalhes do perfil</string>
+    <string name="profile_comment">Biografia</string>
+    <string name="monet_system">Cor dinâmica (seguir o sistema)</string>
+    <string name="monet_light">Cor dinâmica (clara)</string>
+    <string name="monet_dark">Cor dinâmica (escura)</string>
+    <string name="keyword_search">Pesquisa por palavra-chave</string>
+    <string name="end_date">Data de término</string>
+    <string name="deleted">Excluído</string>
+    <string name="color_mode">Modo de cor</string>
+    <string name="collection_visibility">Visibilidade</string>
+    <string name="clear_date_range">Limpar intervalo de datas</string>
 </resources>

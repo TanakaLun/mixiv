@@ -416,4 +416,21 @@
     <string name="search_series_only">Solo series de novelas</string>
     <string name="search_show_r18">Mostrar contenido R-18</string>
     <string name="search_r18_only">Solo R-18</string>
+    <string name="start_date">Fecha de inicio</string>
+    <string name="select_date">Seleccionar fecha</string>
+    <string name="pull_refresh_release">Suelta para actualizar</string>
+    <string name="pull_refresh_refreshing">Actualizando</string>
+    <string name="pull_refresh_pull_down">Desliza hacia abajo para actualizar</string>
+    <string name="pull_refresh_complete">Actualización completada</string>
+    <string name="profile_detail_title">Detalles del perfil</string>
+    <string name="profile_comment">Biografía</string>
+    <string name="monet_system">Color dinámico (seguir el sistema)</string>
+    <string name="monet_light">Color dinámico (claro)</string>
+    <string name="monet_dark">Color dinámico (oscuro)</string>
+    <string name="keyword_search">Búsqueda por palabra clave</string>
+    <string name="end_date">Fecha de fin</string>
+    <string name="deleted">Eliminado</string>
+    <string name="color_mode">Modo de color</string>
+    <string name="collection_visibility">Visibilidad</string>
+    <string name="clear_date_range">Borrar rango de fechas</string>
 </resources>

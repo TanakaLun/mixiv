@@ -416,4 +416,21 @@
     <string name="search_series_only">シリーズ小説のみ</string>
     <string name="search_show_r18">R-18 作品を表示</string>
     <string name="search_r18_only">R-18 のみ</string>
+    <string name="start_date">開始日</string>
+    <string name="select_date">日付を選択</string>
+    <string name="pull_refresh_release">離して更新</string>
+    <string name="pull_refresh_refreshing">更新中</string>
+    <string name="pull_refresh_pull_down">下に引いて更新</string>
+    <string name="pull_refresh_complete">更新完了</string>
+    <string name="profile_detail_title">プロフィール詳細</string>
+    <string name="profile_comment">自己紹介</string>
+    <string name="monet_system">ダイナミックカラー（システムに従う）</string>
+    <string name="monet_light">ダイナミックカラー（ライト）</string>
+    <string name="monet_dark">ダイナミックカラー（ダーク）</string>
+    <string name="keyword_search">キーワード検索</string>
+    <string name="end_date">終了日</string>
+    <string name="deleted">削除済み</string>
+    <string name="color_mode">カラーモード</string>
+    <string name="collection_visibility">公開範囲</string>
+    <string name="clear_date_range">日付範囲をクリア</string>
 </resources>

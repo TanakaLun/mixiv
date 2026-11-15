@@ -416,4 +416,21 @@
     <string name="search_series_only">केवल उपन्यास शृंखलाएँ</string>
     <string name="search_show_r18">R-18 सामग्री दिखाएँ</string>
     <string name="search_r18_only">केवल R-18</string>
+    <string name="start_date">आरंभ तिथि</string>
+    <string name="select_date">तिथि चुनें</string>
+    <string name="pull_refresh_release">रीफ़्रेश करने के लिए छोड़ें</string>
+    <string name="pull_refresh_refreshing">रीफ़्रेश हो रहा है</string>
+    <string name="pull_refresh_pull_down">रीफ़्रेश करने के लिए नीचे खींचें</string>
+    <string name="pull_refresh_complete">रीफ़्रेश पूर्ण</string>
+    <string name="profile_detail_title">प्रोफ़ाइल विवरण</string>
+    <string name="profile_comment">परिचय</string>
+    <string name="monet_system">गतिशील रंग (सिस्टम का पालन करें)</string>
+    <string name="monet_light">गतिशील रंग (हल्का)</string>
+    <string name="monet_dark">गतिशील रंग (गहरा)</string>
+    <string name="keyword_search">कीवर्ड खोज</string>
+    <string name="end_date">समाप्ति तिथि</string>
+    <string name="deleted">हटाया गया</string>
+    <string name="color_mode">रंग मोड</string>
+    <string name="collection_visibility">दृश्यता</string>
+    <string name="clear_date_range">तिथि सीमा साफ़ करें</string>
 </resources>

@@ -156,6 +156,9 @@ def read_ios(path, errors):
 
 def check_ios(root, compose_locales, errors):
     resource_root = root / IOS_RESOURCES
+    # The android-only branch ships no iOS app; treat iOS checks as absent.
+    if not resource_root.exists():
+        return 0, 0
     reference = read_ios(resource_root / "zh-Hans.lproj/InfoPlist.strings", errors)
     plist_path = resource_root / "Info.plist"
     with plist_path.open("rb") as file:
