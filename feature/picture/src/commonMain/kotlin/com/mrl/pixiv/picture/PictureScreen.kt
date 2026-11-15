@@ -170,7 +170,9 @@ import kotlin.time.Duration.Companion.seconds
 fun PictureDeeplinkScreen(
     modifier: Modifier = Modifier,
     illustId: Long,
-    pictureViewModel: PictureViewModel = koinViewModel { parametersOf(null, illustId) },
+    pictureViewModel: PictureViewModel = koinViewModel(key = "picture-$illustId") {
+        parametersOf(null, illustId)
+    },
     navigationManager: NavigationManager = currentNavigationManager(),
 ) {
     val state = pictureViewModel.asState()
@@ -181,6 +183,7 @@ fun PictureDeeplinkScreen(
             onBack = navigationManager::popBackStack,
             enableTransition = false,
             modifier = modifier,
+            pictureViewModel = pictureViewModel,
         )
     } else {
         Box(
@@ -209,12 +212,16 @@ private const val KEY_ILLUST_RELATED_TITLE = "illust_related_title"
 private const val KEY_SPACER = "spacer"
 
 @Composable
+internal fun rememberPictureViewModel(illust: Illust): PictureViewModel =
+    koinViewModel(key = "picture-${illust.id}") { parametersOf(illust, null) }
+
+@Composable
 internal fun PictureScreen(
     illust: Illust,
     onBack: () -> Unit,
     enableTransition: Boolean,
     modifier: Modifier = Modifier,
-    pictureViewModel: PictureViewModel = koinViewModel { parametersOf(illust, null) },
+    pictureViewModel: PictureViewModel = rememberPictureViewModel(illust),
     navigationManager: NavigationManager = currentNavigationManager(),
 ) {
     val relatedIllusts = pictureViewModel.relatedIllusts.collectAsLazyPagingItems()
