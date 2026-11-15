@@ -22,6 +22,7 @@ import com.mrl.pixiv.common.data.report.ReportTopicListResp
 import com.mrl.pixiv.common.data.search.SearchAiType
 import com.mrl.pixiv.common.data.search.SearchAutoCompleteResp
 import com.mrl.pixiv.common.data.search.SearchIllustResp
+import com.mrl.pixiv.common.data.search.SearchOptionsResponse
 import com.mrl.pixiv.common.data.search.SearchSort
 import com.mrl.pixiv.common.data.search.SearchTarget
 import com.mrl.pixiv.common.data.search.SearchUserResp
@@ -134,6 +135,15 @@ interface PixivApi {
     suspend fun searchIllustNext(
         @QueryMap queryMap: Map<String, String>,
     ): SearchIllustResp
+
+    @GET("v1/search/options")
+    suspend fun getSearchOptions(
+        @Query("word") word: String,
+        @Query("search_target") searchTarget: String,
+        @Query("search_ai_types") searchAiTypes: Int,
+        @Query("include_translated_tag_results") includeTranslatedTagResults: Boolean = true,
+        @Query("merge_plain_keyword_results") mergePlainKeywordResults: Boolean = true,
+    ): SearchOptionsResponse
 
     @GET("v1/search/user")
     suspend fun searchUser(

@@ -124,6 +124,12 @@ object PixivRepository : KoinComponent {
             query.offset
         )
 
+    suspend fun getSearchOptions(
+        word: String,
+        searchTarget: String,
+        searchAiTypes: Int,
+    ) = apiApi.getSearchOptions(word, searchTarget, searchAiTypes)
+
     suspend fun searchIllustNext(queryMap: Map<String, String>) =
         apiApi.searchIllustNext(queryMap)
 

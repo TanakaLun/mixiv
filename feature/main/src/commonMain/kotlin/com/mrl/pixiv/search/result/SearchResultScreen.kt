@@ -141,6 +141,15 @@ fun SearchResultsScreen(
     val isPremium by viewModel.isPremium.collectAsStateWithLifecycle()
     val usePagedSearchResults = searchResultDisplayMode == SearchResultDisplayMode.PAGED
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
+    val searchOptions by viewModel.searchOptions.collectAsStateWithLifecycle()
+    LaunchedEffect(showBottomSheet) {
+        if (showBottomSheet) {
+            viewModel.loadSearchOptions(
+                state.searchFilter.searchTarget,
+                state.searchFilter.searchAiType,
+            )
+        }
+    }
     val squareLayoutParams = IllustGridDefaults.relatedLayoutParameters()
     val originalAspectRatioLayoutParams = RecommendGridDefaults.coverLayoutParameters()
     val contentLayout = resolveSearchResultContentLayout(searchMode, searchResultIllustLayout)
@@ -763,6 +772,8 @@ fun SearchResultsScreen(
             onUpdateFilter = {
                 viewModel.dispatch(SearchResultAction.UpdateFilter(it))
             },
+            options = searchOptions,
+            onLoadOptions = { target, ai -> viewModel.loadSearchOptions(target, ai) },
             isNovelMode = searchMode == AppViewMode.NOVEL
         )
     }

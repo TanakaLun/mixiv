@@ -92,31 +92,20 @@ fun SearchSettingScreen(
                 DefaultSearchTargetSetting(
                     selectedTarget = searchSettings.defaultSearchTarget,
                     onTargetChange = { target ->
-                        SettingRepository.setSearchSettings(
-                            searchSettings.copy(defaultSearchTarget = target),
-                        )
+                        SettingRepository.updateSearchFilterDefaults { copy(searchTarget = target) }
                     },
                 )
                 DefaultSearchSortSetting(
                     selectedSort = searchSettings.defaultSearchSort,
                     onSortChange = { sort ->
-                        SettingRepository.setSearchSettings(
-                            searchSettings.copy(defaultSearchSort = sort),
-                        )
+                        SettingRepository.updateSearchFilterDefaults { copy(sort = sort) }
                     },
                 )
                 SwitchPreference(
                     checked = searchSettings.defaultSearchAiType == SearchAiType.SHOW_AI,
                     onCheckedChange = { checked ->
-                        SettingRepository.setSearchSettings(
-                            searchSettings.copy(
-                                defaultSearchAiType = if (checked) {
-                                    SearchAiType.SHOW_AI
-                                } else {
-                                    SearchAiType.HIDE_AI
-                                },
-                            ),
-                        )
+                        val aiType = if (checked) SearchAiType.SHOW_AI else SearchAiType.HIDE_AI
+                        SettingRepository.updateSearchFilterDefaults { copy(searchAiType = aiType) }
                     },
                     title = stringResource(RStrings.ai_generate),
                     startAction = { Icon(Icons.Rounded.AutoAwesome, contentDescription = null) },
@@ -133,7 +122,7 @@ fun SearchSettingScreen(
                     filter = searchSettings.defaultContentFilter,
                     defaultShowR18 = userPreference.isR18Enabled,
                     onChange = {
-                        SettingRepository.setSearchSettings(searchSettings.copy(defaultContentFilter = it))
+                        SettingRepository.updateSearchFilterDefaults { copy(contentFilter = it) }
                     },
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                 )

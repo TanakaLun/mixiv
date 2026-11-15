@@ -22,6 +22,7 @@ import com.mrl.pixiv.common.data.search.SearchTarget
 import com.mrl.pixiv.common.repository.requireUserPreferenceValue
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.search.SearchState.SearchFilter
+import com.mrl.pixiv.search.result.SearchOptionsState
 import com.mrl.pixiv.strings.ai_generate
 import com.mrl.pixiv.strings.apply
 import com.mrl.pixiv.strings.date_asc
@@ -50,10 +51,13 @@ internal fun FilterBottomSheet(
     searchFilter: SearchFilter,
     onDismissRequest: () -> Unit,
     onUpdateFilter: (SearchFilter) -> Unit,
+    options: SearchOptionsState,
+    onLoadOptions: (SearchTarget, SearchAiType) -> Unit,
     modifier: Modifier = Modifier,
     isNovelMode: Boolean = false,
 ) {
     var innerSearchFilter by remember { mutableStateOf(searchFilter) }
+    var rangesValid by remember { mutableStateOf(true) }
     OverlayBottomSheet(
         show = show,
         onDismissRequest = onDismissRequest,
@@ -62,6 +66,7 @@ internal fun FilterBottomSheet(
         title = stringResource(RStrings.filter),
         endAction = {
             IconButton(
+                enabled = rangesValid,
                 onClick = {
                     onUpdateFilter(innerSearchFilter)
                     onDismissRequest()
@@ -130,6 +135,23 @@ internal fun FilterBottomSheet(
                         }
                     )
                 }
+            }
+
+            Card(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                SearchAdvancedControls(
+                    filter = innerSearchFilter,
+                    isNovel = isNovelMode,
+                    options = options,
+                    onChange = { innerSearchFilter = it },
+                    onValidityChanged = { rangesValid = it },
+                    onRetry = {
+                        onLoadOptions(
+                            innerSearchFilter.searchTarget,
+                            innerSearchFilter.searchAiType,
+                        )
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                )
             }
 
             Card(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
