@@ -35,6 +35,7 @@ import coil3.request.crossfade
 import com.mrl.pixiv.common.compose.ui.BookmarkIcon
 import com.mrl.pixiv.common.compose.ui.LongPressIconButton
 import com.mrl.pixiv.common.compose.ui.NovelBottomBookmarkSheet
+import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.compose.ui.illust.AIBadge
 import com.mrl.pixiv.common.data.AiType
 import com.mrl.pixiv.common.data.Novel
@@ -48,7 +49,6 @@ import com.mrl.pixiv.common.util.allowRgb565
 import com.mrl.pixiv.common.util.convertUtcStringToLocalDateTime
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import kotlin.time.Duration.Companion.seconds

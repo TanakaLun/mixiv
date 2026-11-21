@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.data.Novel
 import com.mrl.pixiv.common.repository.NovelReadLaterRepository
 import com.mrl.pixiv.common.repository.requireUserPreferenceFlow
@@ -27,7 +28,6 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.theme.LocalContentColor
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 

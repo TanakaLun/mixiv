@@ -21,6 +21,6 @@ import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 fun Modifier.pageScrollModifiers(scrollBehavior: ScrollBehavior): Modifier =
     this
         .scrollEndHaptic()
-        .overScrollVertical()
+        .overScrollVertical(onOffsetChanged = { scrollBehavior.state.overscrollOffset = it })
         .nestedScroll(scrollBehavior.nestedScrollConnection)
         .fillMaxHeight()

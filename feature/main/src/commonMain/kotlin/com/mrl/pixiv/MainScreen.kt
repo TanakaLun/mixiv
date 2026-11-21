@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.analytics.logEvent
 import com.mrl.pixiv.common.compose.LocalSnackbarHostState
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
+import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.repository.VersionManager
 import com.mrl.pixiv.common.router.Destination
 import com.mrl.pixiv.common.router.MainPage
@@ -50,12 +52,17 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.annotation.KoinExperimentalAPI
 import top.yukonga.miuix.kmp.basic.Badge
-import top.yukonga.miuix.kmp.basic.NavigationBar
-import top.yukonga.miuix.kmp.basic.NavigationBarItem
 import top.yukonga.miuix.kmp.basic.NavigationRail
 import top.yukonga.miuix.kmp.basic.NavigationRailItem
-import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.SnackbarHost
+import top.yukonga.miuix.kmp.glass.GlassNavigationBar
+import top.yukonga.miuix.kmp.glass.GlassNavigationItem
+import top.yukonga.miuix.kmp.icon.MiuixIcons
+import top.yukonga.miuix.kmp.icon.glass.ContactsCircle
+import top.yukonga.miuix.kmp.icon.glass.DigitalStatistics
+import top.yukonga.miuix.kmp.icon.glass.FavoriteFill
+import top.yukonga.miuix.kmp.icon.glass.HomeFill
+import top.yukonga.miuix.kmp.icon.glass.Search
 
 /** Spring spec shared by pager tab navigation and snap fling (miuix example). */
 private val PagerNavigationSpringSpec: SpringSpec<Float> = spring(
@@ -200,25 +207,28 @@ fun MainScreen(
             modifier = modifier,
             contentWindowInsets = WindowInsets(0.dp),
             bottomBar = {
-                NavigationBar {
-                    screens.forEach { (screen, title) ->
-                        NavigationBarItem(
-                            selected = page == screen,
-                            onClick = {
-                                if (page != screen) {
-                                    navigationManager.switchMainPage(screen)
-                                }
-                            },
-                            icon = screen.icon,
+                GlassNavigationBar(
+                    items = screens.map { (screen, title) ->
+                        GlassNavigationItem(
+                            icon = screen.glassIcon(),
                             label = stringResource(title),
+                            contentDescription = stringResource(title),
                             badge = if (screen == MainPage.Profile && hasNewVersion) {
                                 { Badge() }
                             } else {
                                 null
                             },
                         )
-                    }
-                }
+                    },
+                    selectedIndex = screens.indexOfFirst { it.first == page }.coerceAtLeast(0),
+                    onSelect = { index ->
+                        val target = screens.getOrNull(index)?.first ?: return@GlassNavigationBar
+                        if (page != target) {
+                            navigationManager.switchMainPage(target)
+                        }
+                    },
+                    backdrop = LocalBodyBackdrop.current,
+                )
             },
         ) { padding ->
             tabContent(Modifier.padding(padding).consumeWindowInsets(padding))
@@ -238,4 +248,12 @@ fun MainScreen(
             put("screen_class", screenName)
         })
     }
+}
+
+private fun MainPage.glassIcon(): androidx.compose.ui.graphics.vector.ImageVector = when (this) {
+    MainPage.Home -> MiuixIcons.Glass.HomeFill
+    MainPage.Ranking -> MiuixIcons.Glass.DigitalStatistics
+    MainPage.Latest -> MiuixIcons.Glass.FavoriteFill
+    MainPage.Search -> MiuixIcons.Glass.Search
+    MainPage.Profile -> MiuixIcons.Glass.ContactsCircle
 }

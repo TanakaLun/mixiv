@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.mrl.pixiv.comment.MAX_COMMENT_LENGTH
+import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.compose.ui.image.LoadingImage
 import com.mrl.pixiv.common.data.comment.Comment
 import com.mrl.pixiv.common.data.comment.Emoji
@@ -80,7 +81,6 @@ import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.icon.MiuixIcons

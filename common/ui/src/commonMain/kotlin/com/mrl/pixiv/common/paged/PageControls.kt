@@ -27,6 +27,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.repository.feed.PagedFeedState
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.strings.confirm
@@ -36,7 +37,6 @@ import com.mrl.pixiv.strings.previous_page
 import com.mrl.pixiv.strings.retry
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Surface
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.icon.MiuixIcons
