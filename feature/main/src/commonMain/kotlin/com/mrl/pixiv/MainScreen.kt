@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
@@ -209,28 +210,36 @@ fun MainScreen(
             modifier = modifier,
             contentWindowInsets = WindowInsets(0.dp),
             bottomBar = {
-                GlassNavigationBar(
-                    items = screens.map { (screen, title) ->
-                        GlassNavigationItem(
-                            icon = screen.glassIcon(),
-                            label = stringResource(title),
-                            contentDescription = stringResource(title),
-                            badge = if (screen == MainPage.Profile && hasNewVersion) {
-                                { Badge() }
-                            } else {
-                                null
-                            },
-                        )
-                    },
-                    selectedIndex = screens.indexOfFirst { it.first == page }.coerceAtLeast(0),
-                    onSelect = { index ->
-                        val target = screens.getOrNull(index)?.first ?: return@GlassNavigationBar
-                        if (page != target) {
-                            navigationManager.switchMainPage(target)
-                        }
-                    },
-                    backdrop = LocalBodyBackdrop.current,
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    GlassNavigationBar(
+                        modifier = Modifier.widthIn(max = 440.dp),
+                        items = screens.map { (screen, title) ->
+                            GlassNavigationItem(
+                                icon = screen.glassIcon(),
+                                label = stringResource(title),
+                                contentDescription = stringResource(title),
+                                badge = if (screen == MainPage.Profile && hasNewVersion) {
+                                    { Badge() }
+                                } else {
+                                    null
+                                },
+                            )
+                        },
+                        selectedIndex = screens.indexOfFirst { it.first == page }.coerceAtLeast(0),
+                        onSelect = { index ->
+                            val target = screens.getOrNull(index)?.first ?: return@GlassNavigationBar
+                            if (page != target) {
+                                navigationManager.switchMainPage(target)
+                            }
+                        },
+                        backdrop = LocalBodyBackdrop.current,
+                    )
+                }
             },
         ) { padding ->
             val systemBottom = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()
