@@ -18,7 +18,7 @@ kotlin {
 
     android {
         compileSdk = 37
-        minSdk = 26
+        minSdk = 33
 
         androidResources {
             enable = true

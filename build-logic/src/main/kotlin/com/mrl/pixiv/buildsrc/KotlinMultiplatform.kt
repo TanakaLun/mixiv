@@ -10,7 +10,7 @@ internal fun KotlinMultiplatformAndroidLibraryTarget.configureKotlinMultiplatfor
     compileSdk {
         version = release(37) { minorApiLevel = 2 }
     }
-    minSdk = 26
+    minSdk = 33
 
     withDeviceTest {
         instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
