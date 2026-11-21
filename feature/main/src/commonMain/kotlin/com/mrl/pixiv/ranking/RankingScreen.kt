@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.mrl.pixiv.LocalMainBottomContentPadding
 import com.mrl.pixiv.collection.components.FilterAction
 import com.mrl.pixiv.common.analytics.logEvent
 import com.mrl.pixiv.common.compose.RecommendGridDefaults
@@ -282,7 +283,12 @@ private fun IllustMode(
         val layoutParams = RecommendGridDefaults.coverLayoutParameters()
         AdaptiveVerticalStaggeredGrid(
             state = lazyStaggeredGridState,
-            contentPadding = PaddingValues(5.dp),
+            contentPadding = PaddingValues(
+                start = 5.dp,
+                top = 5.dp,
+                end = 5.dp,
+                bottom = 5.dp + LocalMainBottomContentPadding.current,
+            ),
             columns = layoutParams.gridCells,
             verticalItemSpacing = layoutParams.verticalArrangement.spacing,
             horizontalArrangement = layoutParams.horizontalArrangement,
@@ -341,6 +347,7 @@ private fun NovelMode(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,
+            contentPadding = PaddingValues(bottom = LocalMainBottomContentPadding.current),
         ) {
             items(
                 count = rankingList.itemCount,

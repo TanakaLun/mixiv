@@ -6,11 +6,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
@@ -18,6 +18,7 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -231,7 +232,14 @@ fun MainScreen(
                 )
             },
         ) { padding ->
-            tabContent(Modifier.padding(padding).consumeWindowInsets(padding))
+            val systemBottom = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()
+            CompositionLocalProvider(
+                // 让主页面正文延伸到玻璃导航栏下方，导航栏因此可以采样到滚动中的列表内容。
+                LocalMainBottomContentPadding provides
+                    (padding.calculateBottomPadding() - systemBottom).coerceAtLeast(0.dp),
+            ) {
+                tabContent(Modifier.fillMaxSize())
+            }
         }
     } else {
         tabContent(modifier)

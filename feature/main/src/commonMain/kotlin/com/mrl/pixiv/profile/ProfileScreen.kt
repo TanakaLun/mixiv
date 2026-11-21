@@ -1,5 +1,7 @@
 package com.mrl.pixiv.profile
 
+import androidx.compose.foundation.layout.PaddingValues
+import com.mrl.pixiv.LocalMainBottomContentPadding
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
 import com.mrl.pixiv.common.data.AppViewMode
@@ -95,6 +97,7 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .padding(top = 16.dp)
                 .pageScrollModifiers(scrollBehavior),
+            contentPadding = PaddingValues(bottom = LocalMainBottomContentPadding.current),
         ) {
             item(key = KEY_USER_INFO) {
                 Card(modifier = Modifier.padding(horizontal = 12.dp)) {

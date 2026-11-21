@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mrl.pixiv.LocalMainBottomContentPadding
 import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
@@ -114,7 +115,8 @@ fun SearchPreviewScreen(
                     start = 16.dp,
                     top = 8.dp,
                     end = 16.dp,
-                    bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                    bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() +
+                        LocalMainBottomContentPadding.current
                 ),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),

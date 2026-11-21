@@ -103,6 +103,7 @@ fun TopAppBar(
     GlassTopAppBar(
         title = title,
         modifier = modifier,
+        progressiveBlur = true,
         backdrop = LocalBodyBackdrop.current,
         largeTitle = largeTitle,
         subtitle = subtitle,
@@ -137,6 +138,7 @@ fun SmallTopAppBar(
         largeTitle = title,
         modifier = modifier,
         expandable = false,
+        progressiveBlur = true,
         backdrop = LocalBodyBackdrop.current,
         subtitle = subtitle,
         scrollBehavior = scrollBehavior,

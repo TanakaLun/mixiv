@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
+import com.mrl.pixiv.LocalMainBottomContentPadding
 import com.mrl.pixiv.common.compose.RecommendGridDefaults
 import com.mrl.pixiv.common.compose.layout.AdaptiveVerticalStaggeredGrid
 import com.mrl.pixiv.common.compose.ui.illust.RectangleIllustItem
@@ -26,7 +27,12 @@ fun RecommendGrid(
 
     AdaptiveVerticalStaggeredGrid(
         state = lazyStaggeredGridState,
-        contentPadding = PaddingValues(5.dp),
+        contentPadding = PaddingValues(
+            start = 5.dp,
+            top = 5.dp,
+            end = 5.dp,
+            bottom = 5.dp + LocalMainBottomContentPadding.current,
+        ),
         columns = layoutParams.gridCells,
         verticalItemSpacing = layoutParams.verticalArrangement.spacing,
         horizontalArrangement = layoutParams.horizontalArrangement,

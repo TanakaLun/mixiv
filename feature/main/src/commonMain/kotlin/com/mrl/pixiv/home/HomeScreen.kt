@@ -2,6 +2,7 @@ package com.mrl.pixiv.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.mrl.pixiv.LocalMainBottomContentPadding
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
@@ -308,6 +310,7 @@ private fun NovelMode(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,
+            contentPadding = PaddingValues(bottom = LocalMainBottomContentPadding.current),
         ) {
             items(
                 count = recommendNovelList.itemCount,

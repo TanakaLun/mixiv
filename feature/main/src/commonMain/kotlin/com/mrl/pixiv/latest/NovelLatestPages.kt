@@ -32,6 +32,7 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
+import com.mrl.pixiv.LocalMainBottomContentPadding
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
@@ -114,7 +115,10 @@ private fun NovelFeedPage(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = listState,
-                contentPadding = PaddingValues(vertical = 8.dp),
+                contentPadding = PaddingValues(
+                    top = 8.dp,
+                    bottom = 8.dp + LocalMainBottomContentPadding.current,
+                ),
             ) {
                 if (
                     pagingItems.itemCount == 0 &&
@@ -201,7 +205,10 @@ fun NovelWatchlistPage(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = listState,
-                contentPadding = PaddingValues(vertical = 8.dp),
+                contentPadding = PaddingValues(
+                    top = 8.dp,
+                    bottom = 8.dp + LocalMainBottomContentPadding.current,
+                ),
             ) {
                 if (
                     watchlist.itemCount == 0 &&

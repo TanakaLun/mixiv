@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.mrl.pixiv.LocalMainBottomContentPadding
 import com.mrl.pixiv.common.compose.RecommendGridDefaults
 import com.mrl.pixiv.common.compose.layout.AdaptiveVerticalStaggeredGrid
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
@@ -106,7 +107,12 @@ private fun TrendingIllustPage(
                 columns = layoutParams.gridCells,
                 modifier = Modifier.fillMaxSize(),
                 state = lazyGridState,
-                contentPadding = PaddingValues(horizontal = 5.dp, vertical = 10.dp),
+                contentPadding = PaddingValues(
+                    start = 5.dp,
+                    top = 10.dp,
+                    end = 5.dp,
+                    bottom = 10.dp + LocalMainBottomContentPadding.current,
+                ),
                 verticalItemSpacing = layoutParams.verticalArrangement.spacing,
                 horizontalArrangement = layoutParams.horizontalArrangement,
             ) {
@@ -182,7 +188,10 @@ private fun TrendingNovelPage(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = lazyListState,
-                contentPadding = PaddingValues(vertical = 10.dp),
+                contentPadding = PaddingValues(
+                    top = 10.dp,
+                    bottom = 10.dp + LocalMainBottomContentPadding.current,
+                ),
             ) {
                 items(
                     count = novelsFollowing.itemCount,

@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.mrl.pixiv.LocalMainBottomContentPadding
 import com.mrl.pixiv.collection.CollectionViewModel
 import com.mrl.pixiv.common.compose.RecommendGridDefaults
 import com.mrl.pixiv.common.compose.layout.AdaptiveVerticalStaggeredGrid
@@ -112,7 +113,12 @@ private fun CollectionIllustPage(
                 columns = layoutParams.gridCells,
                 modifier = Modifier.fillMaxSize(),
                 state = lazyGridState,
-                contentPadding = PaddingValues(horizontal = 5.dp, vertical = 10.dp),
+                contentPadding = PaddingValues(
+                    start = 5.dp,
+                    top = 10.dp,
+                    end = 5.dp,
+                    bottom = 10.dp + LocalMainBottomContentPadding.current,
+                ),
                 verticalItemSpacing = layoutParams.verticalArrangement.spacing,
                 horizontalArrangement = layoutParams.horizontalArrangement,
             ) {
@@ -187,7 +193,10 @@ private fun CollectionNovelPage(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = lazyListState,
-                contentPadding = PaddingValues(vertical = 10.dp),
+                contentPadding = PaddingValues(
+                    top = 10.dp,
+                    bottom = 10.dp + LocalMainBottomContentPadding.current,
+                ),
             ) {
                 items(
                     count = userBookmarksNovels.itemCount,
