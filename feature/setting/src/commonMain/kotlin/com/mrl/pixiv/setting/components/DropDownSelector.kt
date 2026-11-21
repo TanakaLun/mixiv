@@ -12,13 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mrl.pixiv.common.compose.ui.glass.GlassListPopup
+import com.mrl.pixiv.common.compose.ui.glass.glassPopupAnchorBounds
+import com.mrl.pixiv.common.compose.ui.glass.rememberGlassPopupBounds
 import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.ListPopupColumn
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.ExpandMore
 import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.window.WindowListPopup
 
 @Composable
 fun DropDownSelector(
@@ -28,9 +29,11 @@ fun DropDownSelector(
     current: String,
     items: @Composable ColumnScope.() -> Unit
 ) {
+    val menuBounds = rememberGlassPopupBounds()
     Box {
         Row(
             modifier = modifier
+                .glassPopupAnchorBounds(menuBounds)
                 .background(
                     MiuixTheme.colorScheme.primary.copy(alpha = 0.5f),
                     RoundedCornerShape(8.dp)
@@ -42,14 +45,13 @@ fun DropDownSelector(
             Text(text = current, style = MiuixTheme.textStyles.body1)
             Icon(imageVector = MiuixIcons.ExpandMore, contentDescription = null)
         }
-        WindowListPopup(
+        GlassListPopup(
             show = expanded,
             onDismissRequest = onDismissRequest,
+            anchorBounds = menuBounds.value,
         ) {
-            ListPopupColumn {
-                Column {
-                    items()
-                }
+            Column {
+                items()
             }
         }
     }

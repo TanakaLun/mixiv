@@ -9,9 +9,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mrl.pixiv.common.compose.ui.glass.GlassListPopup
+import com.mrl.pixiv.common.compose.ui.glass.GlassPopupItem
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
+import com.mrl.pixiv.common.compose.ui.glass.glassPopupAnchorBounds
+import com.mrl.pixiv.common.compose.ui.glass.rememberGlassPopupBounds
 import com.mrl.pixiv.common.repository.requireUserInfoFlow
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.throttleClick
@@ -20,18 +25,14 @@ import com.mrl.pixiv.strings.label_default
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDateRange
 import org.jetbrains.compose.resources.stringResource
-import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.ListPopupColumn
 import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.icon.extended.Filter
 import top.yukonga.miuix.kmp.icon.extended.Months
-import top.yukonga.miuix.kmp.icon.extended.Ok
 import top.yukonga.miuix.kmp.theme.LocalContentColor
 import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.window.WindowListPopup
 
 @Composable
 internal fun SearchResultAppBar(
@@ -50,6 +51,7 @@ internal fun SearchResultAppBar(
 ) {
     var showBookmarkMenu by rememberSaveable { mutableStateOf(false) }
     var showDateRangePicker by rememberSaveable { mutableStateOf(false) }
+    val bookmarkMenuBounds = rememberGlassPopupBounds()
     val isPremium by requireUserInfoFlow.map { it.profile.isPremium }
         .collectAsStateWithLifecycle(false)
 
@@ -74,7 +76,10 @@ internal fun SearchResultAppBar(
                         tint = if (searchDateRange != null) MiuixTheme.colorScheme.primary else LocalContentColor.current,
                     )
                 }
-                IconButton(onClick = { showBookmarkMenu = true }) {
+                IconButton(
+                    onClick = { showBookmarkMenu = true },
+                    modifier = Modifier.glassPopupAnchorBounds(bookmarkMenuBounds),
+                ) {
                     Icon(
                         imageVector = Icons.Rounded.CollectionsBookmark,
                         contentDescription = "Bookmark Range",
@@ -85,6 +90,7 @@ internal fun SearchResultAppBar(
                     PremiumBookmarkRangeSelector(
                         expanded = showBookmarkMenu,
                         onDismissRequest = { showBookmarkMenu = false },
+                        anchorBounds = bookmarkMenuBounds.value,
                         bookmarkNumRange = bookmarkNumRange,
                         onBookmarkNumRangeChanged = onBookmarkNumRangeChanged,
                     )
@@ -92,6 +98,7 @@ internal fun SearchResultAppBar(
                     NonPremiumBookmarkRangeSelector(
                         expanded = showBookmarkMenu,
                         onDismissRequest = { showBookmarkMenu = false },
+                        anchorBounds = bookmarkMenuBounds.value,
                         selectedRange = bookmarkStringRange,
                         onBookmarkStringRangeChanged = onBookmarkStringRangeChanged,
                     )
@@ -121,48 +128,38 @@ internal fun SearchResultAppBar(
 private fun PremiumBookmarkRangeSelector(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
+    anchorBounds: Rect,
     bookmarkNumRange: IntRange?,
     onBookmarkNumRangeChanged: (IntRange?) -> Unit,
 ) {
-    WindowListPopup(
+    GlassListPopup(
         show = expanded,
         onDismissRequest = onDismissRequest,
+        anchorBounds = anchorBounds,
     ) {
-        ListPopupColumn {
-            val ranges = listOf(
-                stringResource(RStrings.label_default) to null,
-                "10~29" to (10..29),
-                "30~49" to (30..49),
-                "50~99" to (50..99),
-                "100~299" to (100..299),
-                "300~499" to (300..499),
-                "500~999" to (500..999),
-                "1000~4999" to (1000..4999),
-                "5000~9999" to (5000..9999),
-                "10000~49999" to (10000..49999),
-                ">50000" to (50000..Int.MAX_VALUE),
-            )
+        val ranges = listOf(
+            stringResource(RStrings.label_default) to null,
+            "10~29" to (10..29),
+            "30~49" to (30..49),
+            "50~99" to (50..99),
+            "100~299" to (100..299),
+            "300~499" to (300..499),
+            "500~999" to (500..999),
+            "1000~4999" to (1000..4999),
+            "5000~9999" to (5000..9999),
+            "10000~49999" to (10000..49999),
+            ">50000" to (50000..Int.MAX_VALUE),
+        )
 
-            ranges.forEach { (label, range) ->
-                val isSelected = range == bookmarkNumRange
-                BasicComponent(
-                    title = label,
-                    onClick = {
-                        onBookmarkNumRangeChanged(range)
-                        onDismissRequest()
-                    },
-                    endActions = if (isSelected) {
-                        {
-                            Icon(
-                                imageVector = MiuixIcons.Ok,
-                                contentDescription = null,
-                            )
-                        }
-                    } else {
-                        null
-                    },
-                )
-            }
+        ranges.forEach { (label, range) ->
+            GlassPopupItem(
+                text = label,
+                selected = range == bookmarkNumRange,
+                onClick = {
+                    onBookmarkNumRangeChanged(range)
+                    onDismissRequest()
+                },
+            )
         }
     }
 }
@@ -171,48 +168,38 @@ private fun PremiumBookmarkRangeSelector(
 private fun NonPremiumBookmarkRangeSelector(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
+    anchorBounds: Rect,
     selectedRange: String?,
     onBookmarkStringRangeChanged: (String?) -> Unit,
 ) {
-    WindowListPopup(
+    GlassListPopup(
         show = expanded,
         onDismissRequest = onDismissRequest,
+        anchorBounds = anchorBounds,
     ) {
-        ListPopupColumn {
-            val ranges = listOf(
-                stringResource(RStrings.label_default) to null,
-                "100 users入り" to "100 users入り",
-                "250 users入り" to "250 users入り",
-                "500 users入り" to "500 users入り",
-                "1000 users入り" to "1000 users入り",
-                "5000 users入り" to "5000 users入り",
-                "7500 users入り" to "7500 users入り",
-                "10000 users入り" to "10000 users入り",
-                "20000 users入り" to "20000 users入り",
-                "30000 users入り" to "30000 users入り",
-                "50000 users入り" to "50000 users入り",
-            )
+        val ranges = listOf(
+            stringResource(RStrings.label_default) to null,
+            "100 users入り" to "100 users入り",
+            "250 users入り" to "250 users入り",
+            "500 users入り" to "500 users入り",
+            "1000 users入り" to "1000 users入り",
+            "5000 users入り" to "5000 users入り",
+            "7500 users入り" to "7500 users入り",
+            "10000 users入り" to "10000 users入り",
+            "20000 users入り" to "20000 users入り",
+            "30000 users入り" to "30000 users入り",
+            "50000 users入り" to "50000 users入り",
+        )
 
-            ranges.forEach { (label, range) ->
-                val isSelected = range == selectedRange
-                BasicComponent(
-                    title = label,
-                    onClick = {
-                        onBookmarkStringRangeChanged(range)
-                        onDismissRequest()
-                    },
-                    endActions = if (isSelected) {
-                        {
-                            Icon(
-                                imageVector = MiuixIcons.Ok,
-                                contentDescription = null,
-                            )
-                        }
-                    } else {
-                        null
-                    },
-                )
-            }
+        ranges.forEach { (label, range) ->
+            GlassPopupItem(
+                text = label,
+                selected = range == selectedRange,
+                onClick = {
+                    onBookmarkStringRangeChanged(range)
+                    onDismissRequest()
+                },
+            )
         }
     }
 }

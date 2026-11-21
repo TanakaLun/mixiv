@@ -5,6 +5,7 @@ import androidx.compose.material.icons.rounded.Book
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.mrl.pixiv.common.compose.ui.glass.OverlayIconDropdownMenu
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.strings.illust
@@ -15,7 +16,6 @@ import top.yukonga.miuix.kmp.basic.DropdownItem
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Image
-import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**

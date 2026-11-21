@@ -1,6 +1,7 @@
 package com.mrl.pixiv.search.result.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.mrl.pixiv.common.compose.ui.glass.GlassListPopup
+import com.mrl.pixiv.common.compose.ui.glass.GlassPopupItem
+import com.mrl.pixiv.common.compose.ui.glass.glassPopupAnchorBounds
+import com.mrl.pixiv.common.compose.ui.glass.rememberGlassPopupBounds
 import com.mrl.pixiv.common.data.search.IllustAdvancedFilter
 import com.mrl.pixiv.common.data.search.NovelAdvancedFilter
 import com.mrl.pixiv.common.data.search.SearchGenreOption
@@ -53,18 +58,13 @@ import com.mrl.pixiv.strings.discovery_word_count_languages
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Card
-import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.ListPopupColumn
 import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
-import top.yukonga.miuix.kmp.icon.MiuixIcons
-import top.yukonga.miuix.kmp.icon.extended.Ok
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 import top.yukonga.miuix.kmp.preference.SwitchPreference
 import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.window.WindowListPopup
 
 /**
  * 搜索高级筛选（miuix 风格）：数值范围使用内联输入框，选项使用弹出列表，
@@ -349,43 +349,37 @@ private fun <T> SearchOptionPreference(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val selectedLabel = options.firstOrNull { it.first == selected }?.second ?: allLabel
+    val menuBounds = rememberGlassPopupBounds()
 
-    ArrowPreference(
-        title = title,
-        summary = selectedLabel,
-        onClick = { expanded = true },
-    )
-    WindowListPopup(
+    Box(modifier = Modifier.glassPopupAnchorBounds(menuBounds)) {
+        ArrowPreference(
+            title = title,
+            summary = selectedLabel,
+            onClick = { expanded = true },
+        )
+    }
+    GlassListPopup(
         show = expanded,
         onDismissRequest = { expanded = false },
+        anchorBounds = menuBounds.value,
     ) {
-        ListPopupColumn {
-            BasicComponent(
-                title = allLabel,
+        GlassPopupItem(
+            text = allLabel,
+            selected = selected == null,
+            onClick = {
+                onSelect(null)
+                expanded = false
+            },
+        )
+        options.forEach { (value, label) ->
+            GlassPopupItem(
+                text = label,
+                selected = value == selected,
                 onClick = {
-                    onSelect(null)
+                    onSelect(value)
                     expanded = false
                 },
-                endActions = {
-                    if (selected == null) {
-                        Icon(imageVector = MiuixIcons.Ok, contentDescription = null)
-                    }
-                },
             )
-            options.forEach { (value, label) ->
-                BasicComponent(
-                    title = label,
-                    onClick = {
-                        onSelect(value)
-                        expanded = false
-                    },
-                    endActions = {
-                        if (value == selected) {
-                            Icon(imageVector = MiuixIcons.Ok, contentDescription = null)
-                        }
-                    },
-                )
-            }
         }
     }
 }

@@ -28,6 +28,10 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mrl.pixiv.common.compose.ui.glass.GlassListPopup
+import com.mrl.pixiv.common.compose.ui.glass.GlassPopupItem
+import com.mrl.pixiv.common.compose.ui.glass.glassPopupAnchorBounds
+import com.mrl.pixiv.common.compose.ui.glass.rememberGlassPopupBounds
 import com.mrl.pixiv.common.compose.ui.image.LoadingImage
 import com.mrl.pixiv.common.compose.ui.image.UserAvatar
 import com.mrl.pixiv.common.data.comment.Comment
@@ -49,17 +53,14 @@ import com.mrl.pixiv.strings.report_comment
 import com.mrl.pixiv.strings.unblock_comment
 import com.mrl.pixiv.strings.view_replies
 import org.jetbrains.compose.resources.stringResource
-import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.ListPopupColumn
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.More
 import top.yukonga.miuix.kmp.overlay.OverlayDialog
 import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.window.WindowListPopup
 
 @Composable
 fun CommentItem(
@@ -123,51 +124,52 @@ fun CommentItem(
                     )
                 }
                 if (!comment.user.isSelf) {
+                    val menuBounds = rememberGlassPopupBounds()
                     Box {
                         Icon(
                             imageVector = MiuixIcons.More,
                             contentDescription = null,
                             modifier = Modifier
+                                .glassPopupAnchorBounds(menuBounds)
                                 .throttleClick(indication = LocalIndication.current) {
                                     showMenu = true
                                 }
                                 .padding(4.dp)
                                 .size(24.dp)
                         )
-                        WindowListPopup(
+                        GlassListPopup(
                             show = showMenu,
                             onDismissRequest = { showMenu = false },
-                            content = {
-                                ListPopupColumn {
-                                    if (isBlockScreen) {
-                                        BasicComponent(
-                                            title = stringResource(RStrings.unblock_comment),
-                                            onClick = {
-                                                onRemoveBlock()
-                                            },
-                                        )
-                                    } else {
-                                        BasicComponent(
-                                            title = stringResource(RStrings.block_comment),
-                                            onClick = {
-                                                onBlockComment()
-                                                showMenu = false
-                                            },
-                                        )
-                                        // 根据官方APP逻辑，纯stamp评论无法举报
-                                        if (comment.stamp == null) {
-                                            BasicComponent(
-                                                title = stringResource(RStrings.report_comment),
-                                                onClick = {
-                                                    onReportComment()
-                                                    showMenu = false
-                                                },
-                                            )
-                                        }
-                                    }
+                            anchorBounds = menuBounds.value,
+                        ) {
+                            if (isBlockScreen) {
+                                GlassPopupItem(
+                                    text = stringResource(RStrings.unblock_comment),
+                                    onClick = {
+                                        showMenu = false
+                                        onRemoveBlock()
+                                    },
+                                )
+                            } else {
+                                GlassPopupItem(
+                                    text = stringResource(RStrings.block_comment),
+                                    onClick = {
+                                        showMenu = false
+                                        onBlockComment()
+                                    },
+                                )
+                                // 根据官方APP逻辑，纯stamp评论无法举报
+                                if (comment.stamp == null) {
+                                    GlassPopupItem(
+                                        text = stringResource(RStrings.report_comment),
+                                        onClick = {
+                                            showMenu = false
+                                            onReportComment()
+                                        },
+                                    )
                                 }
-                            },
-                        )
+                            }
+                        }
                     }
                 }
             }

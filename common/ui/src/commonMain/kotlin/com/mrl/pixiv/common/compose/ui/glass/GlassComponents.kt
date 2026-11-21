@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -46,23 +47,33 @@ fun Scaffold(
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val backdrop = rememberGlassBackdrop()
-    CompositionLocalProvider(LocalBodyBackdrop provides backdrop) {
-        BasicScaffold(
-            modifier = modifier,
-            topBar = topBar,
-            bottomBar = bottomBar,
-            floatingActionButton = floatingActionButton,
-            floatingActionButtonPosition = floatingActionButtonPosition,
-            snackbarHost = snackbarHost,
-            contentWindowInsets = contentWindowInsets,
-        ) { padding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier),
-            ) {
-                content(padding)
+    val overlayHost = remember { GlassOverlayHost() }
+    CompositionLocalProvider(
+        LocalBodyBackdrop provides backdrop,
+        LocalGlassOverlayHost provides overlayHost,
+    ) {
+        Box(
+            modifier = modifier.fillMaxSize(),
+        ) {
+            BasicScaffold(
+                modifier = Modifier.fillMaxSize(),
+                topBar = topBar,
+                bottomBar = bottomBar,
+                floatingActionButton = floatingActionButton,
+                floatingActionButtonPosition = floatingActionButtonPosition,
+                snackbarHost = snackbarHost,
+                contentWindowInsets = contentWindowInsets,
+            ) { padding ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .then(if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier),
+                ) {
+                    content(padding)
+                }
             }
+            // 浮层最后绘制，确保玻璃菜单盖在顶栏、底栏与弹窗之上。
+            GlassOverlayHostContent(overlayHost)
         }
     }
 }

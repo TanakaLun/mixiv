@@ -3,6 +3,7 @@ package com.mrl.pixiv.collection.components
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.mrl.pixiv.collection.RestrictBookmarkTag
+import com.mrl.pixiv.common.compose.ui.glass.OverlayIconDropdownMenu
 import com.mrl.pixiv.common.data.Restrict
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.strings.filter
@@ -15,7 +16,6 @@ import top.yukonga.miuix.kmp.basic.DropdownItem
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Filter
-import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**

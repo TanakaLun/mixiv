@@ -33,9 +33,13 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import com.mrl.pixiv.common.compose.ui.BlockSurface
+import com.mrl.pixiv.common.compose.ui.glass.GlassListPopup
+import com.mrl.pixiv.common.compose.ui.glass.GlassPopupItem
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
+import com.mrl.pixiv.common.compose.ui.glass.glassPopupAnchorBounds
+import com.mrl.pixiv.common.compose.ui.glass.rememberGlassPopupBounds
 import com.mrl.pixiv.common.compose.ui.image.UserAvatar
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.Restrict
@@ -100,7 +104,6 @@ import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.ListPopupColumn
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.ScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
@@ -108,7 +111,6 @@ import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.icon.extended.More
 import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.window.WindowListPopup
 
 private const val KEY_USER_INFO = "user_info"
 private const val KEY_USER_DETAILS = "user_details"
@@ -523,6 +525,7 @@ private fun ProfileDetailAppBar(
     modifier: Modifier = Modifier,
 ) {
     var showMenu by rememberSaveable { mutableStateOf(false) }
+    val menuBounds = rememberGlassPopupBounds()
 
     TopAppBar(
         title = stringResource(RStrings.profile_detail_title),
@@ -536,43 +539,43 @@ private fun ProfileDetailAppBar(
         },
         actions = {
             if (!isBlocked && !userInfo.user.isSelf) {
-                IconButton(onClick = { showMenu = true }) {
+                IconButton(
+                    onClick = { showMenu = true },
+                    modifier = Modifier.glassPopupAnchorBounds(menuBounds),
+                ) {
                     Icon(
                         imageVector = MiuixIcons.More,
                         contentDescription = null,
                     )
                 }
             }
-            WindowListPopup(
+            GlassListPopup(
                 show = showMenu,
                 onDismissRequest = { showMenu = false },
+                anchorBounds = menuBounds.value,
             ) {
-                ListPopupColumn {
-                    val isSelf = userInfo.user.isSelf
-                    if (!userInfo.user.isFollowing && !isSelf) {
-                        BasicComponent(
-                            title = stringResource(RStrings.private_follow),
-                            onClick = {
-                                onPrivateFollow(userInfo.user.id)
-                                showMenu = false
-                            },
-                        )
-                    }
-                    if (!isSelf) {
-                        BasicComponent(
-                            title = stringResource(RStrings.block_user),
-                            onClick = {
-                                onBlockUser(userInfo.user.id)
-                                showMenu = false
-                            },
-                        )
-                        BasicComponent(
-                            title = stringResource(RStrings.report_user),
-                            onClick = {
-                                showMenu = false
-                            },
-                        )
-                    }
+                val isSelf = userInfo.user.isSelf
+                if (!userInfo.user.isFollowing && !isSelf) {
+                    GlassPopupItem(
+                        text = stringResource(RStrings.private_follow),
+                        onClick = {
+                            showMenu = false
+                            onPrivateFollow(userInfo.user.id)
+                        },
+                    )
+                }
+                if (!isSelf) {
+                    GlassPopupItem(
+                        text = stringResource(RStrings.block_user),
+                        onClick = {
+                            showMenu = false
+                            onBlockUser(userInfo.user.id)
+                        },
+                    )
+                    GlassPopupItem(
+                        text = stringResource(RStrings.report_user),
+                        onClick = { showMenu = false },
+                    )
                 }
             }
         },
