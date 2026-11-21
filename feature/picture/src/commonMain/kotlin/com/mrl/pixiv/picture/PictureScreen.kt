@@ -79,6 +79,7 @@ import com.mrl.pixiv.common.compose.ui.BookmarkIcon
 import com.mrl.pixiv.common.compose.ui.IllustBottomBookmarkSheet
 import com.mrl.pixiv.common.compose.ui.TagItem
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.illust.RectangleIllustItem
 import com.mrl.pixiv.common.compose.ui.illust.SquareIllustItem
@@ -152,6 +153,7 @@ import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.basic.TopAppBarDefaults
+import top.yukonga.miuix.kmp.glass.GlassBottomSheet
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.icon.extended.Download
@@ -161,7 +163,6 @@ import top.yukonga.miuix.kmp.icon.extended.Image
 import top.yukonga.miuix.kmp.icon.extended.Messages
 import top.yukonga.miuix.kmp.icon.extended.More
 import top.yukonga.miuix.kmp.icon.extended.Share
-import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.window.WindowListPopup
 import kotlin.time.Duration.Companion.seconds
@@ -1094,7 +1095,8 @@ private fun BottomMenu(
     onDownload: () -> Unit = {},
     onShare: () -> Unit = {}
 ) {
-    OverlayBottomSheet(
+    GlassBottomSheet(
+        backdrop = LocalBodyBackdrop.current,
         show = true,
         onDismissRequest = onDismissRequest,
         modifier = modifier,
@@ -1261,7 +1263,8 @@ private fun PictureTopBar(
         }
     }
     if (showBottomMenu) {
-        OverlayBottomSheet(
+        GlassBottomSheet(
+            backdrop = LocalBodyBackdrop.current,
             show = true,
             onDismissRequest = { showBottomMenu = false }
         ) {

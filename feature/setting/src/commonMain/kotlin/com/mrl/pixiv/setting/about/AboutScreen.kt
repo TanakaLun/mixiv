@@ -31,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mikepenz.markdown.m3.Markdown
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
@@ -68,9 +69,9 @@ import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.glass.GlassDialog
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
-import top.yukonga.miuix.kmp.overlay.OverlayDialog
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
@@ -194,7 +195,8 @@ fun AboutScreen(
             val releaseNotes = remember(latestVersionInfo.body) {
                 normalizeReleaseNotesLineEndings(latestVersionInfo.body.orEmpty())
             }
-            OverlayDialog(
+            GlassDialog(
+                backdrop = LocalBodyBackdrop.current,
                 show = true,
                 title = asset?.name ?: latestVersionInfo.tagName,
                 onDismissRequest = { showUpdateDialog = false },

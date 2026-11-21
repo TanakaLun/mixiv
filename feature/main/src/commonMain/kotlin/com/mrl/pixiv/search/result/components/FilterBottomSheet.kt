@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.ui.SearchContentFilterControls
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.search.SearchAiType
 import com.mrl.pixiv.common.data.search.SearchSort
@@ -38,9 +39,9 @@ import com.mrl.pixiv.strings.title_and_description
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.glass.GlassBottomSheet
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Ok
-import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
 import top.yukonga.miuix.kmp.preference.RadioButtonPreference
 import top.yukonga.miuix.kmp.preference.SwitchPreference
 import top.yukonga.miuix.kmp.theme.MiuixTheme
@@ -58,11 +59,12 @@ internal fun FilterBottomSheet(
 ) {
     var innerSearchFilter by remember { mutableStateOf(searchFilter) }
     var rangesValid by remember { mutableStateOf(true) }
-    OverlayBottomSheet(
+    GlassBottomSheet(
+        backdrop = LocalBodyBackdrop.current,
         show = show,
         onDismissRequest = onDismissRequest,
         modifier = modifier,
-        backgroundColor = MiuixTheme.colorScheme.background,
+        containerColor = MiuixTheme.colorScheme.background,
         title = stringResource(RStrings.filter),
         endAction = {
             IconButton(

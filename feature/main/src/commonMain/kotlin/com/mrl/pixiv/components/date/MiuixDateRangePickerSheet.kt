@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.strings.clear_date_range
 import com.mrl.pixiv.strings.date_range
@@ -32,10 +33,10 @@ import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.NumberPicker
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.glass.GlassBottomSheet
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Close
 import top.yukonga.miuix.kmp.icon.extended.Ok
-import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import kotlin.time.Clock
 
@@ -98,7 +99,8 @@ internal fun MiuixDateRangePickerSheet(
         if (endDay > endMaxDay) endDay = endMaxDay
     }
 
-    OverlayBottomSheet(
+    GlassBottomSheet(
+        backdrop = LocalBodyBackdrop.current,
         show = show,
         title = stringResource(RStrings.date_range),
         startAction = {

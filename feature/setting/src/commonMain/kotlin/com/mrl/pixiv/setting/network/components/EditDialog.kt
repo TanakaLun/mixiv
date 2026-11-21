@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.strings.cancel
 import com.mrl.pixiv.strings.confirm
@@ -22,7 +23,7 @@ import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.TextButton
-import top.yukonga.miuix.kmp.overlay.OverlayDialog
+import top.yukonga.miuix.kmp.glass.GlassDialog
 
 @Composable
 fun EditDialog(
@@ -34,7 +35,8 @@ fun EditDialog(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
     var text by remember(initialValue) { mutableStateOf(initialValue) }
-    OverlayDialog(
+    GlassDialog(
+        backdrop = LocalBodyBackdrop.current,
         show = true,
         title = title,
         onDismissRequest = onDismiss,

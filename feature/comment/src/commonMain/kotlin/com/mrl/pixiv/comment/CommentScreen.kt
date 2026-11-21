@@ -33,6 +33,7 @@ import com.mrl.pixiv.comment.components.CommentInput
 import com.mrl.pixiv.comment.components.CommentInputPlaceholder
 import com.mrl.pixiv.comment.components.CommentItem
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
@@ -69,9 +70,9 @@ import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.PullToRefresh
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.glass.GlassBottomSheet
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
-import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
 
 @Composable
 fun CommentScreen(
@@ -251,7 +252,8 @@ fun CommentScreen(
         }
 
         if (state.expandedComment != null) {
-            OverlayBottomSheet(
+            GlassBottomSheet(
+                backdrop = LocalBodyBackdrop.current,
                 show = true,
                 onDismissRequest = { viewModel.setExpandedComment(null) },
             ) {
@@ -285,7 +287,8 @@ fun CommentScreen(
         }
 
         if (showInputSheet) {
-            OverlayBottomSheet(
+            GlassBottomSheet(
+                backdrop = LocalBodyBackdrop.current,
                 show = true,
                 onDismissRequest = { showInputSheet = false },
             ) {

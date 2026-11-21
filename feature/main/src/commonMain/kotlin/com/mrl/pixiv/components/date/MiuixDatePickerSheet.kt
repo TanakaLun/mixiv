@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.strings.select_date
 import kotlinx.datetime.DateTimeUnit
@@ -26,10 +27,10 @@ import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.NumberPicker
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.glass.GlassBottomSheet
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Close
 import top.yukonga.miuix.kmp.icon.extended.Ok
-import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import kotlin.time.Clock
 
@@ -76,7 +77,8 @@ internal fun MiuixDatePickerSheet(
         if (day > maxDay) day = maxDay
     }
 
-    OverlayBottomSheet(
+    GlassBottomSheet(
+        backdrop = LocalBodyBackdrop.current,
         show = show,
         title = stringResource(RStrings.select_date),
         startAction = {

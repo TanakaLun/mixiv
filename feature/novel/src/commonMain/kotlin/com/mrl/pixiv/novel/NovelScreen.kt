@@ -61,6 +61,7 @@ import com.mrl.pixiv.common.compose.ui.BookmarkIcon
 import com.mrl.pixiv.common.compose.ui.LongPressIconButton
 import com.mrl.pixiv.common.compose.ui.NovelBottomBookmarkSheet
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
 import com.mrl.pixiv.common.compose.ui.novel.NovelReadLaterIcon
@@ -116,6 +117,7 @@ import top.yukonga.miuix.kmp.basic.FloatingActionButton
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.glass.GlassBottomSheet
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.icon.extended.Close
@@ -129,7 +131,6 @@ import top.yukonga.miuix.kmp.icon.extended.Settings
 import top.yukonga.miuix.kmp.icon.extended.Share
 import top.yukonga.miuix.kmp.icon.extended.Show
 import top.yukonga.miuix.kmp.icon.extended.Translate
-import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 import top.yukonga.miuix.kmp.preference.SliderPreference
 import top.yukonga.miuix.kmp.theme.LocalContentColor
@@ -827,7 +828,8 @@ fun NovelScreen(
         }
 
         // BottomSheet
-        OverlayBottomSheet(
+        GlassBottomSheet(
+            backdrop = LocalBodyBackdrop.current,
             show = state.showBottomSheet,
             onDismissRequest = { viewModel.dispatch(NovelIntent.ToggleBottomSheet) },
         ) {

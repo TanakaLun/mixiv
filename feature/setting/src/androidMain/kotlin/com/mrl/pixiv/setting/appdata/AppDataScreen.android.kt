@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.ToastUtil
 import com.mrl.pixiv.common.viewmodel.SideEffect
@@ -47,7 +48,7 @@ import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.LinearProgressIndicator
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
-import top.yukonga.miuix.kmp.overlay.OverlayDialog
+import top.yukonga.miuix.kmp.glass.GlassDialog
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
@@ -140,7 +141,8 @@ actual fun MigrationCard(
     }
 
     if (showMigrationConfirmDialog) {
-        OverlayDialog(
+        GlassDialog(
+            backdrop = LocalBodyBackdrop.current,
             show = true,
             title = stringResource(RStrings.migrate_confirm_title),
             onDismissRequest = { showMigrationConfirmDialog = false },

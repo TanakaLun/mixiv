@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.compose.ui.image.UserAvatar
 import com.mrl.pixiv.common.data.Novel
 import com.mrl.pixiv.common.repository.viewmodel.bookmark.isBookmark
@@ -37,9 +38,9 @@ import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.glass.GlassBottomSheet
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Show
-import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 internal fun validNovelSeriesId(seriesId: Long?): Long? = seriesId?.takeIf { it > 0L }
@@ -73,7 +74,8 @@ internal fun NovelMetadataBottomSheet(
     )
     val seriesId = validNovelSeriesId(novel.series.id)
 
-    OverlayBottomSheet(
+    GlassBottomSheet(
+        backdrop = LocalBodyBackdrop.current,
         show = true,
         onDismissRequest = onDismissRequest,
         modifier = modifier,

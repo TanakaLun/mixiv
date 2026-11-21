@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.data.setting.UserPreference
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.common.util.isIOS
@@ -56,10 +57,10 @@ import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.RadioButton
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.glass.GlassDialog
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.ExpandLess
 import top.yukonga.miuix.kmp.icon.extended.ExpandMore
-import top.yukonga.miuix.kmp.overlay.OverlayDialog
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
 
@@ -224,7 +225,8 @@ fun ProxyEditor(
     }
 
     if (showEditType) {
-        OverlayDialog(
+        GlassDialog(
+            backdrop = LocalBodyBackdrop.current,
             show = true,
             title = stringResource(RStrings.proxy_type),
             onDismissRequest = { showEditType = false },
