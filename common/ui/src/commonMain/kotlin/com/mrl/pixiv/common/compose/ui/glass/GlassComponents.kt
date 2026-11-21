@@ -47,9 +47,11 @@ fun Scaffold(
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val backdrop = rememberGlassBackdrop()
+    val staticBackdrop = rememberStaticGlassBackdrop()
     val overlayHost = remember { GlassOverlayHost() }
     CompositionLocalProvider(
         LocalBodyBackdrop provides backdrop,
+        LocalStaticBackdrop provides staticBackdrop,
         LocalGlassOverlayHost provides overlayHost,
     ) {
         Box(
@@ -164,6 +166,7 @@ fun IconButton(
     GlassIconButton(
         onClick = { if (enabled) onClick() },
         modifier = if (enabled) modifier else modifier.alpha(0.38f),
+        backdrop = LocalStaticBackdrop.current,
         content = content,
     )
 }
@@ -186,7 +189,8 @@ fun TabRow(
     interactionSource: MutableInteractionSource? = null,
     indication: Indication? = null,
 ) {
-    val backdrop = LocalBodyBackdrop.current
+    // 标签栏位于正文内部，必须采样独立于正文录制的静态层，否则会自采样导致渲染线程栈溢出。
+    val backdrop = LocalStaticBackdrop.current
     if (backdrop != null) {
         GlassSegmentedTabRow(
             tabs = tabs,
@@ -194,7 +198,7 @@ fun TabRow(
             onSelect = onTabSelected,
             backdrop = backdrop,
             modifier = modifier,
-            surfaceAlpha = 1f,
+            surfaceAlpha = 0f,
         )
     } else {
         BasicTabRow(
