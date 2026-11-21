@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.maxLength
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -104,9 +106,10 @@ fun ReportScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .pageScrollModifiers(scrollBehavior)
+                    .verticalScroll(rememberScrollState())
                     .padding(innerPadding)
                     .padding(horizontal = 16.dp)
-                    .pageScrollModifiers(scrollBehavior)
             ) {
                 Text(
                     text = stringResource(RStrings.report_reason),

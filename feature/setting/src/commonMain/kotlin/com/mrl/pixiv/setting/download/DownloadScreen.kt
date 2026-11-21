@@ -82,6 +82,7 @@ fun DownloadScreen(
     }
 
     val scrollBehavior = MiuixScrollBehavior()
+    val selectedIndex = tabs.indexOfFirst { it.first == state.filterStatus }.coerceAtLeast(0)
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -93,31 +94,32 @@ fun DownloadScreen(
                     }
                 },
                 scrollBehavior = scrollBehavior,
+                bottomContent = {
+                    TabRow(
+                        tabs = tabs.map { stringResource(it.second) },
+                        selectedTabIndex = selectedIndex,
+                        onTabSelected = { index ->
+                            val (status, _) = tabs[index]
+                            viewModel.changeFilterStatus(status)
+                        },
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                        minWidth = 64.dp,
+                        maxWidth = 160.dp,
+                    )
+                },
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .pageScrollModifiers(scrollBehavior)
-        ) {
-            val selectedIndex =
-                tabs.indexOfFirst { it.first == state.filterStatus }.coerceAtLeast(0)
-            TabRow(
-                tabs = tabs.map { stringResource(it.second) },
-                selectedTabIndex = selectedIndex,
-                onTabSelected = { index ->
-                    val (status, _) = tabs[index]
-                    viewModel.changeFilterStatus(status)
-                },
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                minWidth = 64.dp,
-                maxWidth = 160.dp,
-            )
-
             LazyColumn(
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(16.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pageScrollModifiers(scrollBehavior),
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    top = padding.calculateTopPadding() + 16.dp,
+                    end = 16.dp,
+                    bottom = padding.calculateBottomPadding() + 16.dp,
+                ),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(items = downloads, key = { "${it.illustId}_${it.index}" }) { item ->
@@ -133,7 +135,6 @@ fun DownloadScreen(
                     )
                 }
             }
-        }
     }
 }
 

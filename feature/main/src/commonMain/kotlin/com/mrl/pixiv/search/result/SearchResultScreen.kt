@@ -22,6 +22,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +43,7 @@ import com.mrl.pixiv.common.compose.layout.AdaptiveVerticalStaggeredGrid
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
+import com.mrl.pixiv.common.compose.ui.LocalMainContentInsets
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TabRow
 import com.mrl.pixiv.common.compose.ui.illust.RectangleIllustItem
@@ -315,13 +317,13 @@ fun SearchResultsScreen(
             )
         },
     ) {
+        CompositionLocalProvider(LocalMainContentInsets provides it) {
         HorizontalPager(
             state = pagerState,
             modifier = modifier
-                .padding(it)
                 .pageScrollModifiers(scrollBehavior),
         ) { index ->
-            val navigationBarBottomPadding = 0.dp
+            val navigationBarBottomPadding = LocalMainContentInsets.current.calculateBottomPadding()
 
             when (pages[index]) {
                 SearchResultsPage.IllustsOrNovel -> {
@@ -410,7 +412,7 @@ fun SearchResultsScreen(
                                                 squareLayoutParams.horizontalArrangement,
                                             contentPadding = PaddingValues(
                                                 start = 8.dp,
-                                                top = 8.dp,
+                                                top = LocalMainContentInsets.current.calculateTopPadding() + 8.dp,
                                                 end = 8.dp,
                                                 bottom = bottomContentPadding,
                                             ),
@@ -443,7 +445,7 @@ fun SearchResultsScreen(
                                                 originalAspectRatioLayoutParams.horizontalArrangement,
                                             contentPadding = PaddingValues(
                                                 start = 8.dp,
-                                                top = 8.dp,
+                                                top = LocalMainContentInsets.current.calculateTopPadding() + 8.dp,
                                                 end = 8.dp,
                                                 bottom = bottomContentPadding,
                                             ),
@@ -584,7 +586,7 @@ fun SearchResultsScreen(
                                     state = novelsListState,
                                     contentPadding = PaddingValues(
                                         start = contentLayout.novelHorizontalPadding.dp,
-                                        top = 10.dp,
+                                        top = LocalMainContentInsets.current.calculateTopPadding() + 10.dp,
                                         end = contentLayout.novelHorizontalPadding.dp,
                                         bottom = bottomContentPadding,
                                     ),
@@ -710,7 +712,7 @@ fun SearchResultsScreen(
                             state = usersListState,
                             contentPadding = PaddingValues(
                                 start = 16.dp,
-                                top = 10.dp,
+                                top = LocalMainContentInsets.current.calculateTopPadding() + 10.dp,
                                 end = 16.dp,
                                 bottom = bottomContentPadding,
                             ),
@@ -761,6 +763,7 @@ fun SearchResultsScreen(
                     }
                 }
             }
+        }
         }
 
         FilterBottomSheet(
