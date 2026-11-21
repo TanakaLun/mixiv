@@ -30,6 +30,7 @@ import com.mrl.pixiv.common.analytics.logEvent
 import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
 import com.mrl.pixiv.common.compose.layout.isWidthAtLeastMedium
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
+import com.mrl.pixiv.common.compose.ui.LocalMainContentInsets
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TabRow
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar

@@ -36,6 +36,7 @@ import coil3.compose.AsyncImage
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.LocalMainBottomContentPadding
+import com.mrl.pixiv.common.compose.ui.LocalMainContentInsets
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
 import com.mrl.pixiv.common.data.Novel

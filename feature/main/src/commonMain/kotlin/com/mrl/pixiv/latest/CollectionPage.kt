@@ -19,6 +19,7 @@ import com.mrl.pixiv.common.compose.layout.AdaptiveVerticalStaggeredGrid
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.LocalMainBottomContentPadding
+import com.mrl.pixiv.common.compose.ui.LocalMainContentInsets
 import com.mrl.pixiv.common.compose.ui.illust.RectangleIllustItem
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
