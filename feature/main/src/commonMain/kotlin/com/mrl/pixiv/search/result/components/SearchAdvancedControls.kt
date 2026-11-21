@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.ui.glass.GlassListPopup
-import com.mrl.pixiv.common.compose.ui.glass.GlassPopupItem
 import com.mrl.pixiv.common.compose.ui.glass.glassPopupAnchorBounds
 import com.mrl.pixiv.common.compose.ui.glass.rememberGlassPopupBounds
 import com.mrl.pixiv.common.data.search.IllustAdvancedFilter
@@ -62,6 +61,7 @@ import top.yukonga.miuix.kmp.basic.SmallTitle
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.glass.GlassPopupItem
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 import top.yukonga.miuix.kmp.preference.SwitchPreference
 import top.yukonga.miuix.kmp.theme.MiuixTheme

@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.compose.ui.glass.GlassListPopup
-import com.mrl.pixiv.common.compose.ui.glass.GlassPopupItem
 import com.mrl.pixiv.common.compose.ui.glass.glassPopupAnchorBounds
 import com.mrl.pixiv.common.compose.ui.glass.rememberGlassPopupBounds
 import com.mrl.pixiv.common.compose.ui.image.LoadingImage
@@ -57,6 +56,7 @@ import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.glass.GlassPopupItem
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.More
 import top.yukonga.miuix.kmp.overlay.OverlayDialog
