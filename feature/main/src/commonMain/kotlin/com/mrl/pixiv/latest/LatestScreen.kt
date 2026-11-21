@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -312,10 +313,10 @@ fun LatestScreen(
             }
         },
     ) {
+        CompositionLocalProvider(LocalMainContentInsets provides it) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
-                .padding(it)
                 .fillMaxSize()
                 .pageScrollModifiers(scrollBehavior)
         ) { index ->
@@ -348,6 +349,7 @@ fun LatestScreen(
                     NovelWatchlistPage(refreshFlow = refreshFlow)
                 }
             }
+        }
         }
     }
 }

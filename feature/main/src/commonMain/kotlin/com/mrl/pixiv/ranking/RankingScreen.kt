@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -20,10 +19,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.mrl.pixiv.LocalMainBottomContentPadding
 import com.mrl.pixiv.collection.components.FilterAction
 import com.mrl.pixiv.common.analytics.logEvent
 import com.mrl.pixiv.common.compose.RecommendGridDefaults
@@ -31,6 +30,7 @@ import com.mrl.pixiv.common.compose.layout.AdaptiveVerticalStaggeredGrid
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
+import com.mrl.pixiv.common.compose.ui.LocalMainBottomContentPadding
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
@@ -212,7 +212,6 @@ fun RankingScreen(
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
-                .padding(paddingValues)
                 .fillMaxSize()
                 .pageScrollModifiers(scrollBehavior)
         ) { page ->
@@ -223,6 +222,7 @@ fun RankingScreen(
                     IllustMode(
                         mode = mode,
                         navigateToPictureScreen = navigationManager::navigateToPictureScreen,
+                        contentPadding = paddingValues,
                         viewModel = viewModel,
                     )
                 }
@@ -232,6 +232,7 @@ fun RankingScreen(
                         mode = mode,
                         navigateToNovelDetailScreen = navigationManager::navigateToNovelDetailScreen,
                         navigateToNovelSeriesScreen = navigationManager::navigateToNovelSeriesScreen,
+                        contentPadding = paddingValues,
                         viewModel = viewModel,
                     )
                 }
@@ -244,6 +245,7 @@ fun RankingScreen(
 private fun IllustMode(
     mode: RankingMode,
     navigateToPictureScreen: NavigateToHorizontalPictureScreen,
+    contentPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier,
     viewModel: RankingViewModel = koinViewModel(),
 ) {
@@ -284,10 +286,11 @@ private fun IllustMode(
         AdaptiveVerticalStaggeredGrid(
             state = lazyStaggeredGridState,
             contentPadding = PaddingValues(
-                start = 5.dp,
-                top = 5.dp,
-                end = 5.dp,
-                bottom = 5.dp + LocalMainBottomContentPadding.current,
+                start = contentPadding.calculateLeftPadding(LocalLayoutDirection.current) + 5.dp,
+                top = contentPadding.calculateTopPadding() + 5.dp,
+                end = contentPadding.calculateRightPadding(LocalLayoutDirection.current) + 5.dp,
+                bottom = contentPadding.calculateBottomPadding() + 5.dp +
+                    LocalMainBottomContentPadding.current,
             ),
             columns = layoutParams.gridCells,
             verticalItemSpacing = layoutParams.verticalArrangement.spacing,
@@ -308,6 +311,7 @@ private fun NovelMode(
     mode: RankingMode,
     navigateToNovelDetailScreen: (Long) -> Unit,
     navigateToNovelSeriesScreen: (Long) -> Unit,
+    contentPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier,
     viewModel: RankingViewModel = koinViewModel(),
 ) {
@@ -347,7 +351,13 @@ private fun NovelMode(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,
-            contentPadding = PaddingValues(bottom = LocalMainBottomContentPadding.current),
+            contentPadding = PaddingValues(
+                start = contentPadding.calculateLeftPadding(LocalLayoutDirection.current),
+                top = contentPadding.calculateTopPadding(),
+                end = contentPadding.calculateRightPadding(LocalLayoutDirection.current),
+                bottom = contentPadding.calculateBottomPadding() +
+                    LocalMainBottomContentPadding.current,
+            ),
         ) {
             items(
                 count = rankingList.itemCount,

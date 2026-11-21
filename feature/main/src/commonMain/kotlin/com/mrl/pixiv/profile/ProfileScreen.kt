@@ -1,7 +1,8 @@
 package com.mrl.pixiv.profile
 
 import androidx.compose.foundation.layout.PaddingValues
-import com.mrl.pixiv.LocalMainBottomContentPadding
+import androidx.compose.ui.platform.LocalLayoutDirection
+import com.mrl.pixiv.common.compose.ui.LocalMainBottomContentPadding
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
 import com.mrl.pixiv.common.data.AppViewMode
@@ -93,11 +94,14 @@ fun ProfileScreen(
     ) {
         LazyColumn(
             modifier = Modifier
-                .padding(it)
                 .fillMaxSize()
-                .padding(top = 16.dp)
                 .pageScrollModifiers(scrollBehavior),
-            contentPadding = PaddingValues(bottom = LocalMainBottomContentPadding.current),
+            contentPadding = PaddingValues(
+                start = it.calculateLeftPadding(LocalLayoutDirection.current),
+                top = it.calculateTopPadding() + 16.dp,
+                end = it.calculateRightPadding(LocalLayoutDirection.current),
+                bottom = it.calculateBottomPadding() + LocalMainBottomContentPadding.current,
+            ),
         ) {
             item(key = KEY_USER_INFO) {
                 Card(modifier = Modifier.padding(horizontal = 12.dp)) {

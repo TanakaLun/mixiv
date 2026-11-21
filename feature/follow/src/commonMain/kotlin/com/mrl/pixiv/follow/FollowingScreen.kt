@@ -29,6 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -42,6 +43,8 @@ import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
+import com.mrl.pixiv.common.compose.ui.LocalMainBottomContentPadding
+import com.mrl.pixiv.common.compose.ui.LocalMainContentInsets
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.compose.ui.glass.OverlayIconDropdownMenu
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
@@ -264,10 +267,13 @@ fun FollowingScreenBody(
                     state = lazyGridState,
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(
-                        start = 16.dp,
-                        top = 10.dp,
-                        end = 16.dp,
-                        bottom = 20.dp
+                        start = LocalMainContentInsets.current
+                            .calculateLeftPadding(LocalLayoutDirection.current) + 16.dp,
+                        top = LocalMainContentInsets.current.calculateTopPadding() + 10.dp,
+                        end = LocalMainContentInsets.current
+                            .calculateRightPadding(LocalLayoutDirection.current) + 16.dp,
+                        bottom = LocalMainContentInsets.current.calculateBottomPadding() +
+                            20.dp + LocalMainBottomContentPadding.current,
                     ),
                     horizontalArrangement = layoutParams.horizontalArrangement,
                     verticalArrangement = layoutParams.verticalArrangement,
@@ -296,10 +302,13 @@ fun FollowingScreenBody(
                     modifier = Modifier.fillMaxSize(),
                     state = lazyListState,
                     contentPadding = PaddingValues(
-                        start = 16.dp,
-                        top = 10.dp,
-                        end = 16.dp,
-                        bottom = 20.dp
+                        start = LocalMainContentInsets.current
+                            .calculateLeftPadding(LocalLayoutDirection.current) + 16.dp,
+                        top = LocalMainContentInsets.current.calculateTopPadding() + 10.dp,
+                        end = LocalMainContentInsets.current
+                            .calculateRightPadding(LocalLayoutDirection.current) + 16.dp,
+                        bottom = LocalMainContentInsets.current.calculateBottomPadding() +
+                            20.dp + LocalMainBottomContentPadding.current,
                     ),
                     verticalArrangement = 10f.spaceBy,
                 ) {

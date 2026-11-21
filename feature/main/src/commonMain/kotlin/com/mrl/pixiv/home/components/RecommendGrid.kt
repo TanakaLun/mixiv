@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
-import com.mrl.pixiv.LocalMainBottomContentPadding
 import com.mrl.pixiv.common.compose.RecommendGridDefaults
 import com.mrl.pixiv.common.compose.layout.AdaptiveVerticalStaggeredGrid
+import com.mrl.pixiv.common.compose.ui.LocalMainBottomContentPadding
+import com.mrl.pixiv.common.compose.ui.LocalMainContentInsets
 import com.mrl.pixiv.common.compose.ui.illust.RectangleIllustItem
 import com.mrl.pixiv.common.data.Illust
 import com.mrl.pixiv.common.kts.itemIndexKey
@@ -28,10 +30,11 @@ fun RecommendGrid(
     AdaptiveVerticalStaggeredGrid(
         state = lazyStaggeredGridState,
         contentPadding = PaddingValues(
-            start = 5.dp,
-            top = 5.dp,
-            end = 5.dp,
-            bottom = 5.dp + LocalMainBottomContentPadding.current,
+            start = LocalMainContentInsets.current.calculateLeftPadding(LocalLayoutDirection.current) + 5.dp,
+            top = LocalMainContentInsets.current.calculateTopPadding() + 5.dp,
+            end = LocalMainContentInsets.current.calculateRightPadding(LocalLayoutDirection.current) + 5.dp,
+            bottom = LocalMainContentInsets.current.calculateBottomPadding() + 5.dp +
+                LocalMainBottomContentPadding.current,
         ),
         columns = layoutParams.gridCells,
         verticalItemSpacing = layoutParams.verticalArrangement.spacing,

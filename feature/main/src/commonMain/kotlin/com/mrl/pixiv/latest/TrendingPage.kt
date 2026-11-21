@@ -9,15 +9,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.mrl.pixiv.LocalMainBottomContentPadding
 import com.mrl.pixiv.common.compose.RecommendGridDefaults
 import com.mrl.pixiv.common.compose.layout.AdaptiveVerticalStaggeredGrid
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
+import com.mrl.pixiv.common.compose.ui.LocalMainBottomContentPadding
 import com.mrl.pixiv.common.compose.ui.illust.RectangleIllustItem
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
@@ -108,10 +109,11 @@ private fun TrendingIllustPage(
                 modifier = Modifier.fillMaxSize(),
                 state = lazyGridState,
                 contentPadding = PaddingValues(
-                    start = 5.dp,
-                    top = 10.dp,
-                    end = 5.dp,
-                    bottom = 10.dp + LocalMainBottomContentPadding.current,
+                    start = LocalMainContentInsets.current.calculateLeftPadding(LocalLayoutDirection.current) + 5.dp,
+                    top = LocalMainContentInsets.current.calculateTopPadding() + 10.dp,
+                    end = LocalMainContentInsets.current.calculateRightPadding(LocalLayoutDirection.current) + 5.dp,
+                    bottom = LocalMainContentInsets.current.calculateBottomPadding() + 10.dp +
+                        LocalMainBottomContentPadding.current,
                 ),
                 verticalItemSpacing = layoutParams.verticalArrangement.spacing,
                 horizontalArrangement = layoutParams.horizontalArrangement,
@@ -189,8 +191,11 @@ private fun TrendingNovelPage(
                 modifier = Modifier.fillMaxSize(),
                 state = lazyListState,
                 contentPadding = PaddingValues(
-                    top = 10.dp,
-                    bottom = 10.dp + LocalMainBottomContentPadding.current,
+                    start = LocalMainContentInsets.current.calculateLeftPadding(LocalLayoutDirection.current),
+                    top = LocalMainContentInsets.current.calculateTopPadding() + 10.dp,
+                    end = LocalMainContentInsets.current.calculateRightPadding(LocalLayoutDirection.current),
+                    bottom = LocalMainContentInsets.current.calculateBottomPadding() + 10.dp +
+                        LocalMainBottomContentPadding.current,
                 ),
             ) {
                 items(

@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -32,9 +33,9 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
-import com.mrl.pixiv.LocalMainBottomContentPadding
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
+import com.mrl.pixiv.common.compose.ui.LocalMainBottomContentPadding
 import com.mrl.pixiv.common.compose.ui.novel.NovelItem
 import com.mrl.pixiv.common.compose.ui.rememberRefreshTexts
 import com.mrl.pixiv.common.data.Novel
@@ -116,8 +117,11 @@ private fun NovelFeedPage(
                 modifier = Modifier.fillMaxSize(),
                 state = listState,
                 contentPadding = PaddingValues(
-                    top = 8.dp,
-                    bottom = 8.dp + LocalMainBottomContentPadding.current,
+                    start = LocalMainContentInsets.current.calculateLeftPadding(LocalLayoutDirection.current),
+                    top = LocalMainContentInsets.current.calculateTopPadding() + 8.dp,
+                    end = LocalMainContentInsets.current.calculateRightPadding(LocalLayoutDirection.current),
+                    bottom = LocalMainContentInsets.current.calculateBottomPadding() + 8.dp +
+                        LocalMainBottomContentPadding.current,
                 ),
             ) {
                 if (
@@ -206,8 +210,11 @@ fun NovelWatchlistPage(
                 modifier = Modifier.fillMaxSize(),
                 state = listState,
                 contentPadding = PaddingValues(
-                    top = 8.dp,
-                    bottom = 8.dp + LocalMainBottomContentPadding.current,
+                    start = LocalMainContentInsets.current.calculateLeftPadding(LocalLayoutDirection.current),
+                    top = LocalMainContentInsets.current.calculateTopPadding() + 8.dp,
+                    end = LocalMainContentInsets.current.calculateRightPadding(LocalLayoutDirection.current),
+                    bottom = LocalMainContentInsets.current.calculateBottomPadding() + 8.dp +
+                        LocalMainBottomContentPadding.current,
                 ),
             ) {
                 if (

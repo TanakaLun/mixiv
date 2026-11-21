@@ -8,20 +8,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.mrl.pixiv.LocalMainBottomContentPadding
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
+import com.mrl.pixiv.common.compose.ui.LocalMainBottomContentPadding
+import com.mrl.pixiv.common.compose.ui.LocalMainContentInsets
 import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
@@ -80,6 +84,10 @@ fun HomeScreen(
     }
 
     val scrollBehavior = MiuixScrollBehavior()
+    val feedPagerState = rememberPagerState(initialPage = imageFeedMode.ordinal) {
+        HomeImageFeedMode.entries.size
+    }
+    val feedScope = rememberCoroutineScope()
 
     Scaffold(
         modifier = modifier,
@@ -87,6 +95,31 @@ fun HomeScreen(
             TopAppBar(
                 title = stringResource(RStrings.app_name),
                 scrollBehavior = scrollBehavior,
+                bottomContent = {
+                    if (appViewMode == AppViewMode.ILLUST) {
+                        TabRow(
+                            tabs = HomeImageFeedMode.entries.map { mode ->
+                                stringResource(
+                                    when (mode) {
+                                        HomeImageFeedMode.Illust -> RStrings.illustrations
+                                        HomeImageFeedMode.Manga -> RStrings.manga
+                                    }
+                                )
+                            },
+                            selectedTabIndex = feedPagerState.currentPage,
+                            onTabSelected = { index ->
+                                feedScope.launch {
+                                    feedPagerState.animateScrollToPage(index)
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 4.dp),
+                            minWidth = 64.dp,
+                            maxWidth = 160.dp,
+                        )
+                    }
+                },
                 actions = {
                     IconButton(
                         onClick = {
@@ -123,27 +156,29 @@ fun HomeScreen(
             }
         },
     ) { paddingValues ->
-        when (appViewMode) {
-            AppViewMode.ILLUST -> {
-                IllustMode(
-                    navigateToPictureScreen = navigationManager::navigateToPictureScreen,
-                    modifier = Modifier
-                        .padding(paddingValues)
-                        .pageScrollModifiers(scrollBehavior),
-                    viewModel = viewModel,
-                    imageFeedMode = imageFeedMode,
-                )
-            }
+        CompositionLocalProvider(LocalMainContentInsets provides paddingValues) {
+            when (appViewMode) {
+                AppViewMode.ILLUST -> {
+                    IllustMode(
+                        pagerState = feedPagerState,
+                        navigateToPictureScreen = navigationManager::navigateToPictureScreen,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pageScrollModifiers(scrollBehavior),
+                        viewModel = viewModel,
+                    )
+                }
 
-            AppViewMode.NOVEL -> {
-                NovelMode(
-                    navigateToNovelDetailScreen = navigationManager::navigateToNovelDetailScreen,
-                    navigateToNovelSeriesScreen = navigationManager::navigateToNovelSeriesScreen,
-                    modifier = Modifier
-                        .padding(paddingValues)
-                        .pageScrollModifiers(scrollBehavior),
-                    viewModel = viewModel,
-                )
+                AppViewMode.NOVEL -> {
+                    NovelMode(
+                        navigateToNovelDetailScreen = navigationManager::navigateToNovelDetailScreen,
+                        navigateToNovelSeriesScreen = navigationManager::navigateToNovelSeriesScreen,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pageScrollModifiers(scrollBehavior),
+                        viewModel = viewModel,
+                    )
+                }
             }
         }
     }
@@ -151,15 +186,11 @@ fun HomeScreen(
 
 @Composable
 private fun IllustMode(
+    pagerState: PagerState,
     navigateToPictureScreen: NavigateToHorizontalPictureScreen,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = koinViewModel(),
-    imageFeedMode: HomeImageFeedMode = viewModel.imageFeedMode,
 ) {
-    val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState(initialPage = imageFeedMode.ordinal) {
-        HomeImageFeedMode.entries.size
-    }
     val currentImageFeedMode = HomeImageFeedMode.entries[pagerState.currentPage]
     val lazyStaggeredGridState = when (currentImageFeedMode) {
         HomeImageFeedMode.Illust -> viewModel.lazyStaggeredGridState
@@ -177,45 +208,15 @@ private fun IllustMode(
         viewModel.switchImageFeedMode(currentImageFeedMode)
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .fillMaxWidth(),
+    HorizontalPager(
+        state = pagerState,
+        modifier = modifier.fillMaxSize(),
     ) {
-        TabRow(
-            tabs = HomeImageFeedMode.entries.map { mode ->
-                stringResource(
-                    when (mode) {
-                        HomeImageFeedMode.Illust -> RStrings.illustrations
-                        HomeImageFeedMode.Manga -> RStrings.manga
-                    }
-                )
-            },
-            selectedTabIndex = pagerState.currentPage,
-            onTabSelected = { index ->
-                scope.launch {
-                    pagerState.animateScrollToPage(index)
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 4.dp),
-            minWidth = 64.dp,
-            maxWidth = 160.dp,
+        HomeImageFeedPage(
+            mode = HomeImageFeedMode.entries[it],
+            navigateToPictureScreen = navigateToPictureScreen,
+            viewModel = viewModel,
         )
-
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-        ) {
-            HomeImageFeedPage(
-                mode = HomeImageFeedMode.entries[it],
-                navigateToPictureScreen = navigateToPictureScreen,
-                viewModel = viewModel,
-            )
-        }
     }
 }
 
@@ -310,7 +311,13 @@ private fun NovelMode(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,
-            contentPadding = PaddingValues(bottom = LocalMainBottomContentPadding.current),
+            contentPadding = PaddingValues(
+                start = LocalMainContentInsets.current.calculateLeftPadding(LocalLayoutDirection.current),
+                top = LocalMainContentInsets.current.calculateTopPadding(),
+                end = LocalMainContentInsets.current.calculateRightPadding(LocalLayoutDirection.current),
+                bottom = LocalMainContentInsets.current.calculateBottomPadding() +
+                    LocalMainBottomContentPadding.current,
+            ),
         ) {
             items(
                 count = recommendNovelList.itemCount,
