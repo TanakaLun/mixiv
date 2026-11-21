@@ -387,6 +387,7 @@ fun SearchResultsScreen(
                                 if (showPagingControls || showPopularPreviewNotice) 88.dp else 0.dp
 
                             PullToRefresh(
+                                contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
                                 refreshTexts = rememberRefreshTexts(),
                                 isRefreshing = isRefreshing,
                                 onRefresh = {
@@ -568,6 +569,7 @@ fun SearchResultsScreen(
                                 if (showPagingControls || showPopularPreviewNotice) 88.dp else 0.dp
 
                             PullToRefresh(
+                                contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
                                 refreshTexts = rememberRefreshTexts(),
                                 isRefreshing = isNovelRefreshing,
                                 onRefresh = {
@@ -694,6 +696,7 @@ fun SearchResultsScreen(
                         if (showPagingControls) 88.dp else 0.dp
 
                     PullToRefresh(
+                        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
                         refreshTexts = rememberRefreshTexts(),
                         isRefreshing = isUserRefreshing,
                         onRefresh = {

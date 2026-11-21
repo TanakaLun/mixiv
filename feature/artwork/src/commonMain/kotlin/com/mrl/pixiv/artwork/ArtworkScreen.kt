@@ -211,6 +211,7 @@ private fun UserIllustPage(
     val isRefreshing = illusts.loadState.refresh is LoadState.Loading
 
     PullToRefresh(
+        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
         refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = { illusts.refresh() },
@@ -251,6 +252,7 @@ private fun UserNovelPage(
     val isRefreshing = novels.loadState.refresh is LoadState.Loading
 
     PullToRefresh(
+        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
         refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = { novels.refresh() },

@@ -180,6 +180,7 @@ fun CommentScreen(
         }
     ) { innerPadding ->
         PullToRefresh(
+            contentPadding = PaddingValues(top = innerPadding.calculateTopPadding()),
             refreshTexts = rememberRefreshTexts(),
             isRefreshing = comments.loadState.refresh is LoadState.Loading,
             onRefresh = { comments.refresh() },

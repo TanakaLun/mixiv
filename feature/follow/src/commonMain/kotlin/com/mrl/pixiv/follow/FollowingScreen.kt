@@ -254,6 +254,7 @@ fun FollowingScreenBody(
 
     val isRefreshing = followingUsers.loadState.refresh is LoadState.Loading
     PullToRefresh(
+        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
         refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = { followingUsers.refresh() },

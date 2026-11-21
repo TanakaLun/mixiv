@@ -203,6 +203,7 @@ fun CollectionScreen(
                     val layoutParams = IllustGridDefaults.relatedLayoutParameters()
                     val isRefreshing = userBookmarksIllusts.loadState.refresh is LoadState.Loading
                     PullToRefresh(
+                        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
                         refreshTexts = rememberRefreshTexts(),
                         isRefreshing = isRefreshing,
                         onRefresh = { userBookmarksIllusts.refresh() },
@@ -238,6 +239,7 @@ fun CollectionScreen(
                     val isNovelRefreshing =
                         userBookmarksNovels.loadState.refresh is LoadState.Loading
                     PullToRefresh(
+                        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
                         refreshTexts = rememberRefreshTexts(),
                         isRefreshing = isNovelRefreshing,
                         onRefresh = { userBookmarksNovels.refresh() },

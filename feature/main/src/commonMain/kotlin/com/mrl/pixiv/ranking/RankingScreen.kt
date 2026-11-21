@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -32,6 +33,7 @@ import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
 import com.mrl.pixiv.common.compose.ui.LocalMainBottomContentPadding
+import com.mrl.pixiv.common.compose.ui.LocalMainContentInsets
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
@@ -212,6 +214,7 @@ fun RankingScreen(
             }
         },
     ) { paddingValues ->
+        CompositionLocalProvider(LocalMainContentInsets provides paddingValues) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
@@ -240,6 +243,7 @@ fun RankingScreen(
                     )
                 }
             }
+        }
         }
     }
 }
@@ -278,6 +282,7 @@ private fun IllustMode(
     }
 
     PullToRefresh(
+        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
         refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
@@ -344,6 +349,7 @@ private fun NovelMode(
     }
 
     PullToRefresh(
+        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
         refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,

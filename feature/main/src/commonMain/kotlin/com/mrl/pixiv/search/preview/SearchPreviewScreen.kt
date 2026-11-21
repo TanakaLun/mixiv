@@ -95,6 +95,7 @@ fun SearchPreviewScreen(
         },
     ) {
         PullToRefresh(
+            contentPadding = PaddingValues(top = it.calculateTopPadding()),
             refreshTexts = rememberRefreshTexts(),
             isRefreshing = state.refreshing,
             onRefresh = { viewModel.dispatch(SearchPreviewAction.LoadTrendingTags) },

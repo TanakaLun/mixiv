@@ -90,6 +90,7 @@ fun NovelSeriesScreen(
         },
     ) { paddingValues ->
         PullToRefresh(
+            contentPadding = PaddingValues(top = paddingValues.calculateTopPadding()),
             refreshTexts = rememberRefreshTexts(),
             isRefreshing = isRefreshing,
             onRefresh = novels::refresh,

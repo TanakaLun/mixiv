@@ -77,6 +77,7 @@ fun NovelMarkersScreen(
         },
     ) { paddingValues ->
         PullToRefresh(
+            contentPadding = PaddingValues(top = paddingValues.calculateTopPadding()),
             refreshTexts = rememberRefreshTexts(),
             isRefreshing = isRefreshing,
             onRefresh = markers::refresh,

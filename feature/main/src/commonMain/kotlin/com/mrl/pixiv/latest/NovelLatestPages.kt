@@ -107,6 +107,7 @@ private fun NovelFeedPage(
     }
 
     PullToRefresh(
+        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
         refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = pagingItems::refresh,
@@ -200,6 +201,7 @@ fun NovelWatchlistPage(
     }
 
     PullToRefresh(
+        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
         refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = watchlist::refresh,

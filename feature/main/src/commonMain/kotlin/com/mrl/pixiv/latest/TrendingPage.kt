@@ -98,6 +98,7 @@ private fun TrendingIllustPage(
     }
 
     PullToRefresh(
+        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
         refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = { illustsFollowing.refresh() },
@@ -181,6 +182,7 @@ private fun TrendingNovelPage(
     }
 
     PullToRefresh(
+        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
         refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = { novelsFollowing.refresh() },

@@ -254,6 +254,7 @@ private fun HomeImageFeedPage(
     }
 
     PullToRefresh(
+        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
         refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = recommendImageList::refresh,
@@ -304,6 +305,7 @@ private fun NovelMode(
     }
 
     PullToRefresh(
+        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
         refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,

@@ -104,6 +104,7 @@ private fun CollectionIllustPage(
     }
 
     PullToRefresh(
+        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
         refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = { userBookmarksIllusts.refresh() },
@@ -186,6 +187,7 @@ private fun CollectionNovelPage(
     }
 
     PullToRefresh(
+        contentPadding = PaddingValues(top = LocalMainContentInsets.current.calculateTopPadding()),
         refreshTexts = rememberRefreshTexts(),
         isRefreshing = isRefreshing,
         onRefresh = { userBookmarksNovels.refresh() },
