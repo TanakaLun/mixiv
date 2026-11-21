@@ -28,6 +28,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.coroutine.launchProcess
 import com.mrl.pixiv.common.coroutine.withIOContext
 import com.mrl.pixiv.common.data.Illust
@@ -58,13 +59,13 @@ import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.glass.GlassBottomSheet
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Add
 import top.yukonga.miuix.kmp.icon.extended.Close
 import top.yukonga.miuix.kmp.preference.CheckboxPreference
 import top.yukonga.miuix.kmp.preference.RadioButtonPreference
 import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.window.WindowBottomSheet
 
 private const val MAX_BOOKMARK_TAGS = 10
 
@@ -141,10 +142,11 @@ private fun BottomBookmarkSheet(
     onBookmarkClick: (Restrict, List<String>?, Boolean) -> Unit,
     isBookmarked: Boolean,
 ) {
-    WindowBottomSheet(
+    GlassBottomSheet(
+        backdrop = LocalBodyBackdrop.current,
         show = true,
         onDismissRequest = hideBottomSheet,
-        backgroundColor = MiuixTheme.colorScheme.background,
+        containerColor = MiuixTheme.colorScheme.background,
         title = stringResource(
             if (isBookmarked) RStrings.edit_favorite else RStrings.add_to_favorite
         ),

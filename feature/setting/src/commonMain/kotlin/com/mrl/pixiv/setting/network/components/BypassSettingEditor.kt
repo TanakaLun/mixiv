@@ -58,11 +58,11 @@ import top.yukonga.miuix.kmp.basic.RadioButton
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.glass.GlassDialog
+import top.yukonga.miuix.kmp.glass.GlassDropdownPreference
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.ExpandLess
 import top.yukonga.miuix.kmp.icon.extended.ExpandMore
 import top.yukonga.miuix.kmp.preference.ArrowPreference
-import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
 
 /**
  * IPv4：0.0.0.0 ~ 255.255.255.255
@@ -141,13 +141,14 @@ fun BypassSettingEditor(
     )
 
     Column(modifier = modifier) {
-        OverlayDropdownPreference(
+        GlassDropdownPreference(
+            backdrop = LocalBodyBackdrop.current,
             items = labels,
             selectedIndex = selectedIndex,
             title = stringResource(RStrings.network_plan),
             summary = description,
             onSelectedIndexChange = { index ->
-                val type = types.getOrNull(index) ?: return@OverlayDropdownPreference
+                val type = types.getOrNull(index) ?: return@GlassDropdownPreference
                 val selected = when (bypassSetting) {
                     UserPreference.BypassSetting.System -> type == UserPreference.BypassSetting.System
                     UserPreference.BypassSetting.Direct -> type == UserPreference.BypassSetting.Direct

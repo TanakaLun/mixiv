@@ -1,5 +1,6 @@
 package com.mrl.pixiv.setting
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
@@ -51,6 +53,7 @@ import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
+import top.yukonga.miuix.kmp.glass.GlassDropdownPreference
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.icon.extended.Image
@@ -59,7 +62,6 @@ import top.yukonga.miuix.kmp.icon.extended.Recent
 import top.yukonga.miuix.kmp.icon.extended.Search
 import top.yukonga.miuix.kmp.icon.extended.Translate
 import top.yukonga.miuix.kmp.preference.ArrowPreference
-import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
 
 const val KEY_LANGUAGE = "language"
 const val KEY_NETWORK_SETTING = "network_setting"
@@ -134,19 +136,24 @@ fun SettingScreen(
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
-                .padding(innerPadding)
                 .pageScrollModifiers(scrollBehavior),
+            contentPadding = PaddingValues(
+                top = innerPadding.calculateTopPadding(),
+                bottom = innerPadding.calculateBottomPadding(),
+            ),
         ) {
             item(key = KEY_LANGUAGE) {
                 Card(modifier = Modifier.padding(horizontal = 12.dp)) {
-                    OverlayDropdownPreference(
+                    GlassDropdownPreference(
+                        backdrop = LocalBodyBackdrop.current,
                         items = languages.map { it.displayName },
                         selectedIndex = currentLanguage,
                         title = stringResource(RStrings.app_language),
                         startAction = { Icon(MiuixIcons.Translate, contentDescription = null) },
                         onSelectedIndexChange = { currentLanguage = it },
                     )
-                    OverlayDropdownPreference(
+                    GlassDropdownPreference(
+                        backdrop = LocalBodyBackdrop.current,
                         items = colorModeItems,
                         selectedIndex = selectedColorMode,
                         title = stringResource(RStrings.color_mode),

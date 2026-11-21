@@ -1,7 +1,6 @@
 package com.mrl.pixiv.artwork
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -16,10 +15,12 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -28,6 +29,7 @@ import com.mrl.pixiv.common.compose.IllustGridDefaults
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
+import com.mrl.pixiv.common.compose.ui.LocalMainContentInsets
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TabRow
@@ -126,6 +128,18 @@ fun ArtworkScreen(
             CollectionTopAppBar(
                 scrollBehavior = scrollBehavior,
                 onBack = navigationManager::popBackStack,
+                bottomContent = {
+                    TabRow(
+                        tabs = pages.map { page -> stringResource(page.title) },
+                        selectedTabIndex = pagerState.currentPage,
+                        onTabSelected = { index ->
+                            scope.launch { pagerState.animateScrollToPage(index) }
+                        },
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                        minWidth = 64.dp,
+                        maxWidth = 160.dp,
+                    )
+                },
             )
         },
         floatingActionButton = {
@@ -155,26 +169,13 @@ fun ArtworkScreen(
         },
         contentWindowInsets = WindowInsets.statusBars,
     ) { paddingValues ->
-        Column(
+        CompositionLocalProvider(LocalMainContentInsets provides paddingValues) {
+        HorizontalPager(
+            state = pagerState,
             modifier = Modifier
-                .padding(paddingValues)
                 .fillMaxSize()
-                .pageScrollModifiers(scrollBehavior)
-        ) {
-            TabRow(
-                tabs = pages.map { page -> stringResource(page.title) },
-                selectedTabIndex = pagerState.currentPage,
-                onTabSelected = { index ->
-                    scope.launch { pagerState.animateScrollToPage(index) }
-                },
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                minWidth = 64.dp,
-                maxWidth = 160.dp,
-            )
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize(),
-            ) { page ->
+                .pageScrollModifiers(scrollBehavior),
+        ) { page ->
                 when (pages[page]) {
                     ArtworkPage.Illust -> UserIllustPage(
                         illusts = userIllusts,
@@ -222,10 +223,13 @@ private fun UserIllustPage(
                 verticalArrangement = layoutParams.verticalArrangement,
                 horizontalArrangement = layoutParams.horizontalArrangement,
                 contentPadding = PaddingValues(
-                    start = 8.dp,
-                    top = 8.dp,
-                    end = 8.dp,
-                    bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                    start = LocalMainContentInsets.current
+                        .calculateLeftPadding(LocalLayoutDirection.current) + 8.dp,
+                    top = LocalMainContentInsets.current.calculateTopPadding() + 8.dp,
+                    end = LocalMainContentInsets.current
+                        .calculateRightPadding(LocalLayoutDirection.current) + 8.dp,
+                    bottom = LocalMainContentInsets.current.calculateBottomPadding() +
+                        WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
                 ),
             ) {
                 illustGrid(
@@ -256,8 +260,13 @@ private fun UserNovelPage(
                 modifier = Modifier.fillMaxSize(),
                 state = listState,
                 contentPadding = PaddingValues(
-                    top = 8.dp,
-                    bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                    start = LocalMainContentInsets.current
+                        .calculateLeftPadding(LocalLayoutDirection.current),
+                    top = LocalMainContentInsets.current.calculateTopPadding() + 8.dp,
+                    end = LocalMainContentInsets.current
+                        .calculateRightPadding(LocalLayoutDirection.current),
+                    bottom = LocalMainContentInsets.current.calculateBottomPadding() +
+                        WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
                 ),
             ) {
                 items(
@@ -288,10 +297,12 @@ private fun UserNovelPage(
 private fun CollectionTopAppBar(
     scrollBehavior: ScrollBehavior,
     onBack: () -> Unit = {},
+    bottomContent: @Composable () -> Unit = {},
 ) {
     TopAppBar(
         title = stringResource(RStrings.artworks),
         scrollBehavior = scrollBehavior,
+        bottomContent = bottomContent,
         navigationIcon = {
             IconButton(
                 onClick = onBack,

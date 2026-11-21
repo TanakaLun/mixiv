@@ -139,7 +139,9 @@ fun HomeScreen(
             )
         },
         floatingActionButton = {
-            Column {
+            Column(
+                modifier = Modifier.padding(bottom = LocalMainBottomContentPadding.current + 8.dp),
+            ) {
                 BackToTopButton(
                     visibility = when (appViewMode) {
                         AppViewMode.ILLUST -> when (imageFeedMode) {

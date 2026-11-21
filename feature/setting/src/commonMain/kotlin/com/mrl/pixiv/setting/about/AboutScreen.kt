@@ -102,10 +102,10 @@ fun AboutScreen(
     ) { paddingValues ->
         Column(
             modifier = Modifier
-                .padding(paddingValues)
                 .fillMaxSize()
                 .pageScrollModifiers(scrollBehavior)
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .padding(paddingValues),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // App Icon and Version

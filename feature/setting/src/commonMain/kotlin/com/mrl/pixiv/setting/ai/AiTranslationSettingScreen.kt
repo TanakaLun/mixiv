@@ -33,6 +33,7 @@ import com.mrl.pixiv.common.ai.AiLocalNetworkAccessGate
 import com.mrl.pixiv.common.ai.AiModelCatalogService
 import com.mrl.pixiv.common.ai.validateAiEndpoint
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
@@ -94,13 +95,13 @@ import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.glass.GlassDropdownPreference
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.icon.extended.Refresh
 import top.yukonga.miuix.kmp.icon.extended.Translate
 import top.yukonga.miuix.kmp.preference.CheckboxLocation
 import top.yukonga.miuix.kmp.preference.CheckboxPreference
-import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -681,7 +682,8 @@ private fun ProviderItem(
         providers.indexOf(provider).coerceAtLeast(0)
     }
 
-    OverlayDropdownPreference(
+    GlassDropdownPreference(
+        backdrop = LocalBodyBackdrop.current,
         items = providers.map { it.toDisplayName() },
         selectedIndex = selectedIndex,
         title = stringResource(RStrings.ai_provider),

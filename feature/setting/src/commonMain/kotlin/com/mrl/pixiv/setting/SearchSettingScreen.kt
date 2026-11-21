@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.compose.ui.SearchContentFilterControls
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
@@ -49,12 +50,12 @@ import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
+import top.yukonga.miuix.kmp.glass.GlassDropdownPreference
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.icon.extended.Filter
 import top.yukonga.miuix.kmp.icon.extended.GridView
 import top.yukonga.miuix.kmp.icon.extended.Sort
-import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
 import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 @Composable
@@ -148,7 +149,8 @@ private fun DefaultSearchTargetSetting(
         mutableIntStateOf(targets.indexOf(selectedTarget).coerceAtLeast(0))
     }
 
-    OverlayDropdownPreference(
+    GlassDropdownPreference(
+        backdrop = LocalBodyBackdrop.current,
         items = targets.map { it.label() },
         selectedIndex = selectedIndex,
         title = stringResource(RStrings.default_search_target),
@@ -180,7 +182,8 @@ private fun DefaultSearchSortSetting(
         mutableIntStateOf(sorts.indexOf(selectedSort).coerceAtLeast(0))
     }
 
-    OverlayDropdownPreference(
+    GlassDropdownPreference(
+        backdrop = LocalBodyBackdrop.current,
         items = sorts.map { it.label() },
         selectedIndex = selectedIndex,
         title = stringResource(RStrings.default_search_sort),
@@ -230,7 +233,8 @@ private fun SearchResultDisplayModeSetting(
         mutableIntStateOf(modes.indexOf(selectedMode).coerceAtLeast(0))
     }
 
-    OverlayDropdownPreference(
+    GlassDropdownPreference(
+        backdrop = LocalBodyBackdrop.current,
         items = modes.map { it.label() },
         selectedIndex = selectedIndex,
         title = stringResource(RStrings.search_result_display_mode),

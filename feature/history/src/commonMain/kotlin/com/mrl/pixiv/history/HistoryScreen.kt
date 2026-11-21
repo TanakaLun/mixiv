@@ -21,6 +21,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -41,6 +43,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.mrl.pixiv.common.compose.IllustGridDefaults
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
+import com.mrl.pixiv.common.compose.ui.LocalMainContentInsets
 import com.mrl.pixiv.common.compose.ui.ViewModeAction
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
@@ -160,11 +163,11 @@ fun HistoryScreen(
         },
         contentWindowInsets = WindowInsets.statusBars,
     ) { paddingValues ->
+        CompositionLocalProvider(LocalMainContentInsets provides paddingValues) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .pageScrollModifiers(scrollBehavior),
             beyondViewportPageCount = sources.lastIndex.coerceAtLeast(0),
         ) { page ->
@@ -237,6 +240,7 @@ fun HistoryScreen(
         }
     }
 }
+}
 
 @Composable
 private fun IllustHistoryPage(
@@ -265,10 +269,13 @@ private fun IllustHistoryPage(
             verticalArrangement = layoutParams.verticalArrangement,
             horizontalArrangement = layoutParams.horizontalArrangement,
             contentPadding = PaddingValues(
-                start = 8.dp,
-                top = 8.dp,
-                end = 8.dp,
-                bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 88.dp
+                start = LocalMainContentInsets.current
+                    .calculateLeftPadding(LocalLayoutDirection.current) + 8.dp,
+                top = LocalMainContentInsets.current.calculateTopPadding() + 8.dp,
+                end = LocalMainContentInsets.current
+                    .calculateRightPadding(LocalLayoutDirection.current) + 8.dp,
+                bottom = LocalMainContentInsets.current.calculateBottomPadding() +
+                    WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 88.dp,
             ),
         ) {
             illustGrid(
@@ -310,8 +317,13 @@ private fun NovelHistoryPage(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,
             contentPadding = PaddingValues(
-                top = 8.dp,
-                bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 88.dp
+                start = LocalMainContentInsets.current
+                    .calculateLeftPadding(LocalLayoutDirection.current),
+                top = LocalMainContentInsets.current.calculateTopPadding() + 8.dp,
+                end = LocalMainContentInsets.current
+                    .calculateRightPadding(LocalLayoutDirection.current),
+                bottom = LocalMainContentInsets.current.calculateBottomPadding() +
+                    WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 88.dp,
             ),
         ) {
             items(

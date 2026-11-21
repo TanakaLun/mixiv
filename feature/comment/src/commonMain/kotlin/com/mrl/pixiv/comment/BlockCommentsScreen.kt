@@ -1,6 +1,7 @@
 package com.mrl.pixiv.comment
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,7 +17,6 @@ import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.kts.VSpacer
-import com.mrl.pixiv.common.kts.hPadding
 import com.mrl.pixiv.common.kts.spaceBy
 import com.mrl.pixiv.common.repository.BlockingRepositoryV2
 import com.mrl.pixiv.common.router.currentNavigationManager
@@ -77,10 +77,14 @@ fun BlockCommentsScreen(
         }
         LazyColumn(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
                 .pageScrollModifiers(scrollBehavior),
-            contentPadding = 8.hPadding,
+            contentPadding = PaddingValues(
+                start = 8.dp,
+                top = innerPadding.calculateTopPadding(),
+                end = 8.dp,
+                bottom = innerPadding.calculateBottomPadding(),
+            ),
             verticalArrangement = 8.spaceBy
         ) {
             itemsIndexed(

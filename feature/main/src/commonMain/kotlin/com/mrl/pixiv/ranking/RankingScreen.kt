@@ -185,7 +185,9 @@ fun RankingScreen(
             )
         },
         floatingActionButton = {
-            Column {
+            Column(
+                modifier = Modifier.padding(bottom = LocalMainBottomContentPadding.current + 8.dp),
+            ) {
                 val mode = availableModes.getOrNull(pagerState.currentPage)
                 if (mode != null) {
                     val scrollToTop = suspend {

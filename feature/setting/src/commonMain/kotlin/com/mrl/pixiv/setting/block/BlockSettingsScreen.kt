@@ -1,5 +1,6 @@
 package com.mrl.pixiv.setting.block
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -52,9 +53,12 @@ fun BlockSettingsScreen(
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
                 .pageScrollModifiers(scrollBehavior),
+            contentPadding = PaddingValues(
+                top = innerPadding.calculateTopPadding(),
+                bottom = innerPadding.calculateBottomPadding(),
+            ),
         ) {
             item(key = "block_settings") {
                 Card(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {

@@ -8,15 +8,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.data.Constants.IMAGE_HOST
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.strings.image_source
 import com.mrl.pixiv.strings.label_default
 import com.mrl.pixiv.strings.self_defined_source
 import org.jetbrains.compose.resources.stringResource
-import top.yukonga.miuix.kmp.basic.DropdownEntry
-import top.yukonga.miuix.kmp.basic.DropdownItem
-import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
+import top.yukonga.miuix.kmp.glass.GlassDropdownPreference
 
 @Composable
 fun PictureSourceWidget(
@@ -48,33 +47,25 @@ fun PictureSourceWidget(
         )
     }
 
-    val entry = remember(sources, selectedHost, isCustomSource, selfDefinedLabel) {
-        DropdownEntry(
-            buildList {
-                sources.forEach { (host, label) ->
-                    add(
-                        DropdownItem(
-                            text = label,
-                            selected = host == selectedHost,
-                            onClick = { savePictureSourceHost(host) },
-                        )
-                    )
-                }
-                add(
-                    DropdownItem(
-                        text = selfDefinedLabel,
-                        selected = isCustomSource,
-                        onClick = { showCustomSourceDialog = true },
-                    )
-                )
-            }
-        )
+    val hosts = remember(sources) { sources.keys.toList() }
+    val labels = remember(sources, selfDefinedLabel) { sources.values.toList() + selfDefinedLabel }
+    val selectedIndex = remember(hosts, selectedHost, isCustomSource) {
+        if (isCustomSource) hosts.lastIndex + 1 else hosts.indexOf(selectedHost).coerceAtLeast(0)
     }
 
-    OverlayDropdownPreference(
-        entry = entry,
+    GlassDropdownPreference(
+        backdrop = LocalBodyBackdrop.current,
+        items = labels,
+        selectedIndex = selectedIndex,
         title = stringResource(RStrings.image_source),
         modifier = modifier,
         summary = sources[selectedHost] ?: selectedHost,
+        onSelectedIndexChange = { index ->
+            if (index == labels.lastIndex) {
+                showCustomSourceDialog = true
+            } else {
+                hosts.getOrNull(index)?.let(savePictureSourceHost)
+            }
+        },
     )
 }

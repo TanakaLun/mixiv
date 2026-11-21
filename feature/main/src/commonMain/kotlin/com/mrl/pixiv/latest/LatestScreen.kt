@@ -294,7 +294,9 @@ fun LatestScreen(
             }
         },
         floatingActionButton = {
-            Column {
+            Column(
+                modifier = Modifier.padding(bottom = LocalMainBottomContentPadding.current + 8.dp),
+            ) {
                 BackToTopButton(
                     visibility = scrollState.canScrollBackward,
                     modifier = Modifier,

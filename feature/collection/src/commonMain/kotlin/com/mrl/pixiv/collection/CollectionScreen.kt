@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -15,6 +14,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +23,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -32,6 +33,7 @@ import com.mrl.pixiv.common.compose.IllustGridDefaults
 import com.mrl.pixiv.common.compose.listener.KeyEventListener
 import com.mrl.pixiv.common.compose.listener.keyboardScrollerController
 import com.mrl.pixiv.common.compose.ui.BackToTopButton
+import com.mrl.pixiv.common.compose.ui.LocalMainContentInsets
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
@@ -190,10 +192,10 @@ fun CollectionScreen(
         },
         contentWindowInsets = WindowInsets.statusBars,
     ) { paddingValues ->
+        CompositionLocalProvider(LocalMainContentInsets provides paddingValues) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
-                .padding(paddingValues)
                 .pageScrollModifiers(scrollBehavior),
         ) { page ->
             when (page) {
@@ -213,11 +215,14 @@ fun CollectionScreen(
                                 verticalArrangement = layoutParams.verticalArrangement,
                                 horizontalArrangement = layoutParams.horizontalArrangement,
                                 contentPadding = PaddingValues(
-                                    start = 8.dp,
-                                    top = 8.dp,
-                                    end = 8.dp,
-                                    bottom = WindowInsets.navigationBars.asPaddingValues()
-                                        .calculateBottomPadding()
+                                    start = LocalMainContentInsets.current
+                                        .calculateLeftPadding(LocalLayoutDirection.current) + 8.dp,
+                                    top = LocalMainContentInsets.current.calculateTopPadding() + 8.dp,
+                                    end = LocalMainContentInsets.current
+                                        .calculateRightPadding(LocalLayoutDirection.current) + 8.dp,
+                                    bottom = LocalMainContentInsets.current.calculateBottomPadding() +
+                                        WindowInsets.navigationBars.asPaddingValues()
+                                            .calculateBottomPadding(),
                                 ),
                             ) {
                                 illustGrid(
@@ -242,9 +247,14 @@ fun CollectionScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 state = lazyListState,
                                 contentPadding = PaddingValues(
-                                    top = 8.dp,
-                                    bottom = WindowInsets.navigationBars.asPaddingValues()
-                                        .calculateBottomPadding()
+                                    start = LocalMainContentInsets.current
+                                        .calculateLeftPadding(LocalLayoutDirection.current),
+                                    top = LocalMainContentInsets.current.calculateTopPadding() + 8.dp,
+                                    end = LocalMainContentInsets.current
+                                        .calculateRightPadding(LocalLayoutDirection.current),
+                                    bottom = LocalMainContentInsets.current.calculateBottomPadding() +
+                                        WindowInsets.navigationBars.asPaddingValues()
+                                            .calculateBottomPadding(),
                                 ),
                             ) {
                                 items(
@@ -279,6 +289,7 @@ fun CollectionScreen(
                     }
                 }
             }
+        }
         }
     }
 }

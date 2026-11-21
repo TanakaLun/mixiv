@@ -95,14 +95,16 @@ fun NovelSeriesScreen(
             onRefresh = novels::refresh,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .pageScrollModifiers(scrollBehavior),
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     state = listState,
-                    contentPadding = PaddingValues(bottom = 24.dp),
+                    contentPadding = PaddingValues(
+                        top = paddingValues.calculateTopPadding(),
+                        bottom = paddingValues.calculateBottomPadding() + 24.dp,
+                    ),
                 ) {
                     state.detail?.let { detail ->
                         item(key = "series_header") {

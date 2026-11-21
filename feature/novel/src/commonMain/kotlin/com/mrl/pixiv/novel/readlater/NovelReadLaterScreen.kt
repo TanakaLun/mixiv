@@ -3,6 +3,7 @@ package com.mrl.pixiv.novel.readlater
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -102,8 +103,11 @@ fun NovelReadLaterScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
                     .pageScrollModifiers(scrollBehavior),
+                contentPadding = PaddingValues(
+                    top = paddingValues.calculateTopPadding(),
+                    bottom = paddingValues.calculateBottomPadding(),
+                ),
             ) {
                 items(
                     items = items,

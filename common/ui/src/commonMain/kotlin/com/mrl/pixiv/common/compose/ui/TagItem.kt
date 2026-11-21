@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mrl.pixiv.common.compose.deepBlue
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.data.Tag
 import com.mrl.pixiv.common.kts.round
 import com.mrl.pixiv.common.kts.spaceBy
@@ -34,8 +35,8 @@ import com.mrl.pixiv.strings.copy_to_clipboard
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.glass.GlassDialog
 import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.window.WindowDialog
 
 @Composable
 fun TagItem(
@@ -77,7 +78,8 @@ fun TagItem(
     if (showCollectionDialog) {
         val indication = LocalIndication.current
         val itemModifier = Modifier.padding(vertical = 8.dp)
-        WindowDialog(
+        GlassDialog(
+            backdrop = LocalBodyBackdrop.current,
             show = true,
             title = tag.name,
             onDismissRequest = { showCollectionDialog = false },

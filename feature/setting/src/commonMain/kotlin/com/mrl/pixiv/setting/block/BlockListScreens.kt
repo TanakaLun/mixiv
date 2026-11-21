@@ -288,10 +288,14 @@ private fun <T> BlockTextScreen(
 
         LazyColumn(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
                 .pageScrollModifiers(scrollBehavior),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(
+                start = 12.dp,
+                top = innerPadding.calculateTopPadding() + 8.dp,
+                end = 12.dp,
+                bottom = innerPadding.calculateBottomPadding() + 8.dp,
+            ),
         ) {
             item(key = "block_list_card") {
                 Card {

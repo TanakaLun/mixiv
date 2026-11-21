@@ -2,6 +2,7 @@ package com.mrl.pixiv.collection.tags
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -65,10 +66,14 @@ fun BookmarkedTagsScreen(
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
                 .pageScrollModifiers(scrollBehavior),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(
+                start = 12.dp,
+                top = innerPadding.calculateTopPadding() + 8.dp,
+                end = 12.dp,
+                bottom = innerPadding.calculateBottomPadding() + 8.dp,
+            ),
         ) {
             if (tags.isNotEmpty()) {
                 item(key = "bookmark_tags_card") {

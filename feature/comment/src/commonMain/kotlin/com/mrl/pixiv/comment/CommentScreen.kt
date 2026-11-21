@@ -3,6 +3,7 @@ package com.mrl.pixiv.comment
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -183,13 +184,17 @@ fun CommentScreen(
             isRefreshing = comments.loadState.refresh is LoadState.Loading,
             onRefresh = { comments.refresh() },
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
                 .pageScrollModifiers(scrollBehavior),
         ) {
             LazyColumn(
                 state = listState,
-                contentPadding = 8.hPadding,
+                contentPadding = PaddingValues(
+                    start = 8.dp,
+                    top = innerPadding.calculateTopPadding(),
+                    end = 8.dp,
+                    bottom = innerPadding.calculateBottomPadding(),
+                ),
                 modifier = Modifier
                     .fillMaxSize()
                     .pointerInput(Unit) {

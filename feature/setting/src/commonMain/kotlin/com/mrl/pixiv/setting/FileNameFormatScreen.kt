@@ -99,10 +99,10 @@ fun FileNameFormatScreen(
     ) { innerPadding ->
         Column(
             modifier = modifier
-                .padding(innerPadding)
-                .padding(vertical = 8.dp)
                 .pageScrollModifiers(scrollBehavior)
                 .verticalScroll(rememberScrollState())
+                .padding(innerPadding)
+                .padding(vertical = 8.dp)
         ) {
             Card(modifier = Modifier.padding(horizontal = 12.dp)) {
                 SwitchPreference(

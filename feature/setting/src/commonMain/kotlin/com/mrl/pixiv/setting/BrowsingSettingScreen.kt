@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
+import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
@@ -59,13 +60,13 @@ import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.glass.GlassDropdownPreference
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
 import top.yukonga.miuix.kmp.icon.extended.Filter
 import top.yukonga.miuix.kmp.icon.extended.GridView
 import top.yukonga.miuix.kmp.icon.extended.Hide
 import top.yukonga.miuix.kmp.icon.extended.Image
-import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
 import top.yukonga.miuix.kmp.preference.SwitchPreference
 
 @Composable
@@ -197,7 +198,8 @@ private fun SearchResultIllustLayoutSetting(
         mutableIntStateOf(layouts.indexOf(selectedLayout).coerceAtLeast(0))
     }
 
-    OverlayDropdownPreference(
+    GlassDropdownPreference(
+        backdrop = LocalBodyBackdrop.current,
         items = layouts.map { it.label() },
         selectedIndex = selectedIndex,
         title = stringResource(RStrings.search_result_illust_layout),
@@ -238,7 +240,8 @@ private fun SpanCountSetting(
     val selectedIndex = options.indexOfFirst { it.first == currentSpanCount }
         .coerceAtLeast(0)
 
-    OverlayDropdownPreference(
+    GlassDropdownPreference(
+        backdrop = LocalBodyBackdrop.current,
         items = options.map { it.second },
         selectedIndex = selectedIndex,
         title = title,
@@ -295,7 +298,8 @@ private fun PreviewImageQualitySetting(
         mutableIntStateOf(qualities.indexOf(selectedQuality).coerceAtLeast(0))
     }
 
-    OverlayDropdownPreference(
+    GlassDropdownPreference(
+        backdrop = LocalBodyBackdrop.current,
         items = qualities.map { it.label() },
         selectedIndex = selectedIndex,
         title = stringResource(RStrings.preview_image_quality),

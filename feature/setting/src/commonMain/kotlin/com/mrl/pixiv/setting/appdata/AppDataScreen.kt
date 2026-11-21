@@ -120,10 +120,10 @@ fun AppDataScreen(
     ) { paddingValues ->
         Column(
             modifier = Modifier
-                .padding(paddingValues)
-                .padding(vertical = 8.dp)
                 .pageScrollModifiers(scrollBehavior)
                 .verticalScroll(rememberScrollState())
+                .padding(paddingValues)
+                .padding(vertical = 8.dp)
                 .imePadding(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {

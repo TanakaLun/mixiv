@@ -83,7 +83,6 @@ fun NovelMarkersScreen(
             pullToRefreshState = pullToRefreshState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .pageScrollModifiers(scrollBehavior),
         ) {
             when {
@@ -115,7 +114,10 @@ fun NovelMarkersScreen(
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             state = listState,
-                            contentPadding = PaddingValues(vertical = 8.dp),
+                            contentPadding = PaddingValues(
+                                top = paddingValues.calculateTopPadding() + 8.dp,
+                                bottom = paddingValues.calculateBottomPadding() + 8.dp,
+                            ),
                         ) {
                             items(
                                 count = markers.itemCount,
