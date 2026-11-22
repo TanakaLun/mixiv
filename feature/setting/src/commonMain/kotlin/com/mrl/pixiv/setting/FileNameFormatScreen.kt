@@ -14,13 +14,12 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Save
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mrl.pixiv.common.compose.ui.chip.SuggestionChip
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
@@ -54,7 +53,7 @@ import top.yukonga.miuix.kmp.icon.extended.Folder
 import top.yukonga.miuix.kmp.icon.extended.Refresh
 import top.yukonga.miuix.kmp.preference.SwitchPreference
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FileNameFormatScreen(
     modifier: Modifier = Modifier,
@@ -129,8 +128,7 @@ fun FileNameFormatScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     chips.forEach { key ->
-                        FilterChip(
-                            selected = false,
+                        SuggestionChip(
                             onClick = {
                                 format.edit {
                                     val cursor = selection.start
@@ -138,7 +136,7 @@ fun FileNameFormatScreen(
                                     replace(cursor, selection.end, tag)
                                 }
                             },
-                            label = { Text(text = key) },
+                            label = key,
                         )
                     }
                 }

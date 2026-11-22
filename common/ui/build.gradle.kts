@@ -21,6 +21,8 @@ kotlin {
             implementation(libs.bundles.coil3)
             // miuix (api: features compile against miuix types)
             api(libs.bundles.miuix)
+            // Markdown（miuix 主题版本）
+            implementation(libs.markdown.core)
         }
 
         commonTest.dependencies {

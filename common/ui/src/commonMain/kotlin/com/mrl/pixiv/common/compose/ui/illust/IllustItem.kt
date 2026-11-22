@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,6 +33,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
 import com.mrl.pixiv.common.compose.layout.isWidthAtLeastExpanded
 import com.mrl.pixiv.common.compose.ui.BookmarkIcon
 import com.mrl.pixiv.common.compose.ui.IllustBottomBookmarkSheet
@@ -81,7 +81,7 @@ fun SquareIllustItem(
     elevation: Dp = 5.dp,
     shouldShowTip: Boolean = false,
     shape: Shape = 12.round,
-    enableTransition: Boolean = !currentWindowAdaptiveInfoV2().isWidthAtLeastExpanded,
+    enableTransition: Boolean = !currentPaneLayoutInfo().sizeClass.isWidthAtLeastExpanded,
 ) {
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
     val prefix = rememberSaveable(enableTransition) { Uuid.random().toHexString() }
@@ -180,7 +180,7 @@ fun RectangleIllustItem(
     isBookmarked: Boolean,
     onBookmarkClick: (Restrict, List<String>?, Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    enableTransition: Boolean = !currentWindowAdaptiveInfoV2().isWidthAtLeastExpanded,
+    enableTransition: Boolean = !currentPaneLayoutInfo().sizeClass.isWidthAtLeastExpanded,
     shouldShowTip: Boolean = false,
 ) {
     val scale = calculateIllustAspectRatio(illust.width, illust.height)

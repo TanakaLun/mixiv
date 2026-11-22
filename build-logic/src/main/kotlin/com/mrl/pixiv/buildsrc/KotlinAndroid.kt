@@ -95,8 +95,6 @@ internal val optIns = listOf(
     // Enable experimental coroutines APIs, including Flow
     "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
     "-opt-in=kotlinx.coroutines.FlowPreview",
-    "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
     "-opt-in=coil3.annotation.ExperimentalCoilApi",
     "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
-    "-opt-in=androidx.compose.material3.ExperimentalMaterial3ExpressiveApi",
 )

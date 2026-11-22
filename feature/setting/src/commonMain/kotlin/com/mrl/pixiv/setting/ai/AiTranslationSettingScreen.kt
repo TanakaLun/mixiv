@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +30,8 @@ import com.mrl.pixiv.common.ai.AiEndpointError
 import com.mrl.pixiv.common.ai.AiLocalNetworkAccessGate
 import com.mrl.pixiv.common.ai.AiModelCatalogService
 import com.mrl.pixiv.common.ai.validateAiEndpoint
+import com.mrl.pixiv.common.compose.ui.chip.Chip
+import com.mrl.pixiv.common.compose.ui.chip.SuggestionChip
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
@@ -104,7 +104,7 @@ import top.yukonga.miuix.kmp.preference.CheckboxLocation
 import top.yukonga.miuix.kmp.preference.CheckboxPreference
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AiTranslationSettingScreen(
     modifier: Modifier = Modifier,
@@ -394,8 +394,7 @@ fun AiTranslationSettingScreen(
                                 provider = selectedProvider,
                                 responseApi = responseApi,
                             ).forEach { preset ->
-                                FilterChip(
-                                    selected = false,
+                                SuggestionChip(
                                     onClick = {
                                         val merged = extraBody.mergeExtraBodyPreset(preset)
                                         if (merged == null) {
@@ -405,7 +404,7 @@ fun AiTranslationSettingScreen(
                                             extraBodyError = false
                                         }
                                     },
-                                    label = { Text(text = preset.label()) },
+                                    label = preset.label(),
                                 )
                             }
                         }
@@ -489,10 +488,10 @@ fun AiTranslationSettingScreen(
                             val modelSuggestions = fetchedModels
                                 ?: AiTranslationConfig.suggestedModels(selectedProvider).map { it.modelId }
                             modelSuggestions.forEach { modelId ->
-                                FilterChip(
+                                Chip(
                                     selected = modelId == model,
                                     onClick = { model = modelId },
-                                    label = { Text(text = modelId) },
+                                    label = modelId,
                                 )
                             }
                         }

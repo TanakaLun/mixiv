@@ -2,7 +2,6 @@ package com.mrl.pixiv.common.compose.layout
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
@@ -25,27 +24,6 @@ private object PanePaddings {
         }
     }
 }
-
-@Stable
-inline val WindowAdaptiveInfo.isWidthCompact: Boolean
-    get() = windowSizeClass.isWidthCompact
-
-@Stable
-inline val WindowAdaptiveInfo.isWidthAtLeastMedium: Boolean
-    get() = windowSizeClass.isWidthAtLeastMedium
-
-@Stable
-inline val WindowAdaptiveInfo.isWidthAtLeastExpanded: Boolean
-    get() = windowSizeClass.isWidthAtLeastExpanded
-
-@Stable
-inline val WindowAdaptiveInfo.isHeightCompact: Boolean
-    get() = windowSizeClass.isHeightCompact
-
-@Stable
-inline val WindowAdaptiveInfo.isHeightAtLeastMedium: Boolean
-    get() = windowSizeClass.isHeightAtLeastMedium
-
 
 @Stable
 inline val WindowSizeClass.isWidthCompact: Boolean

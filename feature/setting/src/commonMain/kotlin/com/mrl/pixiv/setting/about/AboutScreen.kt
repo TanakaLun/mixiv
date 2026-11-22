@@ -28,12 +28,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mikepenz.markdown.m3.Markdown
 import com.mrl.pixiv.common.compose.rememberThrottleClick
 import com.mrl.pixiv.common.compose.ui.glass.IconButton
 import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
 import com.mrl.pixiv.common.compose.ui.glass.TopAppBar
+import com.mrl.pixiv.common.compose.ui.markdown.MiuixMarkdown
 import com.mrl.pixiv.common.compose.ui.pageScrollModifiers
 import com.mrl.pixiv.common.data.Constants
 import com.mrl.pixiv.common.repository.VersionManager
@@ -202,7 +202,7 @@ fun AboutScreen(
                 onDismissRequest = { showUpdateDialog = false },
                 content = {
                     Column {
-                        Markdown(
+                        MiuixMarkdown(
                             content = releaseNotes,
                             modifier = Modifier
                                 .fillMaxWidth()

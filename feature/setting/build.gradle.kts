@@ -28,7 +28,6 @@ kotlin {
             implementation(libs.androidx.room3.runtime)
             implementation(libs.html.converter)
             implementation(libs.bundles.filekit)
-            implementation(libs.bundles.markdown)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

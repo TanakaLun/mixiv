@@ -16,9 +16,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -30,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mrl.pixiv.common.analytics.logEvent
 import com.mrl.pixiv.common.compose.LocalSnackbarHostState
+import com.mrl.pixiv.common.compose.layout.currentPaneLayoutInfo
+import com.mrl.pixiv.common.compose.layout.isWidthAtLeastMedium
 import com.mrl.pixiv.common.compose.ui.LocalMainBottomContentPadding
 import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.compose.ui.glass.Scaffold
@@ -75,15 +74,6 @@ private val PagerNavigationSpringSpec: SpringSpec<Float> = spring(
     visibilityThreshold = 0.5f,
 )
 
-private fun NavigationSuiteType.isRail(): Boolean = when (this) {
-    NavigationSuiteType.NavigationRail,
-    NavigationSuiteType.WideNavigationRailCollapsed,
-    NavigationSuiteType.WideNavigationRailExpanded,
-    -> true
-
-    else -> false
-}
-
 @Composable
 private fun rememberMainScreens(): List<Pair<MainPage, StringResource>> = remember {
     listOf(
@@ -108,18 +98,18 @@ fun MainNavigationScaffold(
     val page = navigationManager.currentMainPage
     val hasNewVersion by VersionManager.hasNewVersion.collectAsStateWithLifecycle()
     val screens = rememberMainScreens()
-    val layoutType = NavigationSuiteScaffoldDefaults.navigationSuiteType(currentWindowAdaptiveInfoV2())
+    val useRail = currentPaneLayoutInfo().sizeClass.isWidthAtLeastMedium
     val snackbarHostState = LocalSnackbarHostState.current
     val navigationBarsBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val snackbarBottomPadding =
         navigationBarsBottom + when {
-            !layoutType.isRail() && navigationManager.currentDestination is Destination.Main -> 64.dp + 12.dp
+            !useRail && navigationManager.currentDestination is Destination.Main -> 64.dp + 12.dp
             navigationManager.currentDestination is Destination.LoginOption -> 60.dp + 12.dp
             else -> 12.dp
         }
 
     Row(modifier = Modifier.fillMaxSize()) {
-        if (layoutType.isRail()) {
+        if (useRail) {
             NavigationRail {
                 screens.forEach { (screen, title) ->
                     NavigationRailItem(
@@ -168,8 +158,8 @@ fun MainScreen(
     val pagerState = rememberPagerState(
         initialPage = screens.indexOfFirst { it.first == page }.coerceAtLeast(0),
     ) { screens.size }
-    val layoutType = NavigationSuiteScaffoldDefaults.navigationSuiteType(currentWindowAdaptiveInfoV2())
-    val showBottomBar = !layoutType.isRail()
+    val useRail = currentPaneLayoutInfo().sizeClass.isWidthAtLeastMedium
+    val showBottomBar = !useRail
 
     // Tab item / rail click -> pager.
     LaunchedEffect(page) {

@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.TextFields
-import androidx.compose.material3.AssistChip
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -22,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mrl.pixiv.common.compose.ui.chip.SuggestionChip
 import com.mrl.pixiv.common.compose.ui.glass.LocalBodyBackdrop
 import com.mrl.pixiv.common.compose.ui.image.UserAvatar
 import com.mrl.pixiv.common.data.Novel
@@ -213,19 +213,15 @@ internal fun NovelMetadataBottomSheet(
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         novel.tags.forEach { tag ->
-                            AssistChip(
+                            SuggestionChip(
                                 onClick = throttleClick { onTagClick(tag.name) },
-                                label = {
-                                    Text(
-                                        text = buildString {
-                                            append('#')
-                                            append(tag.name)
-                                            if (tag.translatedName.isNotEmpty()) {
-                                                append(' ')
-                                                append(tag.translatedName)
-                                            }
-                                        }
-                                    )
+                                label = buildString {
+                                    append('#')
+                                    append(tag.name)
+                                    if (tag.translatedName.isNotEmpty()) {
+                                        append(' ')
+                                        append(tag.translatedName)
+                                    }
                                 },
                             )
                         }

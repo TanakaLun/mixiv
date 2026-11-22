@@ -53,7 +53,6 @@ kotlin {
             implementation(libs.mp.stools)
         }
         androidMain.dependencies {
-            implementation(libs.material)
             implementation(libs.androidx.lifecycle.process)
             implementation(libs.kotlinx.ktor.client.okhttp)
             implementation(libs.coil3.gif)

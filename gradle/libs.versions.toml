@@ -1,5 +1,4 @@
 [versions]
-material = "1.14.0"
 mp_stools = "1.6.3"
 okio = "3.18.2"
 coil3 = "3.6.3"
@@ -81,7 +80,6 @@ compose-webview-multiplatform = { module = "dev.nucleusframework:composewebview"
 nucleus-application = { module = "dev.nucleusframework:nucleus.nucleus-application", version.ref = "nucleus" }
 nucleus-window-tao = { module = "dev.nucleusframework:nucleus.decorated-window-tao", version.ref = "nucleus" }
 
-material = { module = "com.google.android.material:material", version.ref = "material" }
 mp_stools = { module = "io.github.darriousliu:mp_stools", version.ref = "mp_stools" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 
@@ -92,7 +90,6 @@ coil3-compose = { module = "io.coil-kt.coil3:coil-compose" }
 coil3-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3" }
 
 markdown-core = { module = "com.mikepenz:multiplatform-markdown-renderer", version.ref = "markdown" }
-markdown-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdown" }
 
 koin = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
@@ -266,7 +263,6 @@ compose-compiler-gradlePlugin = { module = "org.jetbrains.kotlin:compose-compile
 # General
 koin = ["koin", "koin-compose", "koin-annotations", "koin-compose-viewmodel"]
 coil3 = ["coil3-core", "coil3-compose", "coil3-network-ktor3"]
-markdown = ["markdown-core", "markdown-m3"]
 lottie = ["lottie", "lottie-compose"]
 firebase = ["firebase-analytics", "firebase-crashlytics"]
 filekit = ["filekit-core", "filekit-dialogs", "filekit-dialogs-compose", "filekit-coil"]
@@ -279,8 +275,8 @@ androidx-paging = ["androidx-paging", "androidx-paging-compose"]
 androidx-workmanager = ["androidx-work-runtime"]
 
 # Compose
-compose-baselibs-android = ["compose-foundation", "compose-animation", "compose-ui", "compose-material-icons", "compose-material3-core", "compose-material3-adaptive", "compose-material3-adaptive-layout", "compose-material3-adaptive-navigation", "compose-material3-adaptive-navigation-suite", "compose-material3-window-size", "compose-material-icons-core"]
-compose-baselibs = ["compose-jetbrains-foundation", "compose-jetbrains-animation", "compose-jetbrains-ui", "compose-jetbrains-material3", "compose-jetbrains-material3-adaptive", "compose-jetbrains-material3-adaptive-layout", "compose-jetbrains-material3-adaptive-navigation", "compose-jetbrains-material3-adaptive-navigation-suite", "compose-jetbrains-material3-window-size", "compose-jetbrains-material-icons-core", "compose-jetbrains-material-icons"]
+compose-baselibs-android = ["compose-foundation", "compose-animation", "compose-ui", "compose-material-icons", "compose-material3-window-size", "compose-material-icons-core"]
+compose-baselibs = ["compose-jetbrains-foundation", "compose-jetbrains-animation", "compose-jetbrains-ui", "compose-jetbrains-material3-window-size", "compose-jetbrains-material-icons-core", "compose-jetbrains-material-icons"]
 compose-navigation3-android = [
     "compose-androidx-navigation3-runtime", "compose-androidx-navigation3-ui",
     "compose-androidx-material3-adaptive-navigation3",

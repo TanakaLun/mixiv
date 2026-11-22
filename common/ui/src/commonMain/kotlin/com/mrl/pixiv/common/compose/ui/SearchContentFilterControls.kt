@@ -7,25 +7,24 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Text as MaterialText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import com.mrl.pixiv.common.compose.ui.chip.Chip
 import com.mrl.pixiv.common.data.AppViewMode
 import com.mrl.pixiv.common.data.search.SearchArtworkType
 import com.mrl.pixiv.common.data.search.SearchContentFilter
 import com.mrl.pixiv.common.util.RStrings
 import com.mrl.pixiv.strings.search_content_type
-import com.mrl.pixiv.strings.search_type_all
-import com.mrl.pixiv.strings.search_gif_only
 import com.mrl.pixiv.strings.search_exclude_gif
+import com.mrl.pixiv.strings.search_gif_only
 import com.mrl.pixiv.strings.search_manga_only
+import com.mrl.pixiv.strings.search_r18_only
 import com.mrl.pixiv.strings.search_series_only
 import com.mrl.pixiv.strings.search_show_r18
-import com.mrl.pixiv.strings.search_r18_only
+import com.mrl.pixiv.strings.search_type_all
 import org.jetbrains.compose.resources.stringResource
 import top.yukonga.miuix.kmp.basic.Switch
 import top.yukonga.miuix.kmp.basic.Text
@@ -44,17 +43,17 @@ fun SearchContentFilterControls(
             Text(stringResource(RStrings.search_content_type), style = MiuixTheme.textStyles.subtitle)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 SearchArtworkType.entries.forEach { type ->
-                    FilterChip(
+                    Chip(
                         selected = filter.artworkType == type,
                         onClick = { onChange(filter.copy(artworkType = type)) },
-                        label = {
-                            MaterialText(stringResource(when (type) {
+                        label = stringResource(
+                            when (type) {
                                 SearchArtworkType.ALL -> RStrings.search_type_all
                                 SearchArtworkType.GIF_ONLY -> RStrings.search_gif_only
                                 SearchArtworkType.EXCLUDE_GIF -> RStrings.search_exclude_gif
                                 SearchArtworkType.MANGA_ONLY -> RStrings.search_manga_only
-                            }))
-                        },
+                            },
+                        ),
                     )
                 }
             }
